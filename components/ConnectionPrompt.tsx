@@ -1,6 +1,6 @@
+
 import React from 'react';
 import { Service } from '../types';
-import { SettingsIcon } from './Icons';
 
 interface ConnectionPromptProps {
   services: Service[];
@@ -20,7 +20,7 @@ const ConnectionPrompt: React.FC<ConnectionPromptProps> = ({ services, onOpenAdm
     <div className="h-full flex flex-col justify-center items-center text-center p-8 animate-fade-in">
       <div className="max-w-2xl">
         <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-greatek-blue/10">
-          <SettingsIcon className="h-6 w-6 text-greatek-blue" aria-hidden="true" />
+            <i className="bi bi-gear text-2xl text-greatek-blue" aria-hidden="true"></i>
         </div>
         <h2 className="mt-4 text-2xl font-bold text-greatek-dark-blue">Conexão Necessária</h2>
         <p className="mt-3 text-base text-text-secondary">

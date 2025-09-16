@@ -1,6 +1,6 @@
+
 import React, { useState } from 'react';
 import { Notification } from '../types';
-import { BellIcon, CheckCircleIcon, EnvelopeOpenIcon } from './Icons';
 
 interface NotificationsProps {
   notifications: Notification[];
@@ -18,7 +18,7 @@ const Notifications: React.FC<NotificationsProps> = ({ notifications, onToggleRe
         className="relative text-white/80 hover:text-white transition-colors"
         aria-label={`Notificações (${unreadCount} não lidas)`}
       >
-        <BellIcon className="h-6 w-6" />
+        <i className="bi bi-bell text-xl"></i>
         {unreadCount > 0 && (
           <span className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-xs font-bold text-white">
             {unreadCount}
@@ -50,7 +50,7 @@ const Notifications: React.FC<NotificationsProps> = ({ notifications, onToggleRe
                             onClick={() => onToggleRead(notification.id)} 
                             className={`flex items-center space-x-1.5 text-xs font-medium py-1 px-2 rounded-md transition-colors ${isRead ? 'text-gray-500 hover:bg-gray-200' : 'text-greatek-blue hover:bg-greatek-blue/10'}`}
                           >
-                            {isRead ? <EnvelopeOpenIcon className="h-4 w-4"/> : <CheckCircleIcon className="h-4 w-4" />}
+                            <i className={`bi ${isRead ? 'bi-envelope-open' : 'bi-check-circle'}`}></i>
                             <span>{isRead ? 'Marcar como não lida' : 'Marcar como lida'}</span>
                           </button>
                       </div>
@@ -59,7 +59,7 @@ const Notifications: React.FC<NotificationsProps> = ({ notifications, onToggleRe
                 })
               ) : (
                 <div className="flex flex-col items-center justify-center p-6 text-center">
-                    <CheckCircleIcon className="h-10 w-10 text-green-500"/>
+                    <i className="bi bi-check-circle text-4xl text-green-500"></i>
                     <p className="mt-2 text-sm font-semibold text-text-primary">Tudo certo!</p>
                     <p className="text-xs text-text-secondary">Nenhuma notificação nova.</p>
                 </div>
