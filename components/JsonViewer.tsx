@@ -1,8 +1,10 @@
+
 import React, { useState } from 'react';
 import { PageOptimizationPackage } from '../types';
 
+// Fix: Changed type from PageOptimizationPackage to a generic object to allow for wider use.
 interface JsonViewerProps {
-  data: PageOptimizationPackage;
+  data: object;
 }
 
 const JsonViewer: React.FC<JsonViewerProps> = ({ data }) => {
@@ -19,7 +21,8 @@ const JsonViewer: React.FC<JsonViewerProps> = ({ data }) => {
   return (
     <div className="bg-greatek-dark-blue/5 rounded-lg overflow-hidden animate-fade-in border border-greatek-border">
       <div className="flex justify-between items-center p-3 bg-greatek-border/50">
-        <span className="text-sm font-semibold text-greatek-dark-blue">Pacote de Otimização (JSON)</span>
+        {/* Fix: Made title more generic */}
+        <span className="text-sm font-semibold text-greatek-dark-blue">Resposta em JSON</span>
         <button
           onClick={handleCopy}
           className="flex items-center space-x-1.5 text-xs bg-white hover:bg-greatek-bg-light text-text-secondary font-medium py-1.5 px-3 rounded-md transition-colors border border-gray-300"

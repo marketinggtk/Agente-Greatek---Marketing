@@ -1,7 +1,14 @@
+
+
 import React, { useState, useRef, useEffect } from 'react';
 import useAppStore from '../store/useAppStore';
 
-const Sidebar: React.FC = () => {
+interface SidebarProps {
+  isOpen: boolean;
+  onClose: () => void;
+}
+
+const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
   const { 
     conversations, 
     activeConversationId, 
@@ -9,6 +16,7 @@ const Sidebar: React.FC = () => {
     deleteConversation,
     updateConversationTitle,
     returnToAgentSelection,
+    toggleAnalyzer,
   } = useAppStore();
   
   const [menuOpenFor, setMenuOpenFor] = useState<string | null>(null);
@@ -22,7 +30,13 @@ const Sidebar: React.FC = () => {
     }
   }, [editingConvId]);
 
-  const sortedConversations = [...conversations].sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+  useEffect(() => {
+    if (isOpen) {
+      setMenuOpenFor(null);
+    }
+  }, [isOpen]);
+
+  const sortedConversations = [...conversations].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
   
   const handleDelete = (e: React.MouseEvent, id: string) => {
       e.stopPropagation();
@@ -41,10 +55,8 @@ const Sidebar: React.FC = () => {
     const idToUpdate = editingConvId;
     const newTitle = titleInput.trim();
 
-    // Exit editing mode first to prevent UI race conditions.
     setEditingConvId(null);
 
-    // If we were in editing mode and the title is valid, update it.
     if (idToUpdate && newTitle) {
       updateConversationTitle(idToUpdate, newTitle);
     }
@@ -52,33 +64,57 @@ const Sidebar: React.FC = () => {
   
   const handleTitleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter') {
-      handleTitleSave();
+        e.preventDefault();
+        e.stopPropagation();
+        handleTitleSave();
     } else if (e.key === 'Escape') {
-      setEditingConvId(null);
+        e.preventDefault();
+        e.stopPropagation();
+        setEditingConvId(null); // Just cancel editing
     }
   };
 
+  const handleNewConversation = () => {
+    returnToAgentSelection();
+    onClose();
+  };
+  
+  const handleSelectConversation = (id: string) => {
+    if (editingConvId !== id) {
+      setActiveConversationId(id);
+      onClose();
+    }
+  };
+
+  const handleOpenAnalyzer = () => {
+    toggleAnalyzer();
+    onClose();
+  };
+
   return (
-    <aside className="w-64 bg-white rounded-lg shadow-lg border border-greatek-border flex flex-col p-4 animate-fade-in">
-      <button
-        onClick={returnToAgentSelection}
-        className="flex items-center justify-center w-full px-4 py-2 mb-4 text-sm font-semibold text-white bg-greatek-blue rounded-lg hover:bg-greatek-dark-blue transition-colors focus:outline-none focus:ring-2 focus:ring-greatek-blue"
-      >
-        <i className="bi bi-plus-square mr-2"></i>
-        Nova Conversa
-      </button>
-      <div className="flex-grow overflow-y-auto -mr-2 pr-2">
+    <aside className={`
+      w-64 bg-white rounded-lg shadow-lg border border-greatek-border flex flex-col p-4 flex-shrink-0
+      transition-transform transform duration-300 ease-in-out
+      fixed md:static inset-y-0 left-0 z-30 h-full
+      ${isOpen ? 'translate-x-0' : '-translate-x-full'} md:translate-x-0
+    `}>
+      <div className="space-y-2 mb-4">
+        <button
+          onClick={handleNewConversation}
+          className="flex items-center justify-center w-full px-4 py-2 text-sm font-semibold text-white bg-greatek-blue rounded-lg hover:bg-greatek-dark-blue transition-colors focus:outline-none focus:ring-2 focus:ring-greatek-blue"
+        >
+          <i className="bi bi-plus-square mr-2"></i>
+          Nova Conversa
+        </button>
+      </div>
+      <div className="flex-grow overflow-y-auto -mr-2 pr-2 custom-scrollbar">
         <h2 className="text-xs font-bold text-text-secondary/60 uppercase tracking-wider mb-2">Histórico</h2>
         <nav className="space-y-1">
           {sortedConversations.map((conv) => (
-            <div key={conv.id} className="relative group">
+            <div key={conv.id} className={`relative group ${menuOpenFor === conv.id ? 'z-10' : 'z-0'}`}>
               <button
                 type="button"
-                onClick={() => {
-                  if (!editingConvId) {
-                    setActiveConversationId(conv.id);
-                  }
-                }}
+                onClick={() => handleSelectConversation(conv.id)}
                 className={`flex items-center w-full text-left px-3 py-2 text-sm font-medium rounded-md transition-colors ${
                   activeConversationId === conv.id
                     ? 'bg-greatek-blue/10 text-greatek-blue'
@@ -95,7 +131,7 @@ const Sidebar: React.FC = () => {
                     onKeyDown={handleTitleKeyDown}
                     onBlur={handleTitleSave}
                     onClick={(e) => e.stopPropagation()}
-                    className="w-full bg-white border border-greatek-blue rounded text-sm p-0.5 -m-0.5 focus:outline-none"
+                    className="w-full bg-white border border-greatek-blue rounded text-sm p-0.5 -m-0.5 focus:outline-none text-text-primary"
                   />
                 ) : (
                    <span className="truncate flex-1">{conv.title}</span>
@@ -107,7 +143,7 @@ const Sidebar: React.FC = () => {
                         <i className="bi bi-three-dots-vertical"></i>
                     </button>
                     {menuOpenFor === conv.id && (
-                        <div className="absolute right-0 mt-2 w-32 origin-top-right bg-white rounded-md shadow-lg ring-1 ring-black ring-opacity-5 z-10">
+                        <div className="absolute right-0 mt-2 w-32 origin-top-right bg-white rounded-md shadow-lg ring-1 ring-black ring-opacity-5 z-20">
                             <div className="py-1" role="menu" aria-orientation="vertical">
                                 <button type="button" onClick={(e) => handleRenameClick(e, conv)} className="w-full flex items-center text-gray-700 px-4 py-2 text-sm hover:bg-gray-100" role="menuitem">
                                     <i className="bi bi-pencil mr-2"></i>
@@ -125,6 +161,16 @@ const Sidebar: React.FC = () => {
             </div>
           ))}
         </nav>
+      </div>
+      <div className="mt-auto pt-4 border-t border-greatek-border">
+          <h2 className="text-xs font-bold text-text-secondary/60 uppercase tracking-wider mb-2">Ferramentas</h2>
+          <button
+            onClick={handleOpenAnalyzer}
+            className="flex items-center w-full text-left px-3 py-2 text-sm font-medium rounded-md text-text-secondary hover:bg-greatek-bg-light transition-colors"
+          >
+            <i className="bi bi-file-earmark-spreadsheet-fill w-5 h-5 mr-3 flex-shrink-0"></i>
+            <span className="truncate flex-1">Analisador de Planilha</span>
+          </button>
       </div>
     </aside>
   );

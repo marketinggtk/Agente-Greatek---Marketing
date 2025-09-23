@@ -1,5 +1,4 @@
 
-
 export enum AppMode {
   INTEGRATOR = "Integrador",
   INSTRUCTOR = "Instrutor",
@@ -12,6 +11,8 @@ export enum AppMode {
   MARKET_INTEL = "Mercado",
   VIGIA = "O Vigia",
   ARQUITETO = "Arquiteto",
+  IMAGE_ADS = "Gerador de Imagens",
+  SKYWATCH_ASSISTANT = "Assistente SkyWatch",
 }
 
 export type Role = 'user' | 'agent';
@@ -52,10 +53,43 @@ export interface NetworkArchitectureReport {
   }[];
 }
 
+export interface Attachment {
+  name: string;
+  type: string;
+  size: number;
+  data: string; // base64 encoded string
+}
+
+export interface Feedback {
+  type: 'good' | 'bad';
+  reason?: string;
+}
+
+export interface AdCopy {
+  headline: string;
+  description: string;
+  highlights: string[];
+  cta: string;
+}
+
+export interface ImageAdPackage {
+  imageUrl: string;
+  generatedPrompt: string;
+  originalPrompt: string;
+  adCopy?: AdCopy;
+  partnerLogoUrl?: string;
+  isUpscaling?: boolean;
+  isUpscaled?: boolean;
+  isRegenerating?: boolean;
+  referenceImage?: Attachment;
+  aspectRatio?: string;
+}
+
 export interface Message {
   role: Role;
-  content: string | PageOptimizationPackage | MarketIntelReport | TrainingKitReport | VigiaReport | NetworkArchitectureReport;
-  feedback?: 'good' | 'bad' | null;
+  content: string | PageOptimizationPackage | MarketIntelReport | TrainingKitReport | VigiaReport | NetworkArchitectureReport | ImageAdPackage;
+  attachments?: Attachment[];
+  feedback?: Feedback | null;
 }
 
 export interface Conversation {
@@ -64,6 +98,7 @@ export interface Conversation {
   mode: AppMode;
   messages: Message[];
   createdAt: Date;
+  skywatchDeclined?: boolean;
 }
 
 export interface FaqItem {
@@ -97,6 +132,14 @@ export interface PageOptimizationPackage {
 
 export function isPageOptimizationPackage(response: any): response is PageOptimizationPackage {
   return response && typeof response === 'object' && 'url' in response && 'tech_checklist' in response && 'schema_jsonld' in response;
+}
+
+export function isAdCopy(response: any): response is AdCopy {
+    return response && typeof response === 'object' && 'headline' in response && 'cta' in response;
+}
+
+export function isImageAdPackage(response: any): response is ImageAdPackage {
+  return response && typeof response === 'object' && 'imageUrl' in response && 'generatedPrompt' in response;
 }
 
 export interface ComparisonPoint {

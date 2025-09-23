@@ -1,7 +1,9 @@
+
 import React, { useState } from 'react';
 import { AppMode } from '../types';
 import { generateIntegratorPdf } from '../services/pdfGenerator';
 import useAppStore from '../store/useAppStore';
+import { DataTableView } from './ui/DataTableView';
 
 interface MarkdownViewerProps {
   content: string;
@@ -38,9 +40,9 @@ const parseInlineMarkdown = (text: string): React.ReactNode[] => {
 
 const MarkdownViewer: React.FC<MarkdownViewerProps> = ({ content, mode, isLastMessage }) => {
   const [copied, setCopied] = useState(false);
-  const { submitQuery, isLoading } = useAppStore();
-  const [interactivePromptAnswered, setInteractivePromptAnswered] = useState(false);
+  const { submitQuery, isLoading, conversations, activeConversationId, handleNegativeSkywatchResponse } = useAppStore();
 
+  const activeConversation = conversations.find(c => c.id === activeConversationId);
   const isIntegratorResponse = mode === AppMode.INTEGRATOR;
   
   const handleCopy = () => {
@@ -52,13 +54,17 @@ const MarkdownViewer: React.FC<MarkdownViewerProps> = ({ content, mode, isLastMe
   
   const handleGeneratePdf = () => {
     if (content) {
-        generateIntegratorPdf(content);
+        const conversationTitle = activeConversation?.title || 'Proposta-Solucao-Greatek';
+        generateIntegratorPdf(content, conversationTitle);
     }
   };
 
-  const handleSkywatchClick = (response: string) => {
-    setInteractivePromptAnswered(true);
-    submitQuery(response);
+  const handleSkywatchInteractiveClick = (positiveResponse: boolean) => {
+    if (positiveResponse) {
+      submitQuery("Gostaria de saber mais sobre o SkyWatch para ofertar para o cliente.");
+    } else {
+      handleNegativeSkywatchResponse();
+    }
   };
 
   const renderContent = () => {
@@ -85,7 +91,6 @@ const MarkdownViewer: React.FC<MarkdownViewerProps> = ({ content, mode, isLastMe
     for (let i = 0; i < lines.length; i++) {
       const line = lines[i];
 
-      // Table parsing logic
       const isTableSeparator = (l: string) => l.trim().startsWith('|') && l.includes('---') && l.trim().endsWith('|');
       const isTableRow = (l: string) => l.trim().startsWith('|') && l.trim().endsWith('|');
       
@@ -93,57 +98,22 @@ const MarkdownViewer: React.FC<MarkdownViewerProps> = ({ content, mode, isLastMe
           flushList();
 
           const headerLine = lines[i];
-          const headerCells = headerLine.split('|').slice(1, -1).map(cell => cell.trim());
-          const categoryColumnIndex = headerCells.findIndex(h => h.toLowerCase() === 'categoria');
-
-          let tableRowsData = [];
-          let j = i + 2; // Start from body rows
+          const headers = headerLine.split('|').slice(1, -1).map(cell => cell.trim());
+          
+          const rows: string[][] = [];
+          let j = i + 2;
           while(j < lines.length && isTableRow(lines[j])) {
               const rowLine = lines[j];
               const rowCells = rowLine.split('|').slice(1, -1).map(cell => cell.trim());
-              tableRowsData.push(rowCells);
+              rows.push(rowCells);
               j++;
           }
           
-          let lastCategory: string | null = null;
-          let categoryShade = 0;
-          const categoryColors = ['bg-white', 'bg-black/5'];
-
-          elements.push(
-              <div key={`table-wrapper-${i}`} className="my-4 overflow-x-auto border border-greatek-border rounded-lg not-prose">
-                  <table className="min-w-full divide-y divide-greatek-border">
-                      <thead className="bg-greatek-bg-light">
-                          <tr>
-                              {headerCells.map((header, hIdx) => (
-                                  <th key={hIdx} scope="col" className="px-4 py-2 text-left text-xs font-bold text-greatek-dark-blue uppercase tracking-wider">
-                                      {parseInlineMarkdown(header)}
-                                  </th>
-                              ))}
-                          </tr>
-                      </thead>
-                      <tbody className="bg-white divide-y divide-greatek-border">
-                          {tableRowsData.map((row, rIdx) => {
-                              if (categoryColumnIndex !== -1) {
-                                  const currentCategory = row[categoryColumnIndex];
-                                  if (currentCategory && currentCategory !== lastCategory) {
-                                      lastCategory = currentCategory;
-                                      categoryShade = (categoryShade + 1) % 2;
-                                  }
-                              }
-                              return (
-                                  <tr key={rIdx} className={`${categoryColors[categoryShade]} hover:bg-greatek-blue/10 transition-colors duration-150`}>
-                                      {row.map((cell, cIdx) => (
-                                          <td key={cIdx} className="px-4 py-2 whitespace-normal text-sm text-text-secondary">
-                                              {parseInlineMarkdown(cell)}
-                                          </td>
-                                      ))}
-                                  </tr>
-                              );
-                          })}
-                      </tbody>
-                  </table>
-              </div>
-          );
+          if (headers.length > 0 && rows.length > 0) {
+              elements.push(
+                  <DataTableView key={`table-${i}`} headers={headers} rows={rows} />
+              );
+          }
 
           i = j - 1;
           continue;
@@ -153,7 +123,7 @@ const MarkdownViewer: React.FC<MarkdownViewerProps> = ({ content, mode, isLastMe
         flushList();
         if (inCodeBlock) {
           elements.push(
-            <pre key={`code-${i}`} className="bg-greatek-dark-blue text-white p-4 rounded-md my-4 text-sm overflow-x-auto font-mono">
+            <pre key={`code-${i}`} className="bg-greatek-dark-blue text-white p-4 rounded-md my-4 text-sm font-mono whitespace-pre-wrap break-words">
               <code>{codeBlockContent.trim()}</code>
             </pre>
           );
@@ -192,7 +162,7 @@ const MarkdownViewer: React.FC<MarkdownViewerProps> = ({ content, mode, isLastMe
     
     if (inCodeBlock && codeBlockContent) {
         elements.push(
-            <pre key="code-end" className="bg-greatek-dark-blue text-white p-4 rounded-md my-4 text-sm overflow-x-auto font-mono">
+            <pre key="code-end" className="bg-greatek-dark-blue text-white p-4 rounded-md my-4 text-sm font-mono whitespace-pre-wrap break-words">
                 <code>{codeBlockContent.trim()}</code>
             </pre>
         );
@@ -201,7 +171,7 @@ const MarkdownViewer: React.FC<MarkdownViewerProps> = ({ content, mode, isLastMe
     return elements;
   };
   
-  const showSkywatchButtons = isLastMessage && content.includes('[SKYWATCH_PROMPT_INTERACTIVE]') && !interactivePromptAnswered && !isLoading;
+  const showSkywatchButtons = isLastMessage && content.includes('[SKYWATCH_PROMPT_INTERACTIVE]') && !activeConversation?.skywatchDeclined && !isLoading;
 
   return (
     <div className="prose max-w-none">
@@ -232,17 +202,17 @@ const MarkdownViewer: React.FC<MarkdownViewerProps> = ({ content, mode, isLastMe
       </div>
 
       {showSkywatchButtons && (
-        <div className="mt-4 flex items-center gap-4 not-prose animate-fade-in p-4 bg-greatek-bg-light rounded-lg border border-greatek-border">
-            <p className="text-sm font-semibold text-greatek-dark-blue flex-grow">Gostaria de saber mais sobre o SkyWatch para esta solução?</p>
-            <div className='flex items-center gap-2'>
+        <div className="mt-4 flex flex-col sm:flex-row items-center gap-4 not-prose animate-fade-in p-4 bg-greatek-bg-light rounded-lg border border-greatek-border">
+            <p className="text-sm font-semibold text-greatek-dark-blue flex-grow text-center sm:text-left">Gostaria de saber mais sobre o SkyWatch para esta solução?</p>
+            <div className='flex items-center gap-2 flex-shrink-0'>
                 <button
-                    onClick={() => handleSkywatchClick("Gostaria de saber mais sobre o SkyWatch para ofertar para o cliente.")}
+                    onClick={() => handleSkywatchInteractiveClick(true)}
                     className="px-4 py-2 text-sm font-medium text-white bg-greatek-blue rounded-md hover:bg-greatek-dark-blue transition-colors"
                 >
                     Sim, gostaria
                 </button>
                 <button
-                    onClick={() => handleSkywatchClick("Não, obrigado.")}
+                    onClick={() => handleSkywatchInteractiveClick(false)}
                     className="px-4 py-2 text-sm font-medium text-text-secondary bg-white rounded-md hover:bg-greatek-border border border-gray-300 transition-colors"
                 >
                     Não, obrigado

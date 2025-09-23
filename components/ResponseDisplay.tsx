@@ -1,9 +1,6 @@
 
-
-
-
 import React from 'react';
-import { PageOptimizationPackage, MarketIntelReport, Message, TrainingKitReport, VigiaReport, NetworkArchitectureReport, AppMode, isPageOptimizationPackage } from '../types';
+import { PageOptimizationPackage, MarketIntelReport, Message, TrainingKitReport, VigiaReport, NetworkArchitectureReport, AppMode, isPageOptimizationPackage, isImageAdPackage, ImageAdPackage } from '../types';
 import JsonViewer from './JsonViewer';
 import MarkdownViewer from './MarkdownViewer';
 import MarketIntelViewer from './MarketIntelViewer';
@@ -11,12 +8,15 @@ import TrainingKitViewer from './TrainingKitViewer';
 import VigiaReportViewer from './VigiaReportViewer';
 import NetworkArchitectureViewer from './NetworkArchitectureViewer';
 import ComplexResponseViewer from './ComplexResponseViewer';
+import ImageAdViewer from './ImageAdViewer';
 
 
 interface ResponseDisplayProps {
   message: Message;
   mode: AppMode;
   isLastMessage: boolean;
+  onUpscale?: () => void;
+  onRegenerate?: () => void;
 }
 
 function isMarketIntelReport(response: any): response is MarketIntelReport {
@@ -35,8 +35,12 @@ function isNetworkArchitectureReport(response: any): response is NetworkArchitec
     return response && typeof response === 'object' && 'diagnosis' in response && 'benefit_simulation' in response;
 }
 
-const ResponseDisplay: React.FC<ResponseDisplayProps> = ({ message, mode, isLastMessage }) => {
+const ResponseDisplay: React.FC<ResponseDisplayProps> = ({ message, mode, isLastMessage, onUpscale, onRegenerate }) => {
     const { content } = message;
+
+    if (isImageAdPackage(content)) {
+        return <ImageAdViewer data={content} onUpscale={onUpscale} onRegenerate={onRegenerate} />;
+    }
 
     if (isMarketIntelReport(content)) {
         return <MarketIntelViewer data={content} />;
@@ -60,7 +64,8 @@ const ResponseDisplay: React.FC<ResponseDisplayProps> = ({ message, mode, isLast
     
     if (typeof content === 'object' && content !== null) {
         // Fallback for any other object type
-        return <JsonViewer data={content as PageOptimizationPackage} />;
+        // Fix: Removed incorrect type assertion 'as PageOptimizationPackage'. JsonViewer now accepts a generic object.
+        return <JsonViewer data={content} />;
     }
     
     if (typeof content === 'string') {

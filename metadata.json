@@ -1,5 +1,8 @@
 {
   "name": "Agente Greatek 1.0",
   "description": "Um agente de IA para acelerar a rotina das equipes de marketing e comercial da Greatek, com funcionalidades de SEO, conteúdo, campanhas, soluções integradas e inteligência de mercado.",
-  "requestFramePermissions": []
+  "requestFramePermissions": [
+    "microphone",
+    "camera"
+  ]
 }

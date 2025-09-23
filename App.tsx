@@ -1,6 +1,5 @@
 
 
-
 import React, { useState, useEffect, useMemo } from 'react';
 import { AppMode } from './types';
 import Header from './components/Header';
@@ -11,23 +10,25 @@ import AdminPanel from './components/AdminPanel';
 import useAppStore from './store/useAppStore';
 import AgentSelectionScreen from './components/AgentSelectionScreen';
 import ChatDisplay from './components/ChatDisplay';
+import Toast from './components/Toast';
+import FeedbackInputModal from './components/FeedbackInputModal';
+import SpreadsheetAnalyzerModal from './components/SpreadsheetAnalyzerModal';
+import { AGENTS } from './constants';
 
 const App: React.FC = () => {
   const {
-    conversations,
     activeConversationId,
     createNewConversation,
-    submitQuery,
+    toastInfo,
+    hideToast,
+    feedbackModalState,
   } = useAppStore();
-
-  const activeConversation = useMemo(() => 
-    conversations.find(c => c.id === activeConversationId),
-    [conversations, activeConversationId]
-  );
+  const conversations = useAppStore((state) => state.conversations);
 
   const [showSplash, setShowSplash] = useState(true);
   const [isFadingOut, setIsFadingOut] = useState(false);
   const [isAdminPanelOpen, setIsAdminPanelOpen] = useState(false);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   useEffect(() => {
     const fadeTimer = setTimeout(() => setIsFadingOut(true), 2500);
@@ -42,26 +43,52 @@ const App: React.FC = () => {
     createNewConversation(mode);
   };
 
+  const activeConversation = useMemo(() =>
+    conversations.find((c) => c.id === activeConversationId),
+    [conversations, activeConversationId]
+  );
+  
+  const agentInfo = useMemo(() => 
+    AGENTS.find(a => a.mode === activeConversation?.mode),
+    [activeConversation]
+  );
+
   if (showSplash) {
     return <SplashScreen isFadingOut={isFadingOut} />;
   }
 
-  if (!activeConversationId) {
-    return <AgentSelectionScreen onSelectAgent={handleSelectAgent} />;
-  }
-
   return (
-    <div className="h-screen bg-greatek-bg-light font-sans flex flex-col animate-fade-in">
-       {isAdminPanelOpen && <AdminPanel onClose={() => setIsAdminPanelOpen(false)} />}
-      <Header onAdminClick={() => setIsAdminPanelOpen(true)} />
-      <div className="flex flex-grow container mx-auto p-4 md:p-6 lg:p-8 overflow-hidden">
-        <Sidebar />
-        <main className="flex-grow flex flex-col ml-4 bg-white rounded-lg shadow-lg overflow-hidden border border-greatek-border">
-          <ChatDisplay />
-          <InteractionPanel onSubmit={submitQuery} />
-        </main>
-      </div>
-    </div>
+    <>
+      {/* Modals are always rendered so they can be opened from anywhere */}
+      {toastInfo && (
+        <Toast
+          message={toastInfo.message}
+          type={toastInfo.type}
+          duration={toastInfo.duration}
+          onClose={hideToast}
+        />
+      )}
+      {feedbackModalState.isOpen && <FeedbackInputModal />}
+      {isAdminPanelOpen && <AdminPanel onClose={() => setIsAdminPanelOpen(false)} />}
+      <SpreadsheetAnalyzerModal />
+
+      {/* Conditional rendering for the main view */}
+      {!activeConversationId ? (
+        <AgentSelectionScreen onSelectAgent={handleSelectAgent} />
+      ) : (
+        <div className="h-screen bg-greatek-blue font-sans flex flex-col animate-fade-in">
+          <Header onAdminClick={() => setIsAdminPanelOpen(true)} onMenuClick={() => setIsSidebarOpen(true)} agentTitle={agentInfo?.title} />
+          <div className="flex flex-grow container mx-auto p-2 sm:p-4 overflow-hidden">
+            {isSidebarOpen && <div className="fixed inset-0 bg-black/50 z-20 md:hidden" onClick={() => setIsSidebarOpen(false)}></div>}
+            <Sidebar isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} />
+            <main className="flex-grow flex flex-col md:ml-4 bg-white rounded-lg shadow-lg overflow-hidden border border-greatek-border">
+              <ChatDisplay />
+              <InteractionPanel />
+            </main>
+          </div>
+        </div>
+      )}
+    </>
   );
 };
 

@@ -14,6 +14,25 @@
         --color-4: 200 100% 50%;
         --color-5: 207 84% 30%;
       }
+      /* Custom Scrollbar Styles */
+      .custom-scrollbar {
+        scrollbar-width: thin; /* For Firefox */
+        scrollbar-color: #f9f9f9 #e9e9e9; /* For Firefox: thumb track */
+      }
+      .custom-scrollbar::-webkit-scrollbar {
+        width: 10px;
+      }
+      .custom-scrollbar::-webkit-scrollbar-track {
+        background-color: #e9e9e9;
+      }
+      .custom-scrollbar::-webkit-scrollbar-thumb {
+        background-color: #f9f9f9;
+        border-radius: 5px;
+        border: 2px solid #e9e9e9;
+      }
+      .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+        background-color: #e5e7eb; /* A slightly darker gray for hover */
+      }
     </style>
     <script>
       tailwind.config = {
@@ -22,6 +41,7 @@
             colors: {
               'greatek-blue': '#0081cc',
               'greatek-dark-blue': '#083f62',
+              'greatek-agent-select': '#083561',
               'greatek-bg-light': '#f9f9f9',
               'greatek-border': '#e9e9e9',
               'text-primary': '#0b0b0b',
@@ -81,12 +101,13 @@
     "zustand": "https://aistudiocdn.com/zustand@^4.5.4",
     "zustand/": "https://aistudiocdn.com/zustand@^4.5.4/",
     "jspdf": "https://aistudiocdn.com/jspdf@^2.5.1",
-    "jspdf-autotable": "https://aistudiocdn.com/jspdf-autotable@^3.8.2"
+    "jspdf-autotable": "https://aistudiocdn.com/jspdf-autotable@^3.8.2",
+    "xlsx": "https://cdn.jsdelivr.net/npm/xlsx@0.18.5/xlsx.mjs"
   }
 }
 </script>
 </head>
-  <body class="bg-greatek-bg-light text-text-primary">
+  <body class="bg-greatek-blue text-text-primary">
     <div id="root"></div>
     <script type="module" src="/index.tsx"></script>
   </body>
