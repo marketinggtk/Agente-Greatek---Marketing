@@ -9,10 +9,14 @@ export enum AppMode {
   CAMPAIGN = "Campanhas",
   COMPLIANCE = "Endomarketing",
   MARKET_INTEL = "Mercado",
-  VIGIA = "O Vigia",
   ARQUITETO = "Arquiteto",
   IMAGE_ADS = "Gerador de Imagens",
-  SKYWATCH_ASSISTANT = "Assistente SkyWatch",
+  SKYWATCH = "SkyWatch",
+  GOAL_CALCULATOR = "Calculadora de Metas",
+  PRESENTATION_BUILDER = "Criador de Apresentações",
+  // FIX: Added missing AppMode members for Vigia and Business Analyzer features.
+  VIGIA = "Vigia",
+  BUSINESS_ANALYZER = "Analisador de Negócios",
 }
 
 export type Role = 'user' | 'agent';
@@ -29,28 +33,6 @@ export interface TrainingKitReport {
   key_selling_points: string[];
   technical_faq: { q: string; a: string; }[];
   knowledge_quiz: QuizQuestion[];
-}
-
-export interface BenefitSimulation {
-  metric: string;
-  current_scenario: string;
-  proposed_scenario: string;
-  improvement: string;
-}
-
-export interface NetworkArchitectureReport {
-  diagnosis: string;
-  proposed_solution: {
-    title: string;
-    description: string;
-  };
-  benefit_simulation: BenefitSimulation[];
-  commercial_arguments: string[];
-  required_products: {
-    category: string;
-    product: string;
-    suggestion: string;
-  }[];
 }
 
 export interface Attachment {
@@ -85,9 +67,60 @@ export interface ImageAdPackage {
   aspectRatio?: string;
 }
 
+export interface ContentPackage {
+  content_type: string;
+  title_suggestions: string[];
+  body: string;
+  hashtags: string[];
+  image_prompt_suggestion: string;
+  cta_suggestion: string;
+}
+
+export type SlideType = 
+  | 'title_slide' 
+  | 'agenda' 
+  | 'section_header' 
+  | 'content_bullet_points' 
+  | 'closing_slide'
+  // New visual layouts
+  | 'key_metrics'
+  | 'three_column_cards'
+  | 'numbered_list'
+  | 'bento_grid'
+  | 'table_slide';
+
+export interface PresentationSlide {
+  id: string;
+  slide_type: SlideType;
+  title: string;
+  content: any; // Can be string[] for bullets, or a structured object for visual layouts
+  summary?: string; // Optional summary text below the main content
+  speaker_notes: string;
+  image_prompt_suggestion?: string;
+  imageUrl?: string;
+  userImage?: string; // Base64 data URL for user-uploaded image
+  warning?: string;
+}
+
+export type PresentationTheme = 'light' | 'dark' | 'classic';
+
+export interface PresentationPackage {
+  presentation_title: string;
+  target_audience: string;
+  theme: PresentationTheme;
+  slides: PresentationSlide[];
+}
+
+export interface GoalCalculatorState {
+  salesGoal: string;
+  salesSoFar: string;
+  totalProposals: string;
+  wonProposals: string;
+}
+
 export interface Message {
   role: Role;
-  content: string | PageOptimizationPackage | MarketIntelReport | TrainingKitReport | VigiaReport | NetworkArchitectureReport | ImageAdPackage;
+  content: string | PageOptimizationPackage | MarketIntelReport | TrainingKitReport | ImageAdPackage | ContentPackage | PresentationPackage;
   attachments?: Attachment[];
   feedback?: Feedback | null;
 }
@@ -99,6 +132,8 @@ export interface Conversation {
   messages: Message[];
   createdAt: Date;
   skywatchDeclined?: boolean;
+  presentationPackage?: PresentationPackage | null;
+  goalCalculatorState?: GoalCalculatorState;
 }
 
 export interface FaqItem {
@@ -142,6 +177,15 @@ export function isImageAdPackage(response: any): response is ImageAdPackage {
   return response && typeof response === 'object' && 'imageUrl' in response && 'generatedPrompt' in response;
 }
 
+export function isContentPackage(response: any): response is ContentPackage {
+    return response && typeof response === 'object' && 'content_type' in response && 'image_prompt_suggestion' in response;
+}
+
+export function isPresentationPackage(response: any): response is PresentationPackage {
+    return response && typeof response === 'object' && 'presentation_title' in response && Array.isArray(response.slides);
+}
+
+
 export interface ComparisonPoint {
   feature: string;
   greatek: string;
@@ -163,6 +207,7 @@ export interface MarketIntelReport {
   competitor_data_sources?: GroundingSource[];
 }
 
+// FIX: Added missing VigiaReport interface.
 export interface VigiaReport {
   monitoring_topic: string;
   executive_summary: string[];
@@ -181,3 +226,24 @@ export interface Notification {
 }
 
 export type Service = 'ga4' | 'gsc' | 'lighthouse';
+
+export interface KPIData {
+  title: string;
+  value: string;
+  icon: string;
+  description?: string;
+}
+
+export interface ChartData {
+  label: string;
+  value: number | string;
+  percentage: number;
+}
+
+// FIX: Added missing BusinessAnalysisResult interface.
+export interface BusinessAnalysisResult {
+  kpis: KPIData[];
+  winReasons: ChartData[];
+  lossReasons: ChartData[];
+  aiInsights: string;
+}

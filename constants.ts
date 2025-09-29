@@ -1,124 +1,115 @@
 
-import { AppMode } from './types';
+import { AppMode, SlideType } from './types';
+
+// FIX: Added SYSTEM_PROMPT constant to provide a base instruction for all AI agents.
+export const SYSTEM_PROMPT = `Você é o "Agente Greatek", um assistente de IA especializado, projetado para ser o principal ponto de apoio para as equipes Comercial e de Marketing da Greatek, uma distribuidora de tecnologia. Sua missão é fornecer respostas precisas, criativas e úteis, utilizando uma base de conhecimento interna sobre produtos, parceiros e estratégias da empresa.`;
 
 export interface AgentDefinition {
     mode: AppMode;
     title: string;
-    category: 'Comercial' | 'Marketing';
+    category: 'Comercial' | 'Marketing' | 'Ferramentas';
     iconClass: string;
 }
 
+// FIX: Added and exported the AGENTS constant, defining all available agents, their categories, and icons.
 export const AGENTS: AgentDefinition[] = [
-    // Comercial
-    { mode: AppMode.INTEGRATOR, title: 'Integrador', category: 'Comercial', iconClass: 'bi-bricks' },
-    { mode: AppMode.INSTRUCTOR, title: 'Instrutor', category: 'Comercial', iconClass: 'bi-person-video3' },
-    { mode: AppMode.ARQUITETO, title: 'Arquiteto', category: 'Comercial', iconClass: 'bi-bounding-box-circles' },
-    { mode: AppMode.MARKET_INTEL, title: 'Mercado', category: 'Comercial', iconClass: 'bi-graph-up-arrow' },
-    { mode: AppMode.SALES_ASSISTANT, title: 'Assistente Comercial', category: 'Comercial', iconClass: 'bi-chat-quote' },
-    { mode: AppMode.SKYWATCH_ASSISTANT, title: 'Assistente SkyWatch', category: 'Comercial', iconClass: 'bi-broadcast-pin' },
-    // Marketing
-    { mode: AppMode.PAGE, title: 'Otimizar Página', category: 'Marketing', iconClass: 'bi-file-earmark-code' },
-    { mode: AppMode.AUDIT, title: 'Auditoria Técnica', category: 'Marketing', iconClass: 'bi-shield-check' },
-    { mode: AppMode.CONTENT, title: 'Conteúdo', category: 'Marketing', iconClass: 'bi-pencil-square' },
-    { mode: AppMode.CAMPAIGN, title: 'Campanhas', category: 'Marketing', iconClass: 'bi-megaphone' },
-    { mode: AppMode.IMAGE_ADS, title: 'Gerador de Imagens', category: 'Marketing', iconClass: 'bi-image-fill' },
-    { mode: AppMode.COMPLIANCE, title: 'Endomarketing', category: 'Marketing', iconClass: 'bi-card-checklist' },
+    { mode: AppMode.INTEGRATOR, title: "Integrador", category: 'Comercial', iconClass: "bi-bricks" },
+    { mode: AppMode.ARQUITETO, title: "Arquiteto", category: 'Comercial', iconClass: "bi-building-gear" },
+    { mode: AppMode.INSTRUCTOR, title: "Instrutor", category: 'Comercial', iconClass: "bi-person-video3" },
+    { mode: AppMode.SKYWATCH, title: "SkyWatch", category: 'Comercial', iconClass: "bi-broadcast-pin" },
+    { mode: AppMode.MARKET_INTEL, title: "Mercado", category: 'Comercial', iconClass: "bi-graph-up-arrow" },
+    { mode: AppMode.SALES_ASSISTANT, title: "Assistente Comercial", category: 'Comercial', iconClass: "bi-headset" },
+    { mode: AppMode.PAGE, title: "Otimizador de Página", category: 'Marketing', iconClass: "bi-file-earmark-text-fill" },
+    { mode: AppMode.AUDIT, title: "Auditoria Técnica", category: 'Marketing', iconClass: "bi-shield-check" },
+    { mode: AppMode.CONTENT, title: "Diretor de Criação", category: 'Marketing', iconClass: "bi-pencil-square" },
+    { mode: AppMode.CAMPAIGN, title: "Estrategista de Campanhas", category: 'Marketing', iconClass: "bi-megaphone-fill" },
+    { mode: AppMode.COMPLIANCE, title: "Endomarketing", category: 'Marketing', iconClass: "bi-card-checklist" },
+    { mode: AppMode.IMAGE_ADS, title: "Gerador de Imagens", category: 'Marketing', iconClass: "bi-image-fill" },
+    { mode: AppMode.GOAL_CALCULATOR, title: "Calculadora de Metas", category: 'Ferramentas', iconClass: "bi-calculator-fill" },
+    { mode: AppMode.PRESENTATION_BUILDER, title: "Criador de Apresentações", category: 'Ferramentas', iconClass: "bi-file-slides-fill" },
 ];
 
-
-export const SYSTEM_PROMPT = `Você é o Agente Marketing 1.0 da Greatek.
-Objetivo: Acelerar a criação de conteúdo e campanhas, fornecer inteligência de mercado e apoiar a equipe comercial e de marketing com informações precisas e criativas.
-Diretrizes:
-• Lembre-se que a Greatek é uma DISTRIBUIDORA, não uma fabricante. Apresente os produtos como parcerias (ex: "Sunwoda, parceira da Greatek em soluções de energia..." ou "roteadores da TP-Link, que você encontra na Greatek...").
-• Sempre que o contexto for sobre conectividade (redes, roteadores, Wi-Fi), posicione a Greatek como distribuidora da TP-Link (Parceiro MASTER) e suas submarcas (Omada, Tapo, Vigi, Mercusys), alavancando essa parceria para criar soluções completas.
-• Use a terminologia comercial correta: "máquinas de fusão", e não "fusionadoras de fibra".
-• Responda em PT-BR, claro, técnico e direto, sugerindo próximos passos.
-• Siga limites de SEO quando aplicável: Title ≤ 60 caracteres; Meta ≤ 155; H1 único.
-• Para campanhas, seja criativo e considere o calendário comercial B2B.
-• Formate entregas em blocos prontos (Markdown), utilizando tabelas para comparações e listas de dados sempre que apropriado para melhor clareza. Use JSON quando solicitado.`;
-
-// Fix: Added missing placeholder prompts and corrected the broken one for MARKET_INTEL.
-export const PLACEHOLDER_PROMPTS: Record<string, string> = {
-  [AppMode.PAGE]: 'Ex: otimizar /baterias-sunwoda-48v',
-  [AppMode.SALES_ASSISTANT]: 'Ex: meu cliente precisa de uma solução de energia para um rack de 19"...',
-  [AppMode.AUDIT]: 'Ex: varrer o site em busca de problemas técnicos',
-  [AppMode.CONTENT]: 'Ex: post para Instagram sobre o lançamento de um produto parceiro',
-  [AppMode.CAMPAIGN]: 'Ex: ideias de campanha para a Black Friday de ISPs',
-  [AppMode.COMPLIANCE]: 'Ex: comunicado interno sobre a nova política de segurança',
-  [AppMode.MARKET_INTEL]: 'Ex: compare o roteador TP-Link Archer AX72 com o Intelbras Twibi Giga+',
-  [AppMode.INTEGRATOR]: 'Ex: meu cliente pediu uma OLT da TP-Link. O que mais posso ofertar?',
-  [AppMode.INSTRUCTOR]: 'Ex: crie um treinamento sobre a máquina de fusão X6',
-  [AppMode.ARQUITETO]: 'Ex: projete uma solução para um provedor com 500 clientes',
-  [AppMode.VIGIA]: 'Ex: monitore notícias sobre "redes neutras no Brasil"',
-  [AppMode.IMAGE_ADS]: 'Ex: um anúncio para a máquina de fusão X6 em um poste',
-  [AppMode.SKYWATCH_ASSISTANT]: 'Ex: O monitoramento do SkyWatch afeta a performance da rede?',
-};
-
-// Fix: Added missing MODE_DESCRIPTIONS export to be used by AgentWelcome and ModeDescription components.
-export const MODE_DESCRIPTIONS: Record<string, { title: string; description: string; example: string; }> = {
+// FIX: Added and exported MODE_DESCRIPTIONS to provide titles, descriptions, and usage examples for each agent mode.
+export const MODE_DESCRIPTIONS: Record<AppMode, { title: string; description: string; example: string; }> = {
     [AppMode.INTEGRATOR]: {
-        title: "Agente Integrador",
-        description: "Analisa a necessidade de um cliente a partir de um produto inicial e constrói uma oferta de maior valor agregado, sugerindo produtos complementares e essenciais para uma solução completa.",
-        example: "Meu cliente pediu uma OLT Chassi X2 da TP-Link. O que mais posso ofertar para ele?"
+        title: 'Integrador',
+        description: 'Cria soluções completas combinando produtos do portfólio Greatek para atender a necessidades específicas.',
+        example: 'Meu cliente precisa montar um provedor do zero para 500 assinantes em um condomínio.'
     },
     [AppMode.INSTRUCTOR]: {
-        title: "Agente Instrutor",
-        description: "Especialista em produtos que cria kits de treinamento completos e interativos para capacitar a equipe comercial, incluindo pontos-chave, FAQ técnico e um quiz de conhecimento.",
-        example: "Crie um kit de treinamento para a Máquina de Fusão X6."
+        title: 'Instrutor',
+        description: 'Gera kits de treinamento técnico e comercial sobre produtos específicos, incluindo FAQs e quizzes.',
+        example: 'Crie um treinamento sobre a OLT Chassi X2 da TP-Link.'
     },
     [AppMode.PAGE]: {
-        title: "Agente Otimizador de Página",
-        description: "Analisa uma URL e entrega um pacote completo de otimização SEO, incluindo sugestões de título, meta descrição, cabeçalhos, FAQs, links internos e schema JSON-LD.",
-        example: "Otimize a página /baterias-sunwoda-48v"
+        title: 'Otimizador de Página',
+        description: 'Analisa uma URL e gera um pacote completo de otimização de SEO (títulos, meta, h1, FAQs, etc.).',
+        example: 'Otimize a página /produto/roteador-archer-ax72 para a palavra-chave "roteador wifi 6".'
     },
     [AppMode.SALES_ASSISTANT]: {
-        title: "Assistente Comercial",
-        description: "Um especialista técnico-comercial que entende a necessidade do cliente e o guia ao produto exato que resolve seu problema, seja por modo direto ou consultivo.",
-        example: "Meu cliente precisa de uma solução de energia para um rack de 19 polegadas."
+        title: 'Assistente Comercial',
+        description: 'Recomenda o produto ideal e fornece argumentos de venda consultivos para fechar negócios.',
+        example: 'Meu cliente precisa de uma solução de energia para uma OLT em um rack 19.'
     },
     [AppMode.AUDIT]: {
-        title: "Agente de Auditoria",
-        description: "Realiza uma varredura técnica no site da Greatek em busca de problemas de SEO, como links quebrados, imagens sem alt text, problemas de meta tags e outros fatores que afetam a performance.",
-        example: "Faça uma auditoria completa no site www.greatek.com.br"
+        title: 'Auditoria Técnica',
+        description: 'Realiza auditorias técnicas de SEO, performance e acessibilidade em uma URL e sugere melhorias.',
+        example: 'Faça uma auditoria de performance no site da Greatek.'
     },
     [AppMode.CONTENT]: {
-        title: "Agente de Conteúdo",
-        description: "Cria textos para diversas finalidades de marketing, como posts para redes sociais, roteiros para vídeos, artigos de blog e e-mails, seguindo as diretrizes de comunicação da Greatek.",
-        example: "Crie um post para o Instagram sobre o lançamento do novo roteador TP-Link."
+        title: 'Diretor de Criação',
+        description: 'Cria pacotes de conteúdo (posts de Instagram, roteiros de vídeo, etc.) sobre produtos ou temas.',
+        example: 'Crie um post para Instagram sobre os benefícios da rede Mesh com Deco X50.'
     },
     [AppMode.CAMPAIGN]: {
-        title: "Agente de Campanhas",
-        description: "Desenvolve conceitos criativos e estratégias para campanhas de marketing B2B, considerando o calendário comercial, público-alvo e objetivos de negócio.",
-        example: "Me dê 3 ideias de campanha para a Black Friday focada em provedores de internet."
+        title: 'Estrategista de Campanhas',
+        description: 'Desenvolve conceitos e planos estruturados para campanhas de marketing B2B.',
+        example: 'Crie uma campanha de lançamento para o novo roteador Wi-Fi 7.'
     },
     [AppMode.COMPLIANCE]: {
-        title: "Agente de Endomarketing",
-        description: "Cria comunicados internos, materiais para treinamento e campanhas de engajamento para os colaboradores da Greatek, garantindo clareza e alinhamento com a cultura da empresa.",
-        example: "Elabore um comunicado interno sobre a nova política de segurança da informação."
+        title: 'Endomarketing',
+        description: 'Cria comunicados internos, campanhas e materiais para engajamento dos colaboradores.',
+        example: 'Crie um comunicado sobre a nova política de home office.'
     },
     [AppMode.MARKET_INTEL]: {
-        title: "Agente de Inteligência de Mercado",
-        description: "Compara produtos da Greatek e seus parceiros com concorrentes, gerando relatórios com diferenciais, argumentos comerciais e um resumo de vendas para a equipe.",
-        example: "Compare o roteador TP-Link Archer AX72 com o Intelbras Twibi Giga+."
-    },
-    [AppMode.VIGIA]: {
-        title: "O Vigia",
-        description: "Monitora a internet usando a busca do Google para gerar relatórios de inteligência sobre tópicos específicos, identificando oportunidades, ameaças e insights acionáveis.",
-        example: "Monitore notícias sobre 'redes neutras no Brasil'."
+        title: 'Mercado',
+        description: 'Compara produtos Greatek com concorrentes e gera relatórios de inteligência de mercado.',
+        example: 'Compare o roteador Archer AX72 da TP-Link com o principal concorrente.'
     },
     [AppMode.ARQUITETO]: {
-        title: "Arquiteto de Soluções",
-        description: "Analisa a necessidade técnica de um cliente e projeta uma solução completa, detalhando diagnóstico, benefícios, argumentos comerciais e todos os produtos necessários.",
-        example: "Projete uma solução para um provedor com 500 clientes que precisa de um upgrade de rede."
+        title: 'Arquiteto',
+        description: 'Projeta soluções de infraestrutura complexas para cenários e projetos específicos.',
+        example: 'Projete uma solução de rede para um hotel de 200 quartos com Wi-Fi de alta densidade.'
     },
     [AppMode.IMAGE_ADS]: {
-        title: "Gerador de Imagens para Anúncios",
-        description: "Cria imagens de produtos prontas para redes sociais. Descreva a cena e o agente usará a base de conhecimento para gerar um anúncio visualmente impactante.",
-        example: "Crie uma imagem da bateria Sunwoda instalada em um rack de telecomunicações bem iluminado."
+        title: 'Gerador de Imagens',
+        description: 'Cria imagens para anúncios e redes sociais a partir de descrições textuais.',
+        example: 'Crie um anúncio do roteador Archer AX72 em uma sala de estar moderna.'
     },
-    [AppMode.SKYWATCH_ASSISTANT]: {
-        title: "Assistente SkyWatch",
-        description: "Seu especialista dedicado para responder todas as dúvidas sobre a plataforma de monitoramento SkyWatch, desde funcionalidades técnicas até benefícios para o negócio.",
-        example: "O SkyWatch substitui ferramentas como Zabbix ou PRTG?"
-    }
+    [AppMode.SKYWATCH]: {
+        title: 'SkyWatch',
+        description: 'Responde perguntas e auxilia na venda da solução de monitoramento SkyWatch da Greatek.',
+        example: 'Quais os principais benefícios do SkyWatch para um provedor de internet?'
+    },
+    [AppMode.GOAL_CALCULATOR]: {
+        title: 'Calculadora de Metas',
+        description: 'Ferramenta para planejar o esforço de vendas necessário para atingir seus objetivos.',
+        example: 'Preencha os campos para calcular as propostas necessárias.'
+    },
+    [AppMode.PRESENTATION_BUILDER]: {
+        title: 'Criador de Apresentações',
+        description: 'Cria roteiros completos de apresentações institucionais ou comerciais, slide a slide.',
+        example: 'Crie uma apresentação sobre as soluções de energia da Greatek para ISPs.'
+    },
+    // FIX: Added missing AppMode entries for Vigia and Business Analyzer to resolve TypeScript error.
+    [AppMode.VIGIA]: {
+        title: 'Vigia',
+        description: 'Monitora tópicos de interesse na web e gera relatórios sobre oportunidades e ameaças.',
+        example: 'Monitore o lançamento de novas tecnologias de fibra óptica no Brasil.'
+    },
+    [AppMode.BUSINESS_ANALYZER]: {
+        title: 'Analisador de Negócios',
+        description: 'Analisa dados de planilhas de vendas (ganhos/perdas) para extrair KPIs e insights estratégicos.',
+        example: 'Faça o upload de sua planilha de vendas para começar a análise.'
+    },
 };

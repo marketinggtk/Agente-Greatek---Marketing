@@ -1,5 +1,4 @@
 
-
 import React, { useState, useEffect, useMemo } from 'react';
 import { AppMode } from './types';
 import Header from './components/Header';
@@ -12,8 +11,9 @@ import AgentSelectionScreen from './components/AgentSelectionScreen';
 import ChatDisplay from './components/ChatDisplay';
 import Toast from './components/Toast';
 import FeedbackInputModal from './components/FeedbackInputModal';
-import SpreadsheetAnalyzerModal from './components/SpreadsheetAnalyzerModal';
 import { AGENTS } from './constants';
+import GoalCalculator from './components/GoalCalculator';
+import PresentationBuilder from './components/PresentationBuilder';
 
 const App: React.FC = () => {
   const {
@@ -56,6 +56,45 @@ const App: React.FC = () => {
   if (showSplash) {
     return <SplashScreen isFadingOut={isFadingOut} />;
   }
+  
+  const renderContent = () => {
+    if (!activeConversationId) {
+      return <AgentSelectionScreen onSelectAgent={handleSelectAgent} />;
+    }
+
+    const currentMode = activeConversation?.mode;
+    const isToolMode = [AppMode.GOAL_CALCULATOR, AppMode.PRESENTATION_BUILDER].includes(currentMode as AppMode);
+
+    const renderTool = () => {
+        switch(currentMode) {
+            case AppMode.GOAL_CALCULATOR:
+                return <GoalCalculator />;
+            case AppMode.PRESENTATION_BUILDER:
+                return <PresentationBuilder />;
+            default:
+                return null;
+        }
+    }
+
+    return (
+        <div className="h-screen bg-greatek-blue font-sans flex flex-col animate-fade-in">
+          <Header onAdminClick={() => setIsAdminPanelOpen(true)} onMenuClick={() => setIsSidebarOpen(true)} agentTitle={agentInfo?.title} />
+          <div className="flex flex-grow container mx-auto p-2 sm:p-4 overflow-hidden">
+            {isSidebarOpen && <div className="fixed inset-0 bg-black/50 z-20 md:hidden" onClick={() => setIsSidebarOpen(false)}></div>}
+            <Sidebar isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} />
+            <main className="flex-grow flex flex-col md:ml-4 bg-white rounded-lg shadow-lg overflow-hidden border border-greatek-border">
+              {isToolMode ? renderTool() : (
+                <>
+                  <ChatDisplay />
+                  <InteractionPanel />
+                </>
+              )}
+            </main>
+          </div>
+        </div>
+    );
+  };
+
 
   return (
     <>
@@ -70,24 +109,8 @@ const App: React.FC = () => {
       )}
       {feedbackModalState.isOpen && <FeedbackInputModal />}
       {isAdminPanelOpen && <AdminPanel onClose={() => setIsAdminPanelOpen(false)} />}
-      <SpreadsheetAnalyzerModal />
-
-      {/* Conditional rendering for the main view */}
-      {!activeConversationId ? (
-        <AgentSelectionScreen onSelectAgent={handleSelectAgent} />
-      ) : (
-        <div className="h-screen bg-greatek-blue font-sans flex flex-col animate-fade-in">
-          <Header onAdminClick={() => setIsAdminPanelOpen(true)} onMenuClick={() => setIsSidebarOpen(true)} agentTitle={agentInfo?.title} />
-          <div className="flex flex-grow container mx-auto p-2 sm:p-4 overflow-hidden">
-            {isSidebarOpen && <div className="fixed inset-0 bg-black/50 z-20 md:hidden" onClick={() => setIsSidebarOpen(false)}></div>}
-            <Sidebar isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} />
-            <main className="flex-grow flex flex-col md:ml-4 bg-white rounded-lg shadow-lg overflow-hidden border border-greatek-border">
-              <ChatDisplay />
-              <InteractionPanel />
-            </main>
-          </div>
-        </div>
-      )}
+      
+      {renderContent()}
     </>
   );
 };

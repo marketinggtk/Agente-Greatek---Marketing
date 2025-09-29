@@ -36,7 +36,7 @@ const DynamicLoader: React.FC = () => {
         let messagesToShow = GENERAL_MESSAGES;
         if (currentMode && [AppMode.MARKET_INTEL, AppMode.VIGIA].includes(currentMode)) {
             messagesToShow = SEARCH_MESSAGES;
-        } else if (currentMode && [AppMode.PAGE, AppMode.ARQUITETO, AppMode.INSTRUCTOR].includes(currentMode)) {
+        } else if (currentMode && [AppMode.PAGE, AppMode.INSTRUCTOR].includes(currentMode)) {
             messagesToShow = JSON_MESSAGES;
         }
 

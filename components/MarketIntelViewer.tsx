@@ -29,12 +29,12 @@ const MarketIntelViewer: React.FC<MarketIntelViewerProps> = ({ data }) => {
             text += `  - ${competitor_product_name}: ${point.competitor}\n\n`;
         });
         
-        text += "--- Diferenciais Competitivos ---\n";
+        text += `\n--- Por que escolher ${greatek_product_name}? ---\n`;
         competitive_advantages.forEach(adv => {
             text += `- ${adv}\n`;
         });
 
-        text += "\n--- Argumentos Comerciais ---\n";
+        text += "\n--- Argumentos de Venda para o Cliente ---\n";
         commercial_arguments.forEach(arg => {
             text += `- ${arg}\n`;
         });
@@ -86,36 +86,38 @@ const MarketIntelViewer: React.FC<MarketIntelViewerProps> = ({ data }) => {
 
             <DataTableView headers={tableHeaders} rows={tableRows} />
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 mt-8">
-                <div>
-                    <h3 className="text-xl font-semibold text-text-primary flex items-center">
-                        <i className="bi bi-shield-check text-green-600 mr-3"></i>
-                        Diferenciais Competitivos
-                    </h3>
-                    <ul className="list-none pl-0 mt-2 space-y-2">
-                        {competitive_advantages.map((item, idx) => (
-                             <li key={idx} className="flex items-start text-text-secondary leading-relaxed">
-                                <i className="bi bi-check-circle text-green-600 mr-3 mt-1 flex-shrink-0"></i>
-                                <span>{item}</span>
-                            </li>
-                        ))}
-                    </ul>
-                </div>
-                <div>
-                    <h3 className="text-xl font-semibold text-text-primary flex items-center">
-                        <i className="bi bi-megaphone-fill text-greatek-blue mr-3"></i>
-                        Argumentos Comerciais
-                    </h3>
-                    <ul className="list-none pl-0 mt-2 space-y-2">
-                        {commercial_arguments.map((item, idx) => (
-                             <li key={idx} className="flex items-start text-text-secondary leading-relaxed">
-                                 <i className="bi bi-check-circle text-greatek-blue mr-3 mt-1 flex-shrink-0"></i>
-                                <span>{item}</span>
-                            </li>
-                        ))}
-                    </ul>
+            <div className="mt-8">
+                <h3 className="text-xl font-semibold text-text-primary flex items-center mb-3">
+                    <i className="bi bi-shield-check text-green-600 mr-3"></i>
+                    Por que escolher {greatek_product_name}?
+                </h3>
+                <div className="space-y-3 not-prose">
+                    {competitive_advantages.map((item, idx) => (
+                        <div key={idx} className="p-4 bg-green-50 border border-green-200 rounded-lg flex items-start text-green-900 shadow-sm">
+                            <i className="bi bi-check-circle-fill text-green-600 mr-3 mt-1 flex-shrink-0"></i>
+                            <span className="text-text-secondary leading-relaxed">{item}</span>
+                        </div>
+                    ))}
                 </div>
             </div>
+
+            <div className="mt-8">
+                <h3 className="text-xl font-semibold text-text-primary flex items-center mb-3">
+                    <i className="bi bi-megaphone-fill text-greatek-blue mr-3"></i>
+                    Argumentos de Venda para o Cliente
+                </h3>
+                <div className="space-y-3 not-prose">
+                    {commercial_arguments.map((item, idx) => (
+                        <div key={idx} className="p-4 bg-greatek-blue/10 border-l-4 border-greatek-blue rounded-r-lg">
+                            <p className="flex items-start text-text-secondary leading-relaxed">
+                                <i className="bi bi-quote text-2xl text-greatek-blue mr-3 -mt-1 flex-shrink-0"></i>
+                                <span>{item}</span>
+                            </p>
+                        </div>
+                    ))}
+                </div>
+            </div>
+
 
             {competitor_data_sources && competitor_data_sources.length > 0 && (
                 <>

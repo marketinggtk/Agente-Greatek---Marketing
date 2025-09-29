@@ -1,8 +1,7 @@
 
-
-
 import React, { useState, useMemo } from 'react';
 import { TrainingKitReport, QuizQuestion } from '../types';
+import { generateQuizResultPdf } from '../services/pdfGenerator';
 
 interface TrainingKitViewerProps {
   data: TrainingKitReport;
@@ -70,7 +69,8 @@ const QuizResults: React.FC<{
   quiz: QuizQuestion[];
   userAnswers: (string | null)[];
   onRestart: () => void;
-}> = ({ quiz, userAnswers, onRestart }) => {
+  productName: string;
+}> = ({ quiz, userAnswers, onRestart, productName }) => {
     const { score, correctCount, incorrectAnswers } = useMemo(() => {
         let correct = 0;
         const incorrect: { question: QuizQuestion; userAnswer: string | null }[] = [];
@@ -87,6 +87,10 @@ const QuizResults: React.FC<{
             incorrectAnswers: incorrect,
         };
     }, [quiz, userAnswers]);
+
+    const handleExport = () => {
+        generateQuizResultPdf(productName, quiz, userAnswers, score);
+    };
 
     return (
         <div className="not-prose text-center animate-fade-in">
@@ -122,12 +126,21 @@ const QuizResults: React.FC<{
                     </div>
                 </div>
             )}
-            <button
-                onClick={onRestart}
-                className="mt-8 px-6 py-2 bg-greatek-blue text-white font-semibold rounded-lg hover:bg-greatek-dark-blue transition-colors"
-            >
-                Tentar Novamente
-            </button>
+            <div className="mt-8 flex flex-col sm:flex-row justify-center items-center gap-4">
+                <button
+                    onClick={onRestart}
+                    className="w-full sm:w-auto px-6 py-2 bg-white text-greatek-dark-blue border border-greatek-border font-semibold rounded-lg hover:bg-greatek-bg-light transition-colors"
+                >
+                    Tentar Novamente
+                </button>
+                <button
+                    onClick={handleExport}
+                    className="w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-2 bg-greatek-blue text-white font-semibold rounded-lg hover:bg-greatek-dark-blue transition-colors"
+                >
+                    <i className="bi bi-file-earmark-pdf-fill"></i>
+                    Exportar Resultados
+                </button>
+            </div>
         </div>
     );
 };
@@ -245,7 +258,7 @@ const TrainingKitViewer: React.FC<TrainingKitViewerProps> = ({ data }) => {
                 <QuizInProgress quiz={data.knowledge_quiz} onSubmit={handleQuizSubmit} />
             )}
             {quizState === 'finished' && (
-                <QuizResults quiz={data.knowledge_quiz} userAnswers={userAnswers} onRestart={handleRestartQuiz} />
+                <QuizResults quiz={data.knowledge_quiz} userAnswers={userAnswers} onRestart={handleRestartQuiz} productName={data.product_name} />
             )}
            </div>
         </div>

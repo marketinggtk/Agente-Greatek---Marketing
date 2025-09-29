@@ -1,3 +1,4 @@
+
 import React, { useEffect } from 'react';
 
 interface ModalProps {
@@ -14,17 +15,21 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, title, children }) => {
         onClose();
       }
     };
-    window.addEventListener('keydown', handleEsc);
+
+    if (isOpen) {
+      window.addEventListener('keydown', handleEsc);
+    }
+
     return () => {
       window.removeEventListener('keydown', handleEsc);
     };
-  }, [onClose]);
+  }, [isOpen, onClose]);
 
   if (!isOpen) return null;
 
   return (
     <div
-      className="fixed inset-0 bg-black/60 z-40 flex items-center justify-center p-4 animate-fade-in"
+      className="fixed inset-0 bg-black/60 z-[100] flex items-center justify-center p-4 animate-fade-in"
       aria-labelledby="modal-title"
       role="dialog"
       aria-modal="true"
@@ -34,7 +39,7 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, title, children }) => {
         onClick={onClose}
         aria-hidden="true"
       ></div>
-      <div className="relative bg-white rounded-lg shadow-xl w-full max-w-4xl max-h-[90vh] flex flex-col animate-fade-in-down z-50">
+      <div className="relative bg-white rounded-lg shadow-xl w-full max-w-4xl max-h-[90vh] flex flex-col animate-fade-in-down z-[101]">
         <div className="flex items-start justify-between p-4 border-b rounded-t sticky top-0 bg-white z-10">
           <h3 className="text-xl font-semibold text-greatek-dark-blue" id="modal-title">
             {title}

@@ -53,15 +53,19 @@ interface AgentSelectionScreenProps {
 
 const AgentSelectionScreen: React.FC<AgentSelectionScreenProps> = ({ onSelectAgent }) => {
   const [isFeedbackModalOpen, setIsFeedbackModalOpen] = useState(false);
-  const { toggleAnalyzer } = useAppStore();
 
   const commercialAgents = AGENTS.filter(a => a.category === 'Comercial');
   const marketingAgents = AGENTS.filter(a => a.category === 'Marketing');
+  const tools = AGENTS.filter(a => a.category === 'Ferramentas');
 
   // Ordena os agentes comerciais com base na hierarquia solicitada
   const hierarchy = [
-    AppMode.INTEGRATOR, AppMode.ARQUITETO, AppMode.INSTRUCTOR,
-    AppMode.SKYWATCH_ASSISTANT, AppMode.MARKET_INTEL, AppMode.SALES_ASSISTANT
+    AppMode.INTEGRATOR,
+    AppMode.ARQUITETO,
+    AppMode.INSTRUCTOR,
+    AppMode.SKYWATCH,
+    AppMode.MARKET_INTEL,
+    AppMode.SALES_ASSISTANT
   ];
   const orderedCommercialAgents = commercialAgents.sort((a, b) => {
     const indexA = hierarchy.indexOf(a.mode);
@@ -94,14 +98,19 @@ const AgentSelectionScreen: React.FC<AgentSelectionScreenProps> = ({ onSelectAge
 
         {/* Coluna Lateral para Ferramentas e Marketing */}
         <aside className="w-full lg:w-80 flex-shrink-0 flex flex-col gap-6">
-          <div className="bg-white/5 border border-white/10 rounded-2xl p-4 space-y-3">
-             <h3 className="text-sm font-semibold uppercase text-white/60 tracking-wider px-2">Ferramentas Úteis</h3>
-             <SecondaryCard
-                title="Analisador de Planilha"
-                iconClass="bi-file-earmark-spreadsheet-fill"
-                onClick={toggleAnalyzer}
-                isTool
-             />
+          <div className="bg-white/5 border border-white/10 rounded-2xl p-4">
+             <h3 className="text-sm font-semibold uppercase text-white/60 tracking-wider px-2 mb-3">Ferramentas Úteis</h3>
+             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 gap-3">
+                {tools.map(tool => (
+                    <SecondaryCard
+                        key={tool.mode}
+                        title={tool.title}
+                        iconClass={tool.iconClass}
+                        onClick={() => onSelectAgent(tool.mode)}
+                        isTool
+                    />
+                ))}
+             </div>
           </div>
 
           <div className="bg-white/5 border border-white/10 rounded-2xl p-4 space-y-3 flex-1">

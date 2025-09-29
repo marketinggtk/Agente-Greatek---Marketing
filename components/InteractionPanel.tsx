@@ -182,7 +182,7 @@ const InteractionPanel: React.FC = () => {
           ref={fileInputRef}
           onChange={handleFileChange}
           className="hidden"
-          accept="image/*,application/pdf,.txt,.doc,.docx,.xls,.xlsx,.csv"
+          accept="image/*,.txt,.csv,.xls,.xlsx"
         />
         {speechRecognitionSupported && (
             <button

@@ -1,7 +1,7 @@
 
-
 import React, { useState, useRef, useEffect } from 'react';
 import useAppStore from '../store/useAppStore';
+import { AppMode } from '../types';
 
 interface SidebarProps {
   isOpen: boolean;
@@ -16,7 +16,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
     deleteConversation,
     updateConversationTitle,
     returnToAgentSelection,
-    toggleAnalyzer,
+    createNewConversation,
   } = useAppStore();
   
   const [menuOpenFor, setMenuOpenFor] = useState<string | null>(null);
@@ -86,10 +86,11 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
     }
   };
 
-  const handleOpenAnalyzer = () => {
-    toggleAnalyzer();
+  const handleOpenTool = (mode: AppMode) => {
+    createNewConversation(mode);
     onClose();
   };
+
 
   return (
     <aside className={`
@@ -165,11 +166,18 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
       <div className="mt-auto pt-4 border-t border-greatek-border">
           <h2 className="text-xs font-bold text-text-secondary/60 uppercase tracking-wider mb-2">Ferramentas</h2>
           <button
-            onClick={handleOpenAnalyzer}
+            onClick={() => handleOpenTool(AppMode.GOAL_CALCULATOR)}
             className="flex items-center w-full text-left px-3 py-2 text-sm font-medium rounded-md text-text-secondary hover:bg-greatek-bg-light transition-colors"
           >
-            <i className="bi bi-file-earmark-spreadsheet-fill w-5 h-5 mr-3 flex-shrink-0"></i>
-            <span className="truncate flex-1">Analisador de Planilha</span>
+            <i className="bi bi-calculator-fill w-5 h-5 mr-3 flex-shrink-0"></i>
+            <span className="truncate flex-1">Calculadora de Metas</span>
+          </button>
+          <button
+            onClick={() => handleOpenTool(AppMode.PRESENTATION_BUILDER)}
+            className="flex items-center w-full text-left px-3 py-2 text-sm font-medium rounded-md text-text-secondary hover:bg-greatek-bg-light transition-colors"
+          >
+            <i className="bi bi-file-slides-fill w-5 h-5 mr-3 flex-shrink-0"></i>
+            <span className="truncate flex-1">Criador de Apresentações</span>
           </button>
       </div>
     </aside>

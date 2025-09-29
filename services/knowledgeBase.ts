@@ -1,8 +1,8 @@
-
 // Este arquivo atua como o "banco de dados" de conhecimento da aplicação.
 // Para atualizar, forneça o texto extraído dos seus PDFs.
 
-export const GREATEK_LOGO_URL = 'https://www.greatek.com.br/wp-content/uploads/2023/09/Logo-Greatek-Horizontal-Cor-1.png';
+// FIX: Added missing export for the Greatek logo URL.
+export const GREATEK_LOGO_URL = "https://www.greatek.com.br/wp-content/uploads/2022/01/logo-greatek-branco.png";
 
 export interface KnowledgeBaseProduct {
   name: string;
@@ -10,83 +10,33 @@ export interface KnowledgeBaseProduct {
   details: string;
 }
 
+
 export interface PartnerCompany {
   name: string;
   url: string;
+  // FIX: Added missing logoUrl property.
+  logoUrl: string;
   description: string;
   type: 'Master' | 'Partner';
-  logoUrl?: string;
 }
-
-export const KNOWLEDGE_BASE_SKYWATCH: string = `
-**FAQ Detalhado do SkyWatch (Fonte Primária de Conhecimento):**
-
-P: O que é o SkyWatch da Greatek?
-R: É a solução de monitoramento inteligente da Greatek, projetada para que provedores e empresas possam enxergar a qualidade da sua rede com os olhos do cliente final. Em vez de apenas monitorar IPs e servidores, o SkyWatch acompanha a experiência real de navegação, identificando lentidão e falhas antes que seus clientes reclamem.
-
-P: Como funciona?
-R: Através de sondas (probes) plug-and-play instaladas em pontos estratégicos, a ferramenta simula o acesso de um usuário, medindo a performance real de sites e serviços críticos para o seu negócio.
-
-P: Qual o requisito de instalação?
-R: A sonda SkyWatch deve ser conectada, sem exceção, a um Roteador ou ONT dentro do POP ou na localidade do cliente B2B dedicado.
-
-P: Quais são os principais benefícios?
-R: Os principais benefícios são:
-- **Visão Real do Usuário:** Saiba exatamente como está a qualidade da navegação do seu cliente.
-- **Ação Proativa:** Identifique problemas de latência, DNS ou disponibilidade e atue antes de impactar seus clientes.
-- **Diagnóstico Simplificado:** A plataforma centralizada oferece dashboards intuitivos e relatórios com IA para facilitar a identificação da causa raiz dos problemas.
-- **Fácil de Usar:** Não é preciso ser um especialista em redes. A solução foi desenhada para ser simples e segura, com sondas que funcionam de forma automática.
-
-P: Tenho interesse. Como faço para saber mais?
-R: O SkyWatch é uma ferramenta poderosa para garantir a satisfação dos seus clientes e a estabilidade da sua operação. Para uma demonstração ou para entender como a solução pode se aplicar ao seu negócio, entre em contato com nosso Time Comercial pelo Telefone/WhatsApp: (12) 99221-8852.
-
-P: A sonda precisa de alguma configuração especial?
-R: Não. A sonda é plug-and-play. Ela se auto-configura assim que é conectada à rede e à energia.
-
-P: O monitoramento afeta a performance da minha rede?
-R: O impacto é insignificante. A sonda realiza testes leves e pontuais, simulando a navegação de um único usuário, o que não consome banda relevante.
-
-P: Meus dados estão seguros?
-R: Sim. A comunicação entre a sonda e a nuvem SkyWatch é criptografada. A sonda não inspeciona o tráfego dos seus clientes, apenas mede a performance de serviços pré-definidos.
-
-P: Que tipo de serviços posso monitorar?
-R: Você pode monitorar a disponibilidade e latência de qualquer serviço web (sites, sistemas), servidores de DNS, e a qualidade geral da rota da internet.
-
-P: Onde eu vejo os resultados do monitoramento?
-R: Você terá acesso a um dashboard online, intuitivo e completo, que pode ser acessado de qualquer lugar, onde verá gráficos, alertas e relatórios em tempo real.
-
-P: E se um problema for detectado?
-R: O sistema envia alertas proativos para sua equipe técnica (via e-mail, Telegram, etc.), permitindo que você atue antes que o cliente perceba o problema.
-
-P: Preciso ter um NOC (Network Operations Center) para usar o SkyWatch?
-R: Não necessariamente. O SkyWatch é uma ferramenta que pode servir como o seu NOC virtual, simplificando o diagnóstico, ou pode ser integrado a um NOC já existente.
-
-P: Qual o custo do SkyWatch?
-R: O modelo de negócio é baseado em uma assinatura mensal por sonda (probe). Para valores detalhados e propostas, por favor, consulte nosso time comercial.
-
-P: O SkyWatch substitui outras ferramentas como Zabbix ou PRTG?
-R: Ele complementa. Ferramentas como Zabbix/PRTG são excelentes para monitoramento de infraestrutura interna (Layer 2/3 - consumo de CPU, memória, tráfego em portas). O SkyWatch foca na camada de aplicação (Layer 7), monitorando a experiência real do usuário final, algo que as outras ferramentas geralmente não fazem.
-
-P: O SkyWatch é apenas para provedores de internet (ISPs)?
-R: Embora seja ideal para ISPs, qualquer empresa que dependa criticamente da qualidade da internet para seus serviços (e-commerces, empresas com sistemas em nuvem, escritórios remotos) pode se beneficiar enormemente do SkyWatch para garantir a continuidade do negócio.
-`;
 
 
 export const PARTNER_COMPANIES: PartnerCompany[] = [
-    { name: "TP-Link", url: "https://www.tp-link.com/br/", description: "Líder global em conectividade, oferecendo roteadores, switches, soluções Wi-Fi e produtos de casa inteligente.", type: "Master", logoUrl: "https://static.tp-link.com/res/images/logo/logo-footer.svg" },
-    { name: "Omada", url: "https://www.omadanetworks.com/br/", description: "Marca independente da TP-Link focada em soluções de rede definidas por software (SDN) para ambientes de negócios (B2B), reconhecida no Quadrante Mágico do Gartner.", type: "Partner", logoUrl: "https://www.omada-networks.com/br/images/logo.svg" },
-    { name: "Tapo", url: "https://www.tapo.com/br/", description: "Submarca da TP-Link para dispositivos de casa inteligente, como câmeras, plugues e iluminação.", type: "Partner", logoUrl: "https://www.tapo.com/br/images/logo.svg" },
-    { name: "Vigi", url: "https://www.vigi.com/br/", description: "Submarca da TP-Link especializada em vigilância por vídeo profissional (câmeras e NVRs), totalmente integrada à plataforma Omada Central.", type: "Partner", logoUrl: "https://www.vigi.com/images/logo.svg" },
-    { name: "Mercusys", url: "https://www.mercusys.com.br/", description: "Submarca da TP-Link que oferece dispositivos de rede confiáveis e acessíveis.", type: "Partner", logoUrl: "https://www.mercusys.com.br/images/logo_mercusys_2022.svg" },
-    { name: "Cabel Condutores Elétricos", url: "https://cabel.com.br/", description: "Especialista em fios e cabos elétricos de alta qualidade para energia, telecomunicações e solar.", type: "Partner", logoUrl: "https://cabel.com.br/wp-content/uploads/2021/04/cropped-logo-cabel-branca.png" },
-    { name: "CG3 Telecom", url: "https://cg3telecom.com.br/", description: "Fabricante e fornecedor de uma linha completa de ferragens, pré-formados, produtos ópticos (Cabos Drop, CTOs, CEOs) e injetados plásticos para redes de telecomunicações e elétricas.", type: "Partner" },
-    { name: "Lacerda Sistemas de Energia", url: "https://lacerdasistemas.com.br/", description: "Com 25 anos de mercado, é especialista em nobreaks corporativos (600 VA a 600 kVA), com assistência técnica própria e presença nacional. Oferece soluções de alta complexidade e criticidade em energia.", type: "Partner", logoUrl: "https://lacerdasistemas.com.br/wp-content/uploads/2021/04/logo-footer.png"},
-    { name: "Volt", url: "https://volt.ind.br/", description: "Empresa 100% brasileira, especialista em soluções de energia ininterrupta para telecom, incluindo fontes nobreak, inversores, controladores de carga solar, sistemas de monitoramento e racks.", type: "Partner" },
-    { name: "XPS", url: "https://xps.com.br/", description: "Empresa 100% nacional, há mais de 33 anos entregando soluções de energia como Retificadores (homologados ANATEL), Inversores, Conversores e Quadros de Distribuição, com certificação ISO 9001.", type: "Partner", logoUrl: "https://xps.com.br/wp-content/uploads/2022/07/logo-xps-energia-branco.png" },
-    { name: "Think Technology", url: "https://www.thinktechnology.com.br/", description: "Indústria brasileira no setor de telecomunicações, oferecendo soluções inovadoras para redes de fibra óptica, infraestrutura e equipamentos de alto desempenho.", type: "Partner" },
-    { name: "Seccon", url: "", description: "Fornecedor de soluções para cabeamento estruturado, incluindo patch cords, patch panels, conectores e pigtails ópticos.", type: "Partner" },
-    { name: "2Flex", url: "", description: "Fornecedor de cabos ópticos, como Drop e ASU, para redes de telecomunicações.", type: "Partner" },
+    { name: "TP-Link", url: "https://www.tp-link.com/br/", logoUrl: "https://logo.clearbit.com/tp-link.com", description: "Líder global em conectividade, oferecendo roteadores, switches, soluções Wi-Fi e produtos de casa inteligente.", type: "Master" },
+    { name: "Omada", url: "https://www.omadanetworks.com/br/", logoUrl: "https://logo.clearbit.com/omadanetworks.com", description: "Marca independente da TP-Link focada em soluções de rede definidas por software (SDN) para ambientes de negócios (B2B), reconhecida no Quadrante Mágico do Gartner.", type: "Partner" },
+    { name: "Tapo", url: "https://www.tapo.com/br/", logoUrl: "https://logo.clearbit.com/tapo.com", description: "Submarca da TP-Link para dispositivos de casa inteligente, como câmeras, plugues e iluminação.", type: "Partner" },
+    { name: "Vigi", url: "https://www.vigi.com/br/", logoUrl: "https://logo.clearbit.com/vigi.com", description: "Submarca da TP-Link especializada em vigilância por vídeo profissional (câmeras e NVRs), totalmente integrada à plataforma Omada Central.", type: "Partner" },
+    { name: "Mercusys", url: "https://www.mercusys.com.br/", logoUrl: "https://logo.clearbit.com/mercusys.com", description: "Submarca da TP-Link que oferece dispositivos de rede confiáveis e acessíveis.", type: "Partner" },
+    { name: "Cabel Condutores Elétricos", url: "https://cabel.com.br/", logoUrl: "https://logo.clearbit.com/cabel.com.br", description: "Especialista em fios e cabos elétricos de alta qualidade para energia, telecomunicações e solar.", type: "Partner" },
+    { name: "CG3 Telecom", url: "https://cg3telecom.com.br/", logoUrl: "https://logo.clearbit.com/cg3telecom.com.br", description: "Fabricante e fornecedor de uma linha completa de ferragens, pré-formados, produtos ópticos (Cabos Drop, CTOs, CEOs) e injetados plásticos para redes de telecomunicações e elétricas.", type: "Partner" },
+    { name: "Lacerda Sistemas de Energia", url: "https://lacerdasistemas.com.br/", logoUrl: "https://logo.clearbit.com/lacerdasistemas.com.br", description: "Com 25 anos de mercado, é especialista em nobreaks corporativos (600 VA a 600 kVA), com assistência técnica própria e presença nacional. Oferece soluções de alta complexidade e criticidade em energia.", type: "Partner" },
+    { name: "Volt", url: "https://volt.ind.br/", logoUrl: "https://logo.clearbit.com/volt.ind.br", description: "Empresa 100% brasileira, especialista em soluções de energia ininterrupta para telecom, incluindo fontes nobreak, inversores, controladores de carga solar, sistemas de monitoramento e racks.", type: "Partner" },
+    { name: "XPS", url: "https://xps.com.br/", logoUrl: "https://logo.clearbit.com/xps.com.br", description: "Empresa 100% nacional, há mais de 33 anos entregando soluções de energia como Retificadores (homologados ANATEL), Inversores, Conversores e Quadros de Distribuição, com certificação ISO 9001.", type: "Partner" },
+    { name: "Think Technology", url: "https://www.thinktechnology.com.br/", logoUrl: "https://logo.clearbit.com/thinktechnology.com.br", description: "Indústria brasileira no setor de telecomunicações, oferecendo soluções inovadoras para redes de fibra óptica, infraestrutura e equipamentos de alto desempenho.", type: "Partner" },
+    { name: "Seccon", url: "", logoUrl: "https://greatek.com.br/logos/seccon.png", description: "Fornecedor de soluções para cabeamento estruturado, incluindo patch cords, patch panels, conectores e pigtails ópticos.", type: "Partner" },
+    { name: "2Flex", url: "", logoUrl: "https://greatek.com.br/logos/2flex.png", description: "Fornecedor de cabos ópticos, como Drop e ASU, para redes de telecomunicações.", type: "Partner" },
 ];
+
 
 export const KNOWLEDGE_BASE_PRODUCTS: KnowledgeBaseProduct[] = [
   {
@@ -598,9 +548,12 @@ export const KNOWLEDGE_BASE_PRODUCTS: KnowledgeBaseProduct[] = [
     keywords: ["skywatch", "monitoramento", "layer 7", "camada de aplicação", "dns", "latência", "disponibilidade", "probes", "noc"],
     details: `- **O que é o SkyWatch?** É a solução de monitoramento inteligente da Greatek, projetada para que provedores e empresas possam enxergar a qualidade da sua rede com os olhos do cliente final. Em vez de apenas monitorar IPs e servidores, o SkyWatch acompanha a experiência real de navegação, identificando lentidão e falhas antes que seus clientes reclamem.
 
+
 - **Como funciona?** Através de sondas (probes) plug-and-play instaladas em pontos estratégicos, a ferramenta simula o acesso de um usuário, medindo a performance real de sites e serviços críticos para o seu negócio.
 
+
 - **Requisito de Instalação:** A sonda SkyWatch deve ser conectada, sem exceção, a um Roteador ou ONT dentro do POP ou na localidade do cliente B2B dedicado.
+
 
 - **Principais Benefícios:**
   - **Visão Real do Usuário:** Saiba exatamente como está a qualidade da navegação do seu cliente.
@@ -608,7 +561,9 @@ export const KNOWLEDGE_BASE_PRODUCTS: KnowledgeBaseProduct[] = [
   - **Diagnóstico Simplificado:** A plataforma centralizada oferece dashboards intuitivos e relatórios com IA para facilitar a identificação da causa raiz dos problemas.
   - **Fácil de Usar:** Não é preciso ser um especialista em redes. A solução foi desenhada para ser simples e segura, com sondas que funcionam de forma automática.
 
+
 - **Interessado em saber mais?** O SkyWatch é uma ferramenta poderosa para garantir a satisfação dos seus clientes e a estabilidade da sua operação. Para uma demonstração ou para entender como a solução pode se aplicar ao seu negócio, entre em contato com nosso Time Comercial.
+
 
 - **Contato Comercial Greatek:**
   - **Telefone/WhatsApp:** (12) 99221-8852`
@@ -1101,6 +1056,7 @@ export const KNOWLEDGE_BASE_PRODUCTS: KnowledgeBaseProduct[] = [
   - Geral 32A, Saídas 2x 16A.
   - Geral 40A, Saídas 2x 20A.
 
+
 ### QDCC (Quadro de Distribuição de Corrente Contínua)
 - **Função:** Distribuição de energia contínua para diversas cargas.
 - **Sinalização:** Envia sinalização de "Disjuntor Aberto" para sistemas retificadores XPS.
@@ -1251,3 +1207,26 @@ export const KNOWLEDGE_BASE_PRODUCTS: KnowledgeBaseProduct[] = [
 - **Revestimento Externo:** Capa de polietileno (PE).`
   }
 ];
+
+// FIX: Added missing export for the SkyWatch knowledge base.
+export const KNOWLEDGE_BASE_SKYWATCH = `- **O que é o SkyWatch?** É a solução de monitoramento inteligente da Greatek, projetada para que provedores e empresas possam enxergar a qualidade da sua rede com os olhos do cliente final. Em vez de apenas monitorar IPs e servidores, o SkyWatch acompanha a experiência real de navegação, identificando lentidão e falhas antes que seus clientes reclamem.
+
+
+- **Como funciona?** Através de sondas (probes) plug-and-play instaladas em pontos estratégicos, a ferramenta simula o acesso de um usuário, medindo a performance real de sites e serviços críticos para o seu negócio.
+
+
+- **Requisito de Instalação:** A sonda SkyWatch deve ser conectada, sem exceção, a um Roteador ou ONT dentro do POP ou na localidade do cliente B2B dedicado.
+
+
+- **Principais Benefícios:**
+  - **Visão Real do Usuário:** Saiba exatamente como está a qualidade da navegação do seu cliente.
+  - **Ação Proativa:** Identifique problemas de latência, DNS ou disponibilidade e atue antes de impactar seus clientes.
+  - **Diagnóstico Simplificado:** A plataforma centralizada oferece dashboards intuitivos e relatórios com IA para facilitar a identificação da causa raiz dos problemas.
+  - **Fácil de Usar:** Não é preciso ser um especialista em redes. A solução foi desenhada para ser simples e segura, com sondas que funcionam de forma automática.
+
+
+- **Interessado em saber mais?** O SkyWatch é uma ferramenta poderosa para garantir a satisfação dos seus clientes e a estabilidade da sua operação. Para uma demonstração ou para entender como a solução pode se aplicar ao seu negócio, entre em contato com nosso Time Comercial.
+
+
+- **Contato Comercial Greatek:**
+  - **Telefone/WhatsApp:** (12) 99221-8852`;

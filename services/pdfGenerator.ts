@@ -1,6 +1,6 @@
-
 import jsPDF from 'jspdf';
 import 'jspdf-autotable';
+import { QuizQuestion } from '../types';
 
 // The module augmentation for 'jspdf' was causing a "module not found" error during compilation.
 // To resolve the build error, it has been removed and we now use a type assertion `(doc as any)`
@@ -170,4 +170,179 @@ export const generateIntegratorPdf = (markdownContent: string, title: string = '
 
     const sanitizedTitle = title.replace(/[^a-zA-Z0-9\s-]/g, '').replace(/\s+/g, '_').replace(/__+/g, '_');
     doc.save(`${sanitizedTitle || 'Proposta-Solucao-Greatek'}.pdf`);
+};
+
+export const generateQuizResultPdf = (
+    productName: string,
+    quiz: QuizQuestion[],
+    userAnswers: (string | null)[],
+    score: number
+) => {
+    const doc = new jsPDF();
+    const margin = 15;
+    const pageW = doc.internal.pageSize.getWidth();
+    const pageH = doc.internal.pageSize.getHeight();
+    let finalY = 20;
+
+    const colors = {
+        greatekDarkBlue: [8, 63, 98],
+        greatekBlue: [0, 129, 204],
+        textPrimary: [11, 11, 11],
+        textSecondary: [74, 74, 74],
+        border: [233, 233, 233],
+        correctGreen: [34, 139, 34],
+        correctGreenBg: [230, 245, 230],
+        incorrectRed: [220, 20, 60],
+        incorrectRedBg: [255, 235, 238],
+        correctAnswerBg: [240, 240, 240],
+    };
+
+    const checkPageBreak = (neededHeight: number) => {
+        if (finalY + neededHeight > pageH - margin) {
+            doc.addPage();
+            finalY = 20;
+        }
+    };
+
+    // --- Header ---
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(18);
+    doc.setTextColor(colors.greatekDarkBlue[0], colors.greatekDarkBlue[1], colors.greatekDarkBlue[2]);
+    doc.text('Resultado do Quiz de Conhecimento', margin, finalY);
+    finalY += 8;
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(12);
+    doc.setTextColor(colors.textSecondary[0], colors.textSecondary[1], colors.textSecondary[2]);
+    doc.text(`Produto: ${productName}`, margin, finalY);
+    finalY += 15;
+
+    // --- Bento Grid Summary ---
+    checkPageBreak(50);
+    const correctCount = quiz.filter((q, i) => q.correct_answer === userAnswers[i]).length;
+    const boxWidth = (pageW - margin * 2 - 10) / 2;
+    
+    // Score Box
+    doc.setFillColor(colors.greatekBlue[0], colors.greatekBlue[1], colors.greatekBlue[2]);
+    doc.roundedRect(margin, finalY, boxWidth, 40, 3, 3, 'F');
+    doc.setTextColor(255, 255, 255);
+    doc.setFontSize(10);
+    doc.setFont('helvetica', 'bold');
+    doc.text('PONTUAÇÃO FINAL', margin + 10, finalY + 15);
+    doc.setFontSize(18);
+    doc.text(`${score}%`, margin + 10, finalY + 30);
+
+    // Correct Answers Box
+    doc.setFillColor(255, 255, 255);
+    doc.setDrawColor(colors.border[0], colors.border[1], colors.border[2]);
+    doc.roundedRect(margin + boxWidth + 10, finalY, boxWidth, 40, 3, 3, 'FD');
+    doc.setTextColor(colors.textSecondary[0], colors.textSecondary[1], colors.textSecondary[2]);
+    doc.setFontSize(10);
+    doc.setFont('helvetica', 'bold');
+    doc.text('ACERTOS', margin + boxWidth + 20, finalY + 15);
+    doc.setFontSize(18);
+    doc.setTextColor(colors.textPrimary[0], colors.textPrimary[1], colors.textPrimary[2]);
+    doc.text(`${correctCount} / ${quiz.length}`, margin + boxWidth + 20, finalY + 30);
+    
+    finalY += 55;
+
+    // --- Question Cards ---
+    doc.setFont('helvetica', 'normal');
+
+    quiz.forEach((q, index) => {
+        const userAnswer = userAnswers[index];
+        const isCorrect = q.correct_answer === userAnswer;
+
+        // FIX: Declare correctAnswerLines here to make it available in the whole scope.
+        let correctAnswerLines: string[] = [];
+
+        // Calculate card height before drawing
+        let cardHeight = 10; // top padding
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(11);
+        const questionLines = doc.splitTextToSize(`${index + 1}. ${q.question}`, pageW - margin * 2 - 20);
+        cardHeight += questionLines.length * 5;
+
+        cardHeight += 10; // space before answer
+
+        // User answer box height
+        doc.setFontSize(10);
+        const userAnswerText = `Sua resposta: ${userAnswer || 'Não respondida'}`;
+        const userAnswerLines = doc.splitTextToSize(userAnswerText, pageW - margin * 2 - 40);
+        cardHeight += (userAnswerLines.length * 5) + 8; // text + padding
+
+        // Correct answer box height (if incorrect)
+        if (!isCorrect) {
+            const correctAnswerText = `Resposta correta: ${q.correct_answer}`;
+            correctAnswerLines = doc.splitTextToSize(correctAnswerText, pageW - margin * 2 - 40);
+            cardHeight += (correctAnswerLines.length * 5) + 8 + 4; // text + padding + margin
+        }
+        
+        cardHeight += 10; // space before explanation
+
+        // Explanation height
+        doc.setFontSize(9);
+        doc.setFont('helvetica', 'italic');
+        const explanationText = `Justificativa: ${q.explanation}`;
+        const explanationLines = doc.splitTextToSize(explanationText, pageW - margin * 2 - 20);
+        cardHeight += (explanationLines.length * 4) + 8;
+        cardHeight += 5; // bottom padding
+        doc.setFont('helvetica', 'normal');
+
+        checkPageBreak(cardHeight);
+        let cardY = finalY;
+
+        // Draw Card border
+        doc.setLineWidth(1);
+        doc.setDrawColor(isCorrect ? colors.correctGreen[0] : colors.incorrectRed[0], isCorrect ? colors.correctGreen[1] : colors.incorrectRed[1], isCorrect ? colors.correctGreen[2] : colors.incorrectRed[2]);
+        doc.roundedRect(margin, cardY, pageW - margin * 2, cardHeight, 3, 3, 'S');
+        cardY += 10;
+
+        // Question
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(11);
+        doc.setTextColor(colors.textPrimary[0], colors.textPrimary[1], colors.textPrimary[2]);
+        doc.text(questionLines, margin + 10, cardY);
+        cardY += (questionLines.length * 5) + 10;
+
+        // User Answer Box
+        doc.setFontSize(10);
+        doc.setFont('helvetica', 'normal');
+        doc.setFillColor(isCorrect ? colors.correctGreenBg[0] : colors.incorrectRedBg[0], isCorrect ? colors.correctGreenBg[1] : colors.incorrectRedBg[2], isCorrect ? colors.correctGreenBg[2] : colors.incorrectRedBg[2]);
+        doc.roundedRect(margin + 10, cardY - 4, pageW - margin * 2 - 20, (userAnswerLines.length * 5) + 8, 2, 2, 'F');
+        doc.setTextColor(isCorrect ? colors.correctGreen[0] : colors.incorrectRed[0], isCorrect ? colors.correctGreen[1] : colors.incorrectRed[1], isCorrect ? colors.correctGreen[2] : colors.incorrectRed[2]);
+        doc.setFont('helvetica', 'bold');
+        doc.text(isCorrect ? '✓' : '✗', margin + 15, cardY + 2);
+        doc.setFont('helvetica', 'normal');
+        doc.setTextColor(colors.textPrimary[0], colors.textPrimary[1], colors.textPrimary[2]);
+        doc.text(userAnswerLines, margin + 25, cardY + 2);
+        cardY += (userAnswerLines.length * 5) + 8;
+        
+        // Correct Answer Box (if incorrect)
+        if (!isCorrect) {
+            cardY += 4;
+            doc.setFillColor(colors.correctAnswerBg[0], colors.correctAnswerBg[1], colors.correctAnswerBg[2]);
+            doc.roundedRect(margin + 10, cardY - 4, pageW - margin * 2 - 20, (correctAnswerLines.length * 5) + 8, 2, 2, 'F');
+            doc.setTextColor(colors.correctGreen[0], colors.correctGreen[1], colors.correctGreen[2]);
+            doc.setFont('helvetica', 'bold');
+            doc.text('✓', margin + 15, cardY + 2);
+            doc.setFont('helvetica', 'normal');
+            doc.setTextColor(colors.textPrimary[0], colors.textPrimary[1], colors.textPrimary[2]);
+            doc.text(correctAnswerLines, margin + 25, cardY + 2);
+            cardY += (correctAnswerLines.length * 5) + 8;
+        }
+
+        // Explanation
+        cardY += 10;
+        doc.setDrawColor(colors.border[0], colors.border[1], colors.border[2]);
+        doc.line(margin + 10, cardY - 5, pageW - margin - 10, cardY - 5);
+        doc.setFontSize(9);
+        doc.setFont('helvetica', 'italic');
+        doc.setTextColor(colors.textSecondary[0], colors.textSecondary[1], colors.textSecondary[2]);
+        doc.text(explanationLines, margin + 10, cardY);
+        
+        finalY += cardHeight + 10;
+    });
+
+    const sanitizedTitle = `Resultado_Quiz_${productName.replace(/[^a-zA-Z0-9]/g, '_')}`;
+    doc.save(`${sanitizedTitle}.pdf`);
 };

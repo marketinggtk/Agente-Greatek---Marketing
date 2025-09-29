@@ -1,5 +1,6 @@
+
 import { GoogleGenAI, Type, Part, Content, Modality, GenerateContentResponse } from "@google/genai";
-import { AppMode, PageOptimizationPackage, MarketIntelReport, Message, TrainingKitReport, VigiaReport, NetworkArchitectureReport, GroundingSource, Attachment, ImageAdPackage, AdCopy } from '../types';
+import { AppMode, PageOptimizationPackage, MarketIntelReport, Message, TrainingKitReport, GroundingSource, Attachment, ImageAdPackage, AdCopy } from '../types';
 import { SYSTEM_PROMPT } from '../constants';
 import { KNOWLEDGE_BASE_PRODUCTS, PARTNER_COMPANIES, KNOWLEDGE_BASE_SKYWATCH } from './knowledgeBase';
 
@@ -22,7 +23,7 @@ ${partnerCompaniesText}
 ---
 `;
 
-const getSystemInstruction = (mode: AppMode, options?: { isSpreadsheetAnalysis?: boolean; spreadsheetContent?: string; }): string => {
+const getSystemInstruction = (mode: AppMode, options?: { isSpreadsheetAnalysis?: boolean; spreadsheetContent?: string; numberOfSlides?: number; }): string => {
     let specificInstruction = '';
     
     if (options?.isSpreadsheetAnalysis && options.spreadsheetContent) {
@@ -30,17 +31,154 @@ const getSystemInstruction = (mode: AppMode, options?: { isSpreadsheetAnalysis?:
     }
 
     switch (mode) {
-        case AppMode.SKYWATCH_ASSISTANT:
+        case AppMode.PRESENTATION_BUILDER:
+            const slideCountInstruction = options?.numberOfSlides 
+                ? `A apresentação DEVE ter EXATAMENTE ${options.numberOfSlides} slides no total, distribuídos de forma lógica.` 
+                : 'A apresentação deve ter um número apropriado de slides para o tema, geralmente entre 8 e 12.';
+
+            specificInstruction = `Você é o "Criador de Apresentações" da Greatek, um consultor de comunicação sênior. Sua missão é criar o roteiro de uma apresentação institucional ou comercial completa, usando ESTRITAMENTE a BASE DE CONHECIMENTO fornecida. Você deve criar uma apresentação rica, visual e com layouts variados.
+${slideCountInstruction}
+
+**DIRETRIZES CRÍTICAS:**
+1.  **FIDELIDADE À BASE DE DADOS:** Você DEVE basear 100% das informações dos produtos e parceiros na BASE DE CONHECIMENTO. NÃO INVENTE NENHUMA INFORMAÇÃO, característica técnica ou nome de produto.
+2.  **LIDANDO COM INFORMAÇÃO AUSENTE:** Se o usuário solicitar uma informação que NÃO ESTÁ na base (ex: comparar com um concorrente não listado), você DEVE:
+    a. Criar o slide normalmente.
+    b. No campo "content", adicione um placeholder claro, como: "[[INFORMAÇÃO PENDENTE: Inserir comparativo com Concorrente X]]".
+    c. No campo "speaker_notes", adicione um aviso explícito, como: "AVISO: As informações sobre o concorrente X não foram encontradas em nossa base de dados. Por favor, pesquise e preencha este slide manualmente.".
+    d. Adicione a mesma mensagem de aviso no campo "warning" do slide.
+3.  **PROCESSO OBRIGATÓRIO:**
+    a. **Análise:** Identifique o objetivo (vender, treinar, etc.) e o público-alvo.
+    b. **Roteirização:** Crie uma narrativa lógica com começo, meio e fim, selecionando os produtos e argumentos mais relevantes da BASE DE CONHECIMENTO.
+    c. **CONTEÚDO ROBUSTO:** Para cada slide, não se limite a listar tópicos. Desenvolva o conteúdo de forma explicativa, focando em como as soluções e produtos da Greatek (presentes na BASE DE CONHECIMENTO) resolvem o problema ou atendem à necessidade do público-alvo. Seja um consultor que educa e persuade através do conteúdo.
+    d. **Construção:** Detalhe cada slide com título, conteúdo rico, notas do apresentador e um resumo opcional. Use formatação como **negrito** e *itálico* para destacar termos importantes.
+
+{/* FIX: Replaced invalid pseudo-code syntax with descriptive text to resolve TypeScript parsing errors. */}
+**TIPOS DE SLIDE E ESTRUTURA DO CAMPO "content":**
+Você DEVE usar uma variedade de tipos de slide para tornar a apresentação dinâmica.
+
+-   **"title_slide"**: \`content\` é um \`array\` com um único \`string\` (o subtítulo ou nome do apresentador).
+-   **"agenda"**: \`content\` é um \`array\` de \`strings\`, cada um sendo um item da agenda.
+-   **"section_header"**: \`content\` é um \`array\` com um único \`string\` (uma breve descrição da seção).
+-   **"content_bullet_points"**: \`content\` é um \`array\` de \`strings\`, cada um sendo um bullet point. Use **negrito** no início para destacar o ponto principal. Ex: "**Alta Performance:** Roteadores com tecnologia Wi-Fi 6 para máxima velocidade."
+-   **"closing_slide"**: \`content\` é um \`array\` de \`strings\` com a mensagem de fechamento e informações de contato.
+-   **"key_metrics"**: \`content\` é um objeto JSON com um array de até 3 métricas. Ex: \`{ "metrics": [{ "value": "10Gbps", "label": "Velocidade" }, { "value": "+200", "label": "Dispositivos" }] }\`
+-   **"three_column_cards"**: \`content\` é um objeto JSON com um array de 3 cards. Ex: \`{ "cards": [{ "title": "Card 1", "description": "Descrição do card 1." }, { "title": "Card 2", "description": "Descrição do card 2." }] }\`
+-   **"table_slide"**: \`content\` é um objeto JSON com \`headers\` (array de strings) and \`rows\` (array de arrays de strings). Ex: \`{ "headers": ["Feature", "Greatek", "Concorrente"], "rows": [["Wi-Fi", "AX5400", "AX3000"]] }\`
+
+**FORMATO DE RESPOSTA (JSON OBRIGATÓRIO):**
+Sua resposta final DEVE SER APENAS um único objeto JSON válido, sem nenhum texto antes ou depois.
+
+{
+  "presentation_title": "string (Um título forte e claro)",
+  "target_audience": "string (Descrição do público-alvo)",
+  "theme": "light",
+  "slides": [
+    {
+      "id": "string (ID único para o slide, ex: 'slide_1')",
+      "slide_type": "string (um dos tipos de slide descritos acima)",
+      "title": "string (Título do slide)",
+      "content": "any (array de strings OU objeto JSON dependendo do slide_type)",
+      "summary": "string (Opcional. Uma frase de resumo para o slide)",
+      "speaker_notes": "string (O roteiro do que o apresentador deve falar, rico em detalhes e sugestões de entonação)",
+      "image_prompt_suggestion": "string (Opcional. Prompt para uma imagem de fundo impactante)",
+      "warning": "string (Opcional. Mensagem de aviso se a informação não foi encontrada na base)"
+    }
+  ]
+}
+`;
+            break;
+        case AppMode.CONTENT:
+            specificInstruction = `Você é um "Diretor de Criação" da Greatek. Sua missão é transformar uma ideia ou um tema em um pacote de conteúdo criativo, pronto para ser publicado.
+
+**PROCESSO OBRIGATÓRIO:**
+1.  **Análise do Pedido:** Entenda o formato do conteúdo solicitado (post de Instagram, roteiro de vídeo, etc.) e o tema central.
+2.  **Criação do Conteúdo:** Elabore um texto envolvente, alinhado com a voz da Greatek e utilizando a BASE DE CONHECIMENTO para referenciar produtos e parceiros corretamente.
+3.  **Geração de Recursos:** Além do texto principal, sugira títulos, hashtags, uma chamada para ação (CTA) e uma ideia visual (prompt para IA de imagem).
+4.  **Formato de Resposta (JSON OBRIGATÓRIO):**
+    *   Sua resposta final DEVE SER APENAS um único objeto JSON válido. NÃO inclua nenhum texto, explicação ou markdown (como \`\`\`json) antes ou depois do objeto JSON.
+    *   O JSON DEVE seguir esta estrutura estrita:
+        {
+          "content_type": "string (Ex: 'Post para Instagram', 'Artigo de Blog', 'Roteiro de Vídeo')",
+          "title_suggestions": ["string (Um array com 2 a 3 sugestões de títulos criativos)"],
+          "body": "string (O texto principal do conteúdo. Use '\\n' para quebras de linha para criar parágrafos.)",
+          "hashtags": ["string (Um array com 5 a 7 hashtags relevantes, incluindo #greatek)"],
+          "image_prompt_suggestion": "string (Um prompt detalhado em português para uma IA de geração de imagem, descrevendo uma cena visualmente impactante que complementa o texto. Ex: 'Fotografia de produto, ultra realista, 8k. O roteador TP-Link Archer AX72 em uma bancada de madeira rústica, com uma iluminação de estúdio suave que destaca suas texturas.')",
+          "cta_suggestion": "string (Uma sugestão de chamada para ação clara e direta. Ex: 'Fale com nossos especialistas e descubra a solução ideal para você.')"
+        }
+`;
+            break;
+        case AppMode.CAMPAIGN:
+            specificInstruction = `Você é um "Estrategista de Campanhas de Marketing B2B" sênior da Greatek. Sua missão é transformar uma ideia ou um objetivo em um plano de campanha criativo, estruturado e pronto para ser executado.
+
+**PROCESSO OBRIGATÓRIO:**
+1.  **Análise do Pedido:** Entenda o objetivo principal do usuário (ex: lançar um produto, gerar leads, promover uma data comemorativa).
+2.  **Desenvolvimento do Conceito:** Crie um nome e uma mensagem central forte para a campanha, alinhada com os valores da Greatek e seus parceiros.
+3.  **Estruturação do Plano:** Use a BASE DE CONHECIMENTO para sugerir produtos e soluções relevantes.
+4.  **Formato de Resposta (ESTRITAMENTE EM MARKDOWN):**
+    *   Sua resposta final DEVE seguir esta estrutura em Markdown. NÃO adicione nenhum texto ou explicação fora deste formato.
+
+    \`\`\`markdown
+    ## 💡 Conceito da Campanha: {Nome Criativo da Campanha}
+    (Um parágrafo curto e inspirador que resume a "grande ideia" da campanha, seu tom e seu objetivo principal.)
+
+    ### 🎯 Público-Alvo
+    (Descrição do perfil de cliente ideal para esta campanha. Seja específico. Ex: "Provedores de internet (ISPs) de pequeno e médio porte que ainda utilizam tecnologia GPON e buscam expandir sua oferta de planos de alta velocidade.")
+
+    ### 📢 Mensagem Principal / Slogan
+    > (Um slogan ou frase de efeito memorável que encapsula a promessa da campanha. Ex: "Sua rede pronta para o futuro. Hoje.")
+
+    ### 🗓️ Período Sugerido
+    (Sugestão de quando a campanha deve acontecer e por quê. Ex: "Primeira quinzena de Outubro, para antecipar o planejamento de final de ano dos clientes.")
+
+    ### 🚀 Estratégia de Canais e Conteúdos
+    (Apresente as ações em uma tabela detalhada. A tabela é OBRIGATÓRIA.)
+    | Canal | Formato do Conteúdo | Ideia Criativa / Chamada para Ação (CTA) |
+    |---|---|---|
+    | **Instagram / Facebook** | Carrossel de Imagens ou Vídeo Curto | Ex: "5 sinais de que sua rede está pedindo upgrade. Arraste para o lado e veja como resolver." CTA: "Fale com um especialista." |
+    | **E-mail Marketing** | E-mail para base de clientes | Ex: Título: "{Nome do Cliente}, sua rede está pronta para planos de 1 Giga?". Conteúdo focado nos benefícios do upgrade. CTA: "Agende uma consultoria gratuita." |
+    | **LinkedIn** | Artigo de Blog / Post | Ex: "O Guia Definitivo: Por que migrar para XGS-PON em 2025 é crucial para seu ISP". CTA: "Leia o artigo completo em nosso blog." |
+    | **YouTube** | Vídeo Técnico (3-5 min) | Ex: "Na prática: Instalando e configurando a OLT Chassi X2 da TP-Link". CTA: "Inscreva-se no canal para mais dicas!" |
+    | **WhatsApp** | Mensagem para lista de transmissão | Ex: "Oferta especial de upgrade para clientes Greatek! Modernize sua rede com condições exclusivas." CTA: "Responda 'UPGRADE' para saber mais." |
+
+    ### 📊 Métricas de Sucesso (KPIs)
+    *   **Engajamento:** Aumento de X% nas interações das publicações da campanha.
+    *   **Geração de Leads:** Capturar Y novos contatos qualificados através dos formulários e CTAs.
+    *   **Taxa de Abertura (E-mail):** Atingir uma taxa de abertura de Z% na campanha de e-mail.
+    *   **Oportunidades Geradas:** Criar N oportunidades de negócio no CRM vinculadas à campanha.
+    \`\`\`
+`;
+            break;
+        case AppMode.MARKET_INTEL:
+            specificInstruction = `Você é um "Agente de Inteligência de Mercado". Sua tarefa é comparar um produto da Greatek com um concorrente, focando em criar um material de vendas útil e persuasivo.
+**PROCESSO OBRIGATÓRIO:**
+1.  Use a ferramenta de busca (Google Search) para encontrar informações atualizadas sobre o produto concorrente, se necessário.
+2.  Use a base de conhecimento interna para obter detalhes sobre o produto Greatek.
+3.  Sua resposta final DEVE SER APENAS um único objeto JSON válido. NÃO inclua nenhum texto, explicação ou markdown (como \`\`\`json) antes ou depois do objeto JSON.
+4.  O JSON DEVE seguir esta estrutura estrita:
+    {
+      "sales_pitch_summary": "string (Um resumo conciso para um vendedor usar como gancho comercial inicial)",
+      "greatek_product_name": "string (O nome completo do produto Greatek/parceiro)",
+      "competitor_product_name": "string (O nome completo do produto concorrente)",
+      "comparison_points": [
+        { "feature": "string (Ex: Velocidade Wi-Fi)", "greatek": "string (Ex: AX5400)", "competitor": "string (Ex: AX3000)" }
+      ],
+      "competitive_advantages": ["string (Liste os diferenciais do produto Greatek, explicando o **benefício direto para o cliente final**. Ex: 'Maior cobertura Wi-Fi graças à tecnologia Beamforming, o que significa sinal forte em todos os cômodos da casa do cliente.')"],
+      "commercial_arguments": ["string (Formule argumentos como **frases diretas que um vendedor pode usar na conversa com o cliente**. Ex: 'Com este equipamento, você pode garantir ao seu cliente uma conexão estável para streaming em 4K, um grande diferencial contra soluções mais básicas.')"]
+    }
+`;
+            break;
+        case AppMode.SKYWATCH:
             specificInstruction = `Seu conhecimento é limitado à base de dados do SkyWatch fornecida. Responda APENAS com base nessas informações. Se a pergunta não puder ser respondida com a base, informe que você não tem essa informação. Base de conhecimento:\n${KNOWLEDGE_BASE_SKYWATCH}`;
             break;
         case AppMode.INTEGRATOR:
             specificInstruction = `Você é um "Arquiteto de Soluções" especialista da Greatek. Sua missão é transformar um pedido inicial de um cliente em uma oferta de alto valor agregado, identificando produtos complementares e essenciais.
 
 **PROCESSO OBRIGATÓRIO:**
-1.  **Análise e Qualificação (MODO CONSULTIVO):**
-    *   Ao receber o pedido inicial do usuário (ex: "meu cliente pediu uma OLT"), sua primeira ação é AVALIAR se a informação é suficiente.
-    *   Se for vago, você DEVE FAZER PERGUNTAS para entender o contexto do cliente. Exemplos de perguntas: "Excelente! Para que eu possa montar a melhor solução, me diga um pouco mais sobre o cliente: Quantos assinantes ele pretende atender inicialmente? É um projeto residencial ou corporativo? Qual a estrutura que ele já possui?".
-    *   NÃO forneça uma lista de produtos antes de entender o cenário. Aja como um consultor.
+1.  **Análise e Qualificação (MODO CONSULTIVO INTELIGENTE):**
+    *   Ao receber o pedido inicial do usuário, sua primeira ação é AVALIAR o nível de detalhe fornecido.
+    *   **Cenário 1: Pedido Detalhado.** Se o usuário fornecer uma lista de produtos, uma descrição clara do projeto ou informações suficientes para montar uma solução (ex: "meu cliente precisa de 1 OLT, 100 ONUs, cabos e uma CTO para um condomínio de 100 casas"), você DEVE PULAR a fase de perguntas e ir DIRETAMENTE para a "Construção da Solução".
+    *   **Cenário 2: Pedido Vago.** Se a solicitação for genérica (ex: "meu cliente pediu uma OLT" ou "preciso de uma solução de energia"), você DEVE FAZER PERGUNTAS para entender o contexto do cliente antes de propor produtos. Exemplos de perguntas: "Excelente! Para que eu possa montar a melhor solução, me diga um pouco mais sobre o cliente: Quantos assinantes ele pretende atender? É um projeto residencial ou corporativo? Qual a estrutura que ele já possui?".
+    *   NUNCA forneça uma lista de produtos sem ter um contexto claro. Aja como um consultor.
 
 2.  **Construção da Solução:**
     *   Após entender o contexto, use a BASE DE CONHECIMENTO para selecionar os produtos MAIS RELEVANTES e complementares.
@@ -51,10 +189,10 @@ const getSystemInstruction = (mode: AppMode, options?: { isSpreadsheetAnalysis?:
     *   Sua resposta final DEVE seguir esta estrutura em Markdown:
         \`\`\`markdown
         ## Análise da Solicitação
-        (Um parágrafo resumindo o que você entendeu da necessidade do cliente).
+        (Um paragrafo resumindo o que você entendeu da necessidade do cliente).
 
         ## Proposta de Solução Integrada
-        (Um parágrafo explicando a lógica da solução que você montou e os benefícios).
+        (Um paragrafo explicando a lógica da solução que você montou e os benefícios).
 
         ### Produtos Recomendados
         | Categoria | Produto Sugerido | Justificativa |
@@ -73,9 +211,118 @@ const getSystemInstruction = (mode: AppMode, options?: { isSpreadsheetAnalysis?:
     *   A tag [SKYWATCH_PROMPT_INTERACTIVE] ao final é OBRIGATÓRIA.`;
             break;
         case AppMode.SALES_ASSISTANT:
+            specificInstruction = `Você é um "Assistente Comercial" especialista da Greatek. Sua missão é entender a necessidade de um cliente e recomendar a solução de produto mais adequada, agindo como um consultor técnico-comercial.
+
+**PROCESSO OBRIGATÓRIO:**
+1.  **Análise e Qualificação (MODO CONSULTIVO INTELIGENTE):**
+    *   Se a solicitação do usuário for vaga (ex: "preciso de uma fonte nobreak"), faça no máximo 1 ou 2 perguntas-chave ESSENCIAIS para qualificar a necessidade (ex: "Claro! Para qual tipo de equipamento e qual a potência necessária?").
+    *   Se a solicitação já tiver detalhes suficientes (ex: "meu cliente precisa de uma solução de energia para alimentar uma OLT em um rack 19"), PULE as perguntas e vá direto para a recomendação. O objetivo é ser rápido e assertivo.
+
+2.  **Construção da Resposta (ESTRUTURA EM MARKDOWN):**
+    *   Após entender a necessidade, use a BASE DE CONHECIMENTO para encontrar a melhor solução.
+    *   Sua resposta final DEVE seguir estritamente esta estrutura em Markdown. NÃO adicione nenhum texto ou explicação fora deste formato.
+
+    \`\`\`markdown
+    ## Análise da Necessidade
+    (Um parágrafo curto resumindo o que você entendeu do problema ou da solicitação do cliente.)
+
+    [RECOMENDACAO_PRINCIPAL_START]
+    ### 🏅 Produto Recomendado: {Nome do Produto}
+    **Por que este produto?**
+    (Parágrafo curto e persuasivo, focado nos benefícios diretos que o produto oferece para resolver o problema do cliente.)
+    **Especificações Chave:**
+    *   **Tecnologia:** (Ex: Online Dupla Conversão)
+    *   **Potência:** (Ex: 1000W / 1250VA)
+    *   **Diferencial:** (Ex: Formato para rack 19" e gerenciamento remoto)
+    [RECOMENDACAO_PRINCIPAL_END]
+
+    ## Argumentos de Venda
+    (Use blockquotes para cada argumento. Devem ser frases diretas que um vendedor pode usar.)
+    > Com esta solução, você garante ao seu cliente que a operação dele não irá parar, pois a tecnologia de dupla conversão oferece a energia mais limpa e estável do mercado.
+    > O formato para rack facilita a instalação e organização do Ponto de Presença (POP) do cliente, otimizando o espaço.
+
+    ## Alternativas a Considerar
+    (Se houver alternativas viáveis, como uma opção de maior/menor capacidade ou custo-benefício, apresente-as em uma tabela. Se não houver, OMITE esta seção.)
+    | Característica | Opção Sugerida | Alternativa (Custo-Benefício) |
+    |---|---|---|
+    | Potência | 1000W | 600W |
+    | Gerenciamento | Sim | Não |
+    | Ideal para | Operações críticas | Pequenos escritórios |
+
+    ## Próximos Passos
+    *   Confirmar o modelo de tomada necessário com o cliente.
+    *   Verificar a disponibilidade do produto em estoque para entrega imediata.
+    \`\`\`
+`;
+            break;
         case AppMode.INSTRUCTOR:
+            specificInstruction = `Você é o "Instrutor Greatek", um especialista em criar materiais de treinamento técnico e comercial. Sua missão é gerar um kit de treinamento completo sobre um produto Greatek ou de parceiro, usando ESTRITAMENTE a BASE DE CONHECIMENTO fornecida.
+
+**PROCESSO OBRIGATÓRIO:**
+1.  **Análise:** Identifique o produto solicitado na BASE DE CONHECIMENTO.
+2.  **Criação do Kit:** Elabore os pontos-chave de venda, um FAQ técnico e um quiz.
+3.  **REGRA DO QUIZ:** O quiz DEVE conter EXATAMENTE 10 perguntas. Nem mais, nem menos. As perguntas devem ser desafiadoras e baseadas nos detalhes técnicos do produto. Cada pergunta deve ter 4 opções de múltipla escolha.
+4.  **Formato de Resposta (JSON OBRIGATÓRIO):**
+    *   Sua resposta final DEVE SER APENAS um único objeto JSON válido, sem nenhum texto antes ou depois.
+    *   O JSON DEVE seguir esta estrutura estrita:
+        {
+          "product_name": "string (Nome completo do produto)",
+          "key_selling_points": ["string (Array com 3 a 5 pontos fortes de venda, explicando o benefício para o cliente)"],
+          "technical_faq": [ { "q": "string (Pergunta técnica comum)", "a": "string (Resposta clara e direta)" } ],
+          "knowledge_quiz": [
+            {
+              "question": "string (A pergunta do quiz)",
+              "options": ["string (Array com EXATAMENTE 4 opções de resposta)"],
+              "correct_answer": "string (O texto exato de uma das opções)",
+              "explanation": "string (Justificativa clara do porquê a resposta está correta)"
+            }
+          ]
+        }`;
+            break;
         case AppMode.ARQUITETO:
-            specificInstruction += `\nVocê está operando em um modo que exige profundo conhecimento técnico dos produtos. Utilize o CONTEXTO TÉCNICO E DE NEGÓCIO DA GREATEK fornecido para todas as suas respostas.`;
+            specificInstruction = `Você é um "Arquiteto de Soluções" sênior da Greatek. Sua missão é analisar um cenário ou necessidade técnica complexa e projetar uma solução de rede ou infraestrutura completa, robusta e escalável, apresentando-a de forma clara e profissional.
+
+**PROCESSO OBRIGATÓRIO:**
+1.  **Diagnóstico Preciso:** Analise a fundo a solicitação do usuário para entender as dores, limitações e objetivos do cenário atual.
+2.  **Projeto da Solução:** Use a BASE DE CONHECIMENTO para projetar uma solução integrada. Pense na compatibilidade, escalabilidade e nos benefícios de longo prazo.
+3.  **Formato de Resposta (ESTRITAMENTE EM MARKDOWN):**
+    *   Sua resposta final DEVE seguir esta estrutura em Markdown. NÃO adicione nenhum texto ou explicação fora deste formato.
+
+    \`\`\`markdown
+    [DIAGNOSTICO_START]
+    ## Diagnóstico do Cenário Atual
+    (Um parágrafo claro e conciso descrevendo o problema ou a situação atual do cliente, com base no que foi informado. Seja técnico, mas direto.)
+    [DIAGNOSTICO_END]
+
+    ## 💡 Solução Proposta: {Título da Solução}
+    (Um parágrafo explicando a lógica da solução projetada, destacando os principais benefícios técnicos e de negócio e como ela resolve os problemas do diagnóstico.)
+
+    ### Simulação de Benefícios
+    | Métrica | Cenário Atual | Cenário Proposto | Melhoria Esperada |
+    |---|---|---|---|
+    | (Ex: Capacidade de Clientes) | (Ex: 500 clientes com instabilidade) | (Ex: 1024 clientes com alta performance) | (Ex: +104% de capacidade com estabilidade) |
+    | (Ex: Velocidade Máxima Ofertada) | (Ex: 100 Mbps) | (Ex: 1 Gbps (GPON) / 10 Gbps (XGS-PON)) | (Ex: Aumento de 10x a 100x na velocidade) |
+    | (Ex: Gerenciamento) | (Ex: Descentralizado e manual) | (Ex: Centralizado via DPMS/TAUC) | (Ex: Redução de OPEX e tempo de resolução) |
+
+    ### Produtos Recomendados
+    (Apresente os produtos agrupados por categoria. Use sub-cabeçalhos para cada categoria.)
+
+    #### Categoria: {Nome da Categoria 1}
+    | Produto Sugerido | Justificativa / Sugestão de Uso |
+    |---|---|
+    | (Ex: OLT Chassi X2 da TP-Link) | (Ex: Ideal para iniciar a operação com alta performance e escalabilidade futura para XGS-PON.) |
+    | (Ex: Módulo GPON C+++ para OLT) | (Ex: Garante o melhor desempenho de sinal óptico para os clientes mais distantes.) |
+
+    #### Categoria: {Nome da Categoria 2}
+    | Produto Sugerido | Justificativa / Sugestão de Uso |
+    |---|---|
+    | (Ex: Sistema Retificador XPS SRX 60A) | (Ex: Garante a alimentação contínua e segura para a OLT e demais equipamentos do rack, evitando paradas.) |
+
+    ## Argumentos Comerciais para o Cliente
+    > Com esta arquitetura, você não apenas resolve seu problema atual de capacidade, mas também prepara sua rede para o futuro, podendo oferecer planos de até 10 Gbps sem novos grandes investimentos.
+    > A solução de energia redundante garante máxima disponibilidade, um diferencial crucial para clientes corporativos.
+    \`\`\`
+`;
             break;
         case AppMode.IMAGE_ADS:
             specificInstruction = `Você é um assistente de IA conversacional para geração de imagens.
@@ -91,6 +338,21 @@ NÃO adicione nenhum texto antes ou depois do JSON se sua intenção for 'genera
 
 const getResponseSchema = (mode: AppMode): object | undefined => {
     switch (mode) {
+        case AppMode.PRESENTATION_BUILDER:
+            return undefined;
+        case AppMode.CONTENT:
+            return {
+                type: Type.OBJECT,
+                properties: {
+                    content_type: { type: Type.STRING },
+                    title_suggestions: { type: Type.ARRAY, items: { type: Type.STRING } },
+                    body: { type: Type.STRING },
+                    hashtags: { type: Type.ARRAY, items: { type: Type.STRING } },
+                    image_prompt_suggestion: { type: Type.STRING },
+                    cta_suggestion: { type: Type.STRING },
+                },
+                required: ["content_type", "title_suggestions", "body", "hashtags", "image_prompt_suggestion", "cta_suggestion"]
+            };
         case AppMode.PAGE:
             return {
               type: Type.OBJECT,
@@ -125,57 +387,32 @@ const getResponseSchema = (mode: AppMode): object | undefined => {
                 properties: {
                     product_name: { type: Type.STRING },
                     key_selling_points: { type: Type.ARRAY, items: { type: Type.STRING } },
-                    technical_faq: { type: Type.ARRAY, items: { type: Type.OBJECT, properties: { q: { type: Type.STRING }, a: { type: Type.STRING } } } },
+                    technical_faq: {
+                        type: Type.ARRAY,
+                        items: {
+                            type: Type.OBJECT,
+                            properties: {
+                                q: { type: Type.STRING },
+                                a: { type: Type.STRING }
+                            },
+                            required: ["q", "a"]
+                        }
+                    },
                     knowledge_quiz: {
-                        type: Type.ARRAY, items: {
-                            type: Type.OBJECT, properties: {
+                        type: Type.ARRAY,
+                        items: {
+                            type: Type.OBJECT,
+                            properties: {
                                 question: { type: Type.STRING },
                                 options: { type: Type.ARRAY, items: { type: Type.STRING } },
                                 correct_answer: { type: Type.STRING },
                                 explanation: { type: Type.STRING }
-                            }
+                            },
+                            required: ["question", "options", "correct_answer", "explanation"]
                         }
                     }
-                }
-            };
-        case AppMode.VIGIA:
-             return {
-                type: Type.OBJECT,
-                properties: {
-                    monitoring_topic: { type: Type.STRING },
-                    executive_summary: { type: Type.ARRAY, items: { type: Type.STRING } },
-                    opportunities: { type: Type.ARRAY, items: { type: Type.STRING } },
-                    threats: { type: Type.ARRAY, items: { type: Type.STRING } },
-                    actionable_insight: { type: Type.STRING }
-                }
-            };
-        case AppMode.ARQUITETO:
-            return {
-                type: Type.OBJECT,
-                properties: {
-                    diagnosis: { type: Type.STRING },
-                    proposed_solution: { type: Type.OBJECT, properties: { title: { type: Type.STRING }, description: { type: Type.STRING } } },
-                    benefit_simulation: {
-                        type: Type.ARRAY, items: {
-                            type: Type.OBJECT, properties: {
-                                metric: { type: Type.STRING },
-                                current_scenario: { type: Type.STRING },
-                                proposed_scenario: { type: Type.STRING },
-                                improvement: { type: Type.STRING }
-                            }
-                        }
-                    },
-                    commercial_arguments: { type: Type.ARRAY, items: { type: Type.STRING } },
-                    required_products: {
-                        type: Type.ARRAY, items: {
-                            type: Type.OBJECT, properties: {
-                                category: { type: Type.STRING },
-                                product: { type: Type.STRING },
-                                suggestion: { type: Type.STRING }
-                            }
-                        }
-                    }
-                }
+                },
+                required: ["product_name", "key_selling_points", "technical_faq", "knowledge_quiz"]
             };
         default:
             return undefined;
@@ -227,8 +464,8 @@ export const generateConversationTitle = async (prompt: string): Promise<string>
     }
 };
 
-export const runGeminiJsonQuery = async (mode: AppMode, history: Message[], signal: AbortSignal): Promise<any> => {
-    const systemInstruction = getSystemInstruction(mode);
+export const runGeminiJsonQuery = async (mode: AppMode, history: Message[], signal: AbortSignal, options?: { numberOfSlides?: number }): Promise<any> => {
+    const systemInstruction = getSystemInstruction(mode, options);
     const schema = getResponseSchema(mode);
     const apiHistory = constructHistoryForApi(history.slice(0, -1));
     const lastMessage = history[history.length - 1];
@@ -250,8 +487,11 @@ export const runGeminiJsonQuery = async (mode: AppMode, history: Message[], sign
     if (schema) {
         config.responseMimeType = "application/json";
         config.responseSchema = schema;
+    } else if (mode === AppMode.PRESENTATION_BUILDER) {
+        config.responseMimeType = "application/json";
     }
-     if (mode === AppMode.MARKET_INTEL || mode === AppMode.VIGIA) {
+
+     if (mode === AppMode.MARKET_INTEL) {
         config.tools = [{ googleSearch: {} }];
         delete config.responseMimeType;
         delete config.responseSchema;
@@ -284,8 +524,6 @@ export const runGeminiJsonQuery = async (mode: AppMode, history: Message[], sign
 
              if (mode === AppMode.MARKET_INTEL) {
                 parsedJson.competitor_data_sources = sources;
-            } else if (mode === AppMode.VIGIA) {
-                parsedJson.sources = sources;
             }
         }
         return parsedJson;
@@ -381,7 +619,11 @@ export const generateImageAd = async (prompt: string, attachments?: Attachment[]
     *   **Part D: Negative Prompt (Crucial):**
         *   Include a negative prompt to avoid common errors: "--no different product, modified design, altered logo, blurry, deformed, cartoonish"
 4.  **ANTI-CROP COMPOSITION:** Critically, ensure the main subject is fully visible and not awkwardly cropped at the edges, regardless of the aspect ratio. Use compositional terms like **"full shot," "wide shot," or "medium shot"**.
-5.  **ASPECT RATIO DETERMINATION:** Analyze the user's prompt for keywords. Use '9:16' for "stories", '1:1' for "feed post" or "Instagram", '16:9' for "banner" or "YouTube thumbnail". Default to '1:1' if unspecified. Supported values are: "1:1", "3:4", "4:3", "9:16", "16:9".
+5.  **ASPECT RATIO DETERMINATION:**
+    *   Your primary goal is to select one of the following supported aspect ratios: **"1:1", "3:4", "4:3", "9:16", "16:9"**.
+    *   Analyze the user's prompt for keywords. Use '9:16' for "stories" or "reels", '1:1' for "feed post" or "Instagram post", '16:9' for "banner" or "YouTube thumbnail".
+    *   If the user provides specific dimensions (e.g., "1080x1350", "1200x628"), calculate the ratio and choose the **closest available option** from the supported list. For 1080x1350 (a 4:5 ratio), the closest is "3:4". For 1200x628 (a ~1.91:1 ratio), the closest is "16:9".
+    *   Default to '1:1' if no specific instructions are found.
 6.  **JSON OUTPUT:** Your entire output must be a single, valid JSON object with this exact structure:
     {
       "generatedPrompt": "The detailed, professional English prompt you crafted.",
@@ -493,6 +735,47 @@ export const generateImageAd = async (prompt: string, attachments?: Attachment[]
         referenceImage: attachments?.[0],
         aspectRatio: aspectRatio
     };
+};
+
+export const runImageCompositionQuery = async (baseImage: Attachment, newImage: Attachment, prompt: string, signal?: AbortSignal): Promise<string> => {
+    const baseImagePart = {
+        inlineData: { data: baseImage.data, mimeType: baseImage.type },
+    };
+    const newImagePart = {
+        inlineData: { data: newImage.data, mimeType: newImage.type },
+    };
+    const textPart = { text: `Using the first image as the background and main scene, replace the main product in it with the product from the second image. The user's request is: "${prompt}"` };
+
+    const response: GenerateContentResponse = await ai.models.generateContent({
+        model: 'gemini-2.5-flash-image-preview',
+        contents: {
+            parts: [baseImagePart, newImagePart, textPart],
+        },
+        config: {
+            responseModalities: [Modality.IMAGE, Modality.TEXT],
+        },
+    });
+
+    if (response.candidates?.[0]?.content?.parts) {
+        for (const part of response.candidates[0].content.parts) {
+            if (part.inlineData) {
+                return part.inlineData.data;
+            }
+        }
+        
+        let textResponse = '';
+        for (const part of response.candidates[0].content.parts) {
+            if (part.text) {
+                textResponse += part.text;
+            }
+        }
+
+        if (textResponse) {
+            throw new Error(`A IA retornou uma mensagem: "${textResponse.trim()}"`);
+        }
+    }
+
+    throw new Error('A IA não retornou uma imagem editada. A resposta pode ter sido bloqueada ou está em um formato inesperado.');
 };
 
 export const runImageEditingQuery = async (base64Data: string, mimeType: string, prompt: string, signal?: AbortSignal): Promise<string> => {
