@@ -1,6 +1,7 @@
 import React from 'react';
 import { AppMode } from '../types';
-import useAppStore from '../store/useAppStore';
+// FIX: Changed to a named import to match the export from the store file.
+import { useAppStore } from '../store/useAppStore';
 
 interface TabsProps {
   currentMode: AppMode;

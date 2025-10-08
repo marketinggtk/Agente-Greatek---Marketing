@@ -1,7 +1,8 @@
 
 
 import React from 'react';
-import useAppStore from '../store/useAppStore';
+// FIX: Changed to a named import to match the export from the store file.
+import { useAppStore } from '../store/useAppStore';
 import KPICard from './ui/KPICard';
 import { ChartData, AppMode } from '../types';
 import MarkdownViewer from './MarkdownViewer';

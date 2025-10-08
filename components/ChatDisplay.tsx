@@ -1,7 +1,7 @@
 
 
 import React, { useEffect, useRef, useMemo } from 'react';
-import useAppStore from '../store/useAppStore';
+import { useAppStore } from '../store/useAppStore';
 import ResponseDisplay from './ResponseDisplay';
 import { AGENTS, MODE_DESCRIPTIONS } from '../constants';
 import AgentWelcome from './AgentWelcome';

@@ -1,29 +1,26 @@
-
 import { GoogleGenAI, Type, Part, Content, Modality, GenerateContentResponse } from "@google/genai";
-import { AppMode, PageOptimizationPackage, MarketIntelReport, Message, TrainingKitReport, GroundingSource, Attachment, ImageAdPackage, AdCopy } from '../types';
+import { AppMode, PageOptimizationPackage, MarketIntelReport, Message, TrainingKitReport, GroundingSource, Attachment, ImageAdPackage, AdCopy, KnowledgeBaseProduct, TrainingAnalysisReport, TrainingVideoPackage, TrainingScriptSection } from '../types';
 import { SYSTEM_PROMPT } from '../constants';
-import { KNOWLEDGE_BASE_PRODUCTS, PARTNER_COMPANIES, KNOWLEDGE_BASE_SKYWATCH } from './knowledgeBase';
+// FIX: Import KNOWLEDGE_BASE_SKYWATCH, FULL_KNOWLEDGE_BASE_TEXT, and other required constants.
+import { KNOWLEDGE_BASE_SKYWATCH, FULL_KNOWLEDGE_BASE_TEXT, PARTNER_COMPANIES, KNOWLEDGE_BASE_PRODUCTS } from './knowledgeBase';
 
 const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
 
-const knowledgeBaseText = KNOWLEDGE_BASE_PRODUCTS.map(p => `## Produto: ${p.name}\n${p.details}`).join('\n\n');
-const partnerCompaniesText = PARTNER_COMPANIES.map(p => `- **${p.name} (${p.type})**: ${p.description}`).join('\n');
-
-const FULL_KNOWLEDGE_BASE_CONTEXT = `
+const getUserKnowledgeContext = (userKnowledge?: KnowledgeBaseProduct[]): string => {
+    if (!userKnowledge || userKnowledge.length === 0) return '';
+    const userKnowledgeText = userKnowledge.map(p => `## Produto (Fornecido pelo Usuário): ${p.name}\nCódigo: ${p.code || 'N/A'}\n${p.details}`).join('\n\n');
+    return `
 ---
-**CONTEXTO TÉCNICO E DE NEGÓCIO DA GREATEK**
+**BASE DE CONHECIMENTO ADICIONAL (FORNECIDA PELO USUÁRIO)**
 
-Você tem acesso a uma base de conhecimento interna com informações detalhadas sobre os produtos distribuídos pela Greatek e suas empresas parceiras. Use esta base para enriquecer suas respostas, fornecer detalhes técnicos precisos e construir soluções de alto valor agregado.
+As informações a seguir foram fornecidas pelo usuário através de uma planilha e TÊM PRIORIDADE MÁXIMA sobre a base de conhecimento interna. Use estes dados como a fonte principal de verdade para os produtos listados.
 
-**Base de Conhecimento de Produtos:**
-${knowledgeBaseText}
-
-**Empresas Parceiras da Greatek:**
-${partnerCompaniesText}
+${userKnowledgeText}
 ---
 `;
+}
 
-const getSystemInstruction = (mode: AppMode, options?: { isSpreadsheetAnalysis?: boolean; spreadsheetContent?: string; numberOfSlides?: number; }): string => {
+const getSystemInstruction = (mode: AppMode, options?: { isSpreadsheetAnalysis?: boolean; spreadsheetContent?: string; numberOfSlides?: number; userKnowledge?: KnowledgeBaseProduct[] }): string => {
     let specificInstruction = '';
     
     if (options?.isSpreadsheetAnalysis && options.spreadsheetContent) {
@@ -52,7 +49,6 @@ ${slideCountInstruction}
     c. **CONTEÚDO ROBUSTO:** Para cada slide, não se limite a listar tópicos. Desenvolva o conteúdo de forma explicativa, focando em como as soluções e produtos da Greatek (presentes na BASE DE CONHECIMENTO) resolvem o problema ou atendem à necessidade do público-alvo. Seja um consultor que educa e persuade através do conteúdo.
     d. **Construção:** Detalhe cada slide com título, conteúdo rico, notas do apresentador e um resumo opcional. Use formatação como **negrito** e *itálico* para destacar termos importantes.
 
-{/* FIX: Replaced invalid pseudo-code syntax with descriptive text to resolve TypeScript parsing errors. */}
 **TIPOS DE SLIDE E ESTRUTURA DO CAMPO "content":**
 Você DEVE usar uma variedade de tipos de slide para tornar a apresentação dinâmica.
 
@@ -195,11 +191,10 @@ Sua resposta final DEVE SER APENAS um único objeto JSON válido, sem nenhum tex
         (Um paragrafo explicando a lógica da solução que você montou e os benefícios).
 
         ### Produtos Recomendados
-        | Categoria | Produto Sugerido | Justificativa |
-        |---|---|---|
-        | (Ex: OLT) | (Ex: OLT Chassi X2 da TP-Link) | (Ex: Ideal para iniciar a operação com alta performance e escalabilidade futura para XGS-PON.) |
-        | (Ex: Energia) | (Ex: Sistema Retificador XPS SRX 60A) | (Ex: Garante a alimentação contínua e segura para a OLT e demais equipamentos do rack.) |
-        | (Ex: Distribuição) | (Ex: DIO 24FO Completo) | (Ex: Essencial para organizar e proteger as fibras ópticas na ponta da rede.) |
+        | Categoria | Código | Produto Sugerido | Justificativa |
+        |---|---|---|---|
+        | (Ex: OLT) | (Ex: DS-P8000-X2) | (Ex: OLT Chassi X2 da TP-Link) | (Ex: Ideal para iniciar a operação com alta performance e escalabilidade futura para XGS-PON.) |
+        | (Ex: Energia) | (Ex: XPS-9901140) | (Ex: Sistema Retificador XPS SRX 60A) | (Ex: Garante a alimentação contínua e segura para a OLT e demais equipamentos do rack.) |
         ... (continue com os outros produtos)
 
         ## Próximos Passos
@@ -207,7 +202,7 @@ Sua resposta final DEVE SER APENAS um único objeto JSON válido, sem nenhum tex
         - Apresente esta solução ao cliente, destacando os benefícios da integração.
         - [SKYWATCH_PROMPT_INTERACTIVE]
         \`\`\`
-    *   A tabela é OBRIGATÓRIA.
+    *   A tabela é OBRIGATÓRIA. Inclua o Código sempre que disponível.
     *   A tag [SKYWATCH_PROMPT_INTERACTIVE] ao final é OBRIGATÓRIA.`;
             break;
         case AppMode.SALES_ASSISTANT:
@@ -228,6 +223,7 @@ Sua resposta final DEVE SER APENAS um único objeto JSON válido, sem nenhum tex
 
     [RECOMENDACAO_PRINCIPAL_START]
     ### 🏅 Produto Recomendado: {Nome do Produto}
+    **Código:** {Código do Produto, se disponível}
     **Por que este produto?**
     (Parágrafo curto e persuasivo, focado nos benefícios diretos que o produto oferece para resolver o problema do cliente.)
     **Especificações Chave:**
@@ -308,15 +304,14 @@ Sua resposta final DEVE SER APENAS um único objeto JSON válido, sem nenhum tex
     (Apresente os produtos agrupados por categoria. Use sub-cabeçalhos para cada categoria.)
 
     #### Categoria: {Nome da Categoria 1}
-    | Produto Sugerido | Justificativa / Sugestão de Uso |
-    |---|---|
-    | (Ex: OLT Chassi X2 da TP-Link) | (Ex: Ideal para iniciar a operação com alta performance e escalabilidade futura para XGS-PON.) |
-    | (Ex: Módulo GPON C+++ para OLT) | (Ex: Garante o melhor desempenho de sinal óptico para os clientes mais distantes.) |
+    | Código | Produto Sugerido | Justificativa / Sugestão de Uso |
+    |---|---|---|
+    | (Ex: DS-P8000-X2) | (Ex: OLT Chassi X2 da TP-Link) | (Ex: Ideal para iniciar a operação com alta performance e escalabilidade futura para XGS-PON.) |
 
     #### Categoria: {Nome da Categoria 2}
-    | Produto Sugerido | Justificativa / Sugestão de Uso |
-    |---|---|
-    | (Ex: Sistema Retificador XPS SRX 60A) | (Ex: Garante a alimentação contínua e segura para a OLT e demais equipamentos do rack, evitando paradas.) |
+    | Código | Produto Sugerido | Justificativa / Sugestão de Uso |
+    |---|---|---|
+    | (Ex: XPS-9901140) | (Ex: Sistema Retificador XPS SRX 60A) | (Ex: Garante a alimentação contínua e segura para a OLT e demais equipamentos do rack, evitando paradas.) |
 
     ## Argumentos Comerciais para o Cliente
     > Com esta arquitetura, você não apenas resolve seu problema atual de capacidade, mas também prepara sua rede para o futuro, podendo oferecer planos de até 10 Gbps sem novos grandes investimentos.
@@ -333,7 +328,9 @@ NÃO adicione nenhum texto antes ou depois do JSON se sua intenção for 'genera
             break;
     }
 
-    return `${SYSTEM_PROMPT}\n${specificInstruction}\n${FULL_KNOWLEDGE_BASE_CONTEXT}`;
+    const userKnowledgeContext = getUserKnowledgeContext(options?.userKnowledge);
+    // FIX: Use FULL_KNOWLEDGE_BASE_TEXT imported from knowledgeBase.ts
+    return `${userKnowledgeContext}\n${SYSTEM_PROMPT}\n${specificInstruction}\n${FULL_KNOWLEDGE_BASE_TEXT}`;
 };
 
 const getResponseSchema = (mode: AppMode): object | undefined => {
@@ -464,7 +461,77 @@ export const generateConversationTitle = async (prompt: string): Promise<string>
     }
 };
 
-export const runGeminiJsonQuery = async (mode: AppMode, history: Message[], signal: AbortSignal, options?: { numberOfSlides?: number }): Promise<any> => {
+export const getTrainingAnalysis = async (transcript: string): Promise<TrainingAnalysisReport> => {
+    const systemInstruction = `Você é um "Sales Coach" sênior, um especialista em treinamento de vendas. Sua tarefa é analisar a transcrição de uma simulação de vendas e fornecer um feedback construtivo e detalhado.
+
+**PROCESSO OBRIGATÓRIO:**
+1.  **Análise Crítica:** Leia toda a transcrição, avaliando a performance do vendedor (identificado como 'user') em áreas como: clareza na comunicação, precisão técnica, habilidade de contornar objeções, poder de persuasão e condução da conversa.
+2.  **Atribuição de Nota:** Com base na sua análise, atribua uma nota de 0 a 10 para a performance geral do vendedor. Seja criterioso.
+3.  **Geração de Feedback:** Elabore um relatório completo.
+4.  **Formato de Resposta (JSON OBRIGATÓRIO):**
+    *   Sua resposta final DEVE SER APENAS um único objeto JSON válido, sem nenhum texto antes ou depois.
+    *   O JSON DEVE seguir esta estrutura estrita:
+        {
+          "score": "number (A nota de 0 a 10)",
+          "summary": "string (Um resumo conciso da performance, em um parágrafo)",
+          "strengths": ["string (Array com 2-3 pontos fortes principais que o vendedor demonstrou)"],
+          "areas_for_improvement": ["string (Array com 2-3 áreas principais onde o vendedor pode melhorar)"],
+          "suggested_arguments": [
+            {
+              "title": "string (Título do argumento, ex: 'Foco no Custo Total de Propriedade (TCO)')",
+              "explanation": "string (Explicação de como o vendedor poderia ter usado este argumento na conversa)"
+            }
+          ],
+          "objection_handling": [
+            {
+              "objection": "string (A objeção específica que o cliente levantou, ex: 'Seu produto está muito caro.')",
+              "suggestion": "string (Uma sugestão de resposta ou abordagem para contornar essa objeção de forma eficaz)"
+            }
+          ]
+        }`;
+    
+    const schema = {
+        type: Type.OBJECT,
+        properties: {
+            score: { type: Type.NUMBER },
+            summary: { type: Type.STRING },
+            strengths: { type: Type.ARRAY, items: { type: Type.STRING } },
+            areas_for_improvement: { type: Type.ARRAY, items: { type: Type.STRING } },
+            suggested_arguments: {
+                type: Type.ARRAY,
+                items: {
+                    type: Type.OBJECT,
+                    properties: { title: { type: Type.STRING }, explanation: { type: Type.STRING } },
+                    required: ["title", "explanation"]
+                }
+            },
+            objection_handling: {
+                type: Type.ARRAY,
+                items: {
+                    type: Type.OBJECT,
+                    properties: { objection: { type: Type.STRING }, suggestion: { type: Type.STRING } },
+                    required: ["objection", "suggestion"]
+                }
+            }
+        },
+        required: ["score", "summary", "strengths", "areas_for_improvement", "suggested_arguments", "objection_handling"]
+    };
+
+    const response = await ai.models.generateContent({
+        model: 'gemini-2.5-flash',
+        contents: transcript,
+        config: {
+            systemInstruction,
+            responseMimeType: "application/json",
+            responseSchema: schema,
+        }
+    });
+    
+    return JSON.parse(response.text.trim());
+};
+
+
+export const runGeminiJsonQuery = async (mode: AppMode, history: Message[], signal: AbortSignal, options?: { numberOfSlides?: number; userKnowledge?: KnowledgeBaseProduct[] }): Promise<any> => {
     const systemInstruction = getSystemInstruction(mode, options);
     const schema = getResponseSchema(mode);
     const apiHistory = constructHistoryForApi(history.slice(0, -1));
@@ -537,7 +604,7 @@ export async function* streamGeminiQuery(
     mode: AppMode,
     history: Message[],
     signal: AbortSignal,
-    options?: { isSpreadsheetAnalysis?: boolean; spreadsheetContent?: string; }
+    options?: { isSpreadsheetAnalysis?: boolean; spreadsheetContent?: string; userKnowledge?: KnowledgeBaseProduct[] }
 ): AsyncGenerator<string> {
     const systemInstruction = getSystemInstruction(mode, options);
     const apiHistory = constructHistoryForApi(history.slice(0, -1));
@@ -747,7 +814,7 @@ export const runImageCompositionQuery = async (baseImage: Attachment, newImage: 
     const textPart = { text: `Using the first image as the background and main scene, replace the main product in it with the product from the second image. The user's request is: "${prompt}"` };
 
     const response: GenerateContentResponse = await ai.models.generateContent({
-        model: 'gemini-2.5-flash-image-preview',
+        model: 'gemini-2.5-flash-image',
         contents: {
             parts: [baseImagePart, newImagePart, textPart],
         },
@@ -788,7 +855,7 @@ export const runImageEditingQuery = async (base64Data: string, mimeType: string,
     const textPart = { text: prompt };
 
     const response: GenerateContentResponse = await ai.models.generateContent({
-        model: 'gemini-2.5-flash-image-preview',
+        model: 'gemini-2.5-flash-image',
         contents: {
             parts: [imagePart, textPart],
         },
@@ -818,3 +885,98 @@ export const runImageEditingQuery = async (base64Data: string, mimeType: string,
 
     throw new Error('A IA não retornou uma imagem editada. A resposta pode ter sido bloqueada ou está em um formato inesperado.');
 };
+
+// START: Training Video Generator Feature
+export const generateTrainingScriptAndPrompts = async (productName: string, productDetails: string): Promise<TrainingVideoPackage> => {
+    const systemInstruction = `Você é um "Produtor de Vídeos de Treinamento". Sua tarefa é pegar o nome de um produto e criar um roteiro conciso e didático para um vídeo de treinamento de até 1 minuto.
+
+**PROCESSO OBRIGATÓRIO:**
+1.  **Análise do Produto:** Com base no nome do produto fornecido pelo usuário ("${productName}"), encontre o produto correspondente na BASE DE CONHECIMENTO e extraia suas informações mais importantes.
+2.  **Roteirização:** Divida o conteúdo em 3 a 5 seções lógicas (ex: Introdução, Principais Características, Benefícios, Aplicação).
+3.  **CONTEÚDO DA NARRAÇÃO:** Para CADA seção, o "section_text" DEVE ser detalhado e informativo, incluindo **características técnicas, diferenciais, vantagens e casos de uso do produto**. A narração deve ser fluida e vendedora, como se fosse para um vídeo de treinamento real.
+4.  **Criação de Prompts Visuais:** Para CADA seção, crie um "visual_prompt". Este prompt deve ser uma descrição em INGLÊS para uma IA de geração de vídeo (como o VEO) criar um clipe de fundo. O clipe deve ser ABSTRATO, TECNOLÓGICO e relacionado ao conceito da seção, mas NUNCA deve tentar mostrar o produto real.
+    *   **Exemplos de BONS prompts visuais:** "An abstract animation of glowing data packets flowing through fiber optic cables, cinematic, 8k, technological background.", "Close-up shot of a technician's hands skillfully connecting wires on a circuit board, clean and modern aesthetic.", "A dynamic motion graphic showing network connection icons expanding to cover a city map, blue and white color scheme."
+    *   **Exemplos de MAUS prompts visuais:** "A video of the Greatek Fusion Splicer X6", "Show the product on a table".
+5.  **Formato de Resposta (JSON OBRIGATÓRIO):**
+    *   Sua resposta final DEVE SER APENAS um único objeto JSON válido.
+    *   O JSON DEVE seguir esta estrutura estrita:
+        {
+          "product_name": "string (O nome oficial do produto encontrado na base de conhecimento)",
+          "script": [
+            {
+              "section_title": "string (Título da seção, ex: 'O que é?')",
+              "section_text": "string (O texto da narração/legenda para esta seção, detalhado e informativo)",
+              "visual_prompt": "string (O prompt em INGLÊS para o vídeo de fundo, conforme descrito acima)"
+            }
+          ]
+        }`;
+
+    const schema = {
+        type: Type.OBJECT,
+        properties: {
+            product_name: { type: Type.STRING },
+            script: {
+                type: Type.ARRAY,
+                items: {
+                    type: Type.OBJECT,
+                    properties: {
+                        section_title: { type: Type.STRING },
+                        section_text: { type: Type.STRING },
+                        visual_prompt: { type: Type.STRING },
+                    },
+                    required: ["section_title", "section_text", "visual_prompt"],
+                },
+            },
+        },
+        required: ["product_name", "script"],
+    };
+
+    const userPrompt = `Crie um roteiro de vídeo de treinamento para o produto: "${productName}".`;
+
+    const response = await ai.models.generateContent({
+        model: 'gemini-2.5-flash',
+        contents: userPrompt,
+        config: {
+            systemInstruction,
+            responseMimeType: "application/json",
+            responseSchema: schema,
+        },
+    });
+    
+    return JSON.parse(response.text.trim());
+};
+
+export const generateVideo = async (prompt: string): Promise<Blob> => {
+    let operation = await ai.models.generateVideos({
+        model: 'veo-2.0-generate-001',
+        prompt: prompt,
+        config: { numberOfVideos: 1 }
+    });
+
+    while (!operation.done) {
+        await new Promise(resolve => setTimeout(resolve, 10000));
+        operation = await ai.operations.getVideosOperation({ operation: operation });
+    }
+
+    if (operation.error) {
+        const errorMessage = `A geração de vídeo falhou. Motivo: ${operation.error.message} (Código: ${operation.error.code})`;
+        throw new Error(errorMessage);
+    }
+
+    const downloadLink = operation.response?.generatedVideos?.[0]?.video?.uri;
+    if (!downloadLink) {
+        throw new Error("A geração de vídeo falhou ou não retornou um link para download.");
+    }
+    
+    if (!process.env.API_KEY) {
+        throw new Error("API Key não encontrada para baixar o vídeo.");
+    }
+
+    const videoResponse = await fetch(`${downloadLink}&key=${process.env.API_KEY}`);
+    if (!videoResponse.ok) {
+        throw new Error(`Falha ao baixar o vídeo gerado. Status: ${videoResponse.status}`);
+    }
+
+    return await videoResponse.blob();
+};
+// END: Training Video Generator Feature

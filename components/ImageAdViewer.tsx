@@ -2,7 +2,7 @@ import React, { useState, useRef } from 'react';
 import { ImageAdPackage, isAdCopy } from '../types';
 import Modal from './ui/Modal';
 import { SubmitButton } from './ui/SubmitButton';
-import useAppStore from '../store/useAppStore';
+import { useAppStore } from '../store/useAppStore';
 
 interface ImageAdViewerProps {
   data: ImageAdPackage;

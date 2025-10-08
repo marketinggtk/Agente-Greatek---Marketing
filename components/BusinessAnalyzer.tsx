@@ -1,6 +1,6 @@
 
 import React, { useState, useRef, useCallback } from 'react';
-import useAppStore from '../store/useAppStore';
+import { useAppStore } from '../store/useAppStore';
 import { SubmitButton } from './ui/SubmitButton';
 import AnalysisDashboard from './AnalysisDashboard';
 

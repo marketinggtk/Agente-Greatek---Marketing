@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
 import { ContentPackage } from '../types';
-import useAppStore from '../store/useAppStore';
+import { useAppStore } from '../store/useAppStore';
 
 const CopyButton: React.FC<{ text: string }> = ({ text }) => {
     const [copied, setCopied] = useState(false);

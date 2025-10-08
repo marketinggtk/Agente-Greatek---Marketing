@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useMemo } from 'react';
 import { AppMode } from './types';
 import Header from './components/Header';
@@ -6,7 +5,7 @@ import Sidebar from './components/Sidebar';
 import InteractionPanel from './components/InteractionPanel';
 import SplashScreen from './components/SplashScreen';
 import AdminPanel from './components/AdminPanel';
-import useAppStore from './store/useAppStore';
+import { useAppStore } from './store/useAppStore';
 import AgentSelectionScreen from './components/AgentSelectionScreen';
 import ChatDisplay from './components/ChatDisplay';
 import Toast from './components/Toast';
@@ -14,6 +13,8 @@ import FeedbackInputModal from './components/FeedbackInputModal';
 import { AGENTS } from './constants';
 import GoalCalculator from './components/GoalCalculator';
 import PresentationBuilder from './components/PresentationBuilder';
+import PgrTool from './components/PgrTool';
+import TrainingCoach from './components/TrainingCoach';
 
 const App: React.FC = () => {
   const {
@@ -63,7 +64,7 @@ const App: React.FC = () => {
     }
 
     const currentMode = activeConversation?.mode;
-    const isToolMode = [AppMode.GOAL_CALCULATOR, AppMode.PRESENTATION_BUILDER].includes(currentMode as AppMode);
+    const isToolMode = [AppMode.GOAL_CALCULATOR, AppMode.PRESENTATION_BUILDER, AppMode.PGR_CALCULATOR].includes(currentMode as AppMode);
 
     const renderTool = () => {
         switch(currentMode) {
@@ -71,6 +72,8 @@ const App: React.FC = () => {
                 return <GoalCalculator />;
             case AppMode.PRESENTATION_BUILDER:
                 return <PresentationBuilder />;
+            case AppMode.PGR_CALCULATOR:
+                return <PgrTool />;
             default:
                 return null;
         }

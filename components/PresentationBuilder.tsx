@@ -1,6 +1,6 @@
 
 import React, { useState, useMemo, useEffect } from 'react';
-import useAppStore from '../store/useAppStore';
+import { useAppStore } from '../store/useAppStore';
 import { PresentationPackage, PresentationSlide, PresentationTheme } from '../types';
 import EditableSlide from './EditableSlide';
 import { generatePresentationPdf, generateSingleSlidePdf } from '../services/presentationPdfGenerator';

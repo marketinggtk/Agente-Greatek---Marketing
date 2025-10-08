@@ -1,6 +1,6 @@
 import jsPDF from 'jspdf';
 import 'jspdf-autotable';
-import { QuizQuestion } from '../types';
+import { QuizQuestion, PgrCalculatorState, TrainingAnalysisReport } from '../types';
 
 // The module augmentation for 'jspdf' was causing a "module not found" error during compilation.
 // To resolve the build error, it has been removed and we now use a type assertion `(doc as any)`
@@ -344,5 +344,252 @@ export const generateQuizResultPdf = (
     });
 
     const sanitizedTitle = `Resultado_Quiz_${productName.replace(/[^a-zA-Z0-9]/g, '_')}`;
+    doc.save(`${sanitizedTitle}.pdf`);
+};
+
+export const generatePgrPdf = (
+    state: PgrCalculatorState,
+    calculations: any,
+    pgrModel: any[]
+) => {
+    const doc = new jsPDF();
+    const margin = 14;
+    const pageW = doc.internal.pageSize.getWidth();
+    let finalY = 20;
+
+    const formatCurrency = (num: number) => num.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+    const formatPercentage = (num: number) => `${(num * 100).toLocaleString('pt-BR', { minimumFractionDigits: 0, maximumFractionDigits: 1 })}%`;
+
+    // --- Header ---
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(18);
+    doc.setTextColor(8, 63, 98);
+    doc.text('Relatório de PGR Individual', margin, finalY);
+    finalY += 8;
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(11);
+    doc.setTextColor(74, 74, 74);
+    doc.text(`Vendedor: ${state.sellerName || 'Não informado'}`, margin, finalY);
+    doc.text(new Date().toLocaleDateString('pt-BR'), pageW - margin, finalY, { align: 'right' });
+    finalY += 15;
+
+    // --- Summary ---
+    (doc as any).autoTable({
+        startY: finalY,
+        body: [
+            ['Premiação', formatCurrency(calculations.premiacaoTotal)],
+            ['Bônus', formatCurrency(calculations.bonusProjetos)],
+            [{ content: 'Total', styles: { fontStyle: 'bold' } }, { content: formatCurrency(calculations.totalGeral), styles: { fontStyle: 'bold' } }],
+            [{ content: 'NOTA PGR', styles: { fontStyle: 'bold', fillColor: [230, 230, 230] } }, { content: calculations.notaPGR.toFixed(1), styles: { fontStyle: 'bold', fillColor: [230, 230, 230] } }]
+        ],
+        theme: 'grid',
+        headStyles: { fillColor: [8, 63, 98] },
+        columnStyles: { 0: { fontStyle: 'bold' } },
+        didDrawPage: (data: any) => {
+            finalY = data.cursor?.y ?? finalY;
+        }
+    });
+    finalY = (doc as any).lastAutoTable.finalY + 10;
+
+    // --- Details ---
+    for (const group of pgrModel) {
+        doc.setFontSize(12);
+        doc.setFont('helvetica', 'bold');
+        doc.setTextColor(8, 63, 98);
+        doc.text(group.title, margin, finalY);
+        finalY += 5;
+
+        const body = group.metrics.map((metric: any) => {
+            const metricState = state.metrics[metric.id] || { meta: '', realizado: '' };
+            const result = calculations.results.get(metric.id) || { atingimento: 0, valor: 0 };
+            const isEligible = result.atingimento >= metric.eligibilityThreshold;
+            
+            return [
+                metric.indicator,
+                metricState.meta,
+                metricState.realizado,
+                { content: formatPercentage(result.atingimento), styles: { textColor: isEligible ? [0, 128, 0] : [255, 0, 0] } },
+                formatCurrency(result.valor)
+            ];
+        });
+
+        const subtotal = calculations.groupSubtotals[group.id] || 0;
+
+        (doc as any).autoTable({
+            startY: finalY,
+            head: [['Indicador', 'Meta', 'Realizado', 'Atingimento', 'Valor']],
+            body: body,
+            foot: [[{ content: `Subtotal ${group.title}`, colSpan: 4, styles: { halign: 'right', fontStyle: 'bold' } }, { content: formatCurrency(subtotal), styles: { fontStyle: 'bold' } }]],
+            theme: 'striped',
+            headStyles: { fillColor: [200, 200, 200], textColor: [40, 40, 40] },
+            footStyles: { fillColor: [230, 230, 230] },
+            didDrawPage: (data: any) => {
+                finalY = data.cursor.y;
+            }
+        });
+        finalY = (doc as any).lastAutoTable.finalY + 10;
+    }
+
+    const sanitizedTitle = `PGR_${state.sellerName || 'Relatorio'}`.replace(/[^a-zA-Z0-9]/g, '_');
+    doc.save(`${sanitizedTitle}.pdf`);
+};
+
+export const generateTrainingReportPdf = (report: TrainingAnalysisReport, product: string) => {
+    const doc = new jsPDF();
+    const margin = 15;
+    const pageW = doc.internal.pageSize.getWidth();
+    const pageH = doc.internal.pageSize.getHeight();
+    let finalY = 20;
+
+    const colors = {
+        greatekDarkBlue: [8, 63, 98],
+        greatekBlue: [0, 129, 204],
+        textPrimary: [11, 11, 11],
+        textSecondary: [74, 74, 74],
+        border: [233, 233, 233],
+        green: [46, 125, 50],
+        greenBg: [232, 245, 233],
+        yellow: [245, 127, 23],
+        yellowBg: [255, 243, 224],
+        red: [198, 40, 40],
+        redBg: [255, 235, 238],
+    };
+
+    const checkPageBreak = (neededHeight: number) => {
+        if (finalY + neededHeight > pageH - margin) {
+            doc.addPage();
+            finalY = 20;
+        }
+    };
+    
+    // --- Header ---
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(18);
+    doc.setTextColor(colors.greatekDarkBlue[0], colors.greatekDarkBlue[1], colors.greatekDarkBlue[2]);
+    doc.text('Relatório de Performance - Coach de Treinamento', margin, finalY);
+    finalY += 8;
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(11);
+    doc.setTextColor(colors.textSecondary[0], colors.textSecondary[1], colors.textSecondary[2]);
+    doc.text(`Produto Treinado: ${product}`, margin, finalY);
+    finalY += 15;
+
+    // --- Score and Summary ---
+    checkPageBreak(50);
+    const scoreColor = report.score >= 8 ? colors.green : report.score >= 5 ? colors.yellow : colors.red;
+    
+    // Score Circle
+    doc.setLineWidth(2.5);
+    doc.setDrawColor(scoreColor[0], scoreColor[1], scoreColor[2]);
+    doc.circle(margin + 20, finalY + 15, 20);
+    doc.setFontSize(24);
+    doc.setFont('helvetica', 'bold');
+    doc.setTextColor(scoreColor[0], scoreColor[1], scoreColor[2]);
+    doc.text(report.score.toFixed(0), margin + 20, finalY + 18, { align: 'center' });
+    
+    // Summary Text
+    doc.setFontSize(12);
+    doc.setFont('helvetica', 'bold');
+    doc.setTextColor(colors.greatekDarkBlue[0], colors.greatekDarkBlue[1], colors.greatekDarkBlue[2]);
+    const summaryX = margin + 50;
+    const summaryMaxWidth = pageW - summaryX - margin;
+    doc.text('Resumo do Coach', summaryX, finalY);
+    finalY += 6;
+    doc.setFontSize(10);
+    doc.setFont('helvetica', 'normal');
+    doc.setTextColor(colors.textSecondary[0], colors.textSecondary[1], colors.textSecondary[2]);
+    const summaryLines = doc.splitTextToSize(report.summary, summaryMaxWidth);
+    doc.text(summaryLines, summaryX, finalY);
+    finalY += (summaryLines.length * 5) + 10;
+
+    // --- Strengths & Improvements (side by side) ---
+    checkPageBreak(60);
+    const colWidth = (pageW - margin * 2 - 10) / 2;
+    const strengthsY = finalY;
+    const improvementsY = finalY;
+    
+    // Strengths
+    doc.setFontSize(11);
+    doc.setFont('helvetica', 'bold');
+    doc.setTextColor(colors.green[0], colors.green[1], colors.green[2]);
+    doc.text('Pontos Fortes', margin, strengthsY);
+    doc.setFontSize(9);
+    doc.setFont('helvetica', 'normal');
+    doc.setTextColor(colors.textPrimary[0], colors.textPrimary[1], colors.textPrimary[2]);
+    let currentYStrengths = strengthsY + 7;
+    report.strengths.forEach(item => {
+        const itemLines = doc.splitTextToSize(`• ${item}`, colWidth - 5);
+        if (currentYStrengths + (itemLines.length * 4) > finalY + 50) { // crude check to avoid overflow in this simple layout
+             // In a real scenario, you'd calculate the max height of both columns first
+        }
+        doc.text(itemLines, margin, currentYStrengths);
+        currentYStrengths += (itemLines.length * 4) + 2;
+    });
+
+    // Improvements
+    const improvementsX = margin + colWidth + 10;
+    doc.setFontSize(11);
+    doc.setFont('helvetica', 'bold');
+    doc.setTextColor(colors.yellow[0], colors.yellow[1], colors.yellow[2]);
+    doc.text('Pontos a Melhorar', improvementsX, improvementsY);
+    doc.setFontSize(9);
+    doc.setFont('helvetica', 'normal');
+    doc.setTextColor(colors.textPrimary[0], colors.textPrimary[1], colors.textPrimary[2]);
+    let currentYImprovements = improvementsY + 7;
+    report.areas_for_improvement.forEach(item => {
+        const itemLines = doc.splitTextToSize(`• ${item}`, colWidth - 5);
+        doc.text(itemLines, improvementsX, currentYImprovements);
+        currentYImprovements += (itemLines.length * 4) + 2;
+    });
+    
+    finalY = Math.max(currentYStrengths, currentYImprovements) + 10;
+
+    // --- Strategic Suggestions ---
+    checkPageBreak(15);
+    doc.setFontSize(14);
+    doc.setFont('helvetica', 'bold');
+    doc.setTextColor(colors.greatekDarkBlue[0], colors.greatekDarkBlue[1], colors.greatekDarkBlue[2]);
+    doc.text('Sugestões Estratégicas', margin, finalY);
+    finalY += 8;
+    
+    const drawCard = (title: string, text: string, titleColor: number[], bgColor: number[]) => {
+        doc.setFontSize(10);
+        doc.setFont('helvetica', 'bold');
+        const titleLines = doc.splitTextToSize(title, pageW - margin * 2 - 20);
+        
+        doc.setFontSize(9);
+        doc.setFont('helvetica', 'normal');
+        const textLines = doc.splitTextToSize(text, pageW - margin * 2 - 20);
+
+        const cardHeight = 10 + (titleLines.length * 5) + 3 + (textLines.length * 4) + 5;
+        checkPageBreak(cardHeight);
+        
+        doc.setFillColor(bgColor[0], bgColor[1], bgColor[2]);
+        doc.roundedRect(margin, finalY, pageW - margin * 2, cardHeight, 3, 3, 'F');
+        
+        let cardContentY = finalY + 8;
+        doc.setFontSize(10);
+        doc.setFont('helvetica', 'bold');
+        doc.setTextColor(titleColor[0], titleColor[1], titleColor[2]);
+        doc.text(titleLines, margin + 10, cardContentY);
+        cardContentY += (titleLines.length * 5) + 3;
+
+        doc.setFontSize(9);
+        doc.setFont('helvetica', 'normal');
+        doc.setTextColor(colors.textPrimary[0], colors.textPrimary[1], colors.textPrimary[2]);
+        doc.text(textLines, margin + 10, cardContentY);
+
+        finalY += cardHeight + 5;
+    }
+    
+    report.suggested_arguments.forEach(arg => {
+        drawCard(arg.title, arg.explanation, colors.greatekDarkBlue, [227, 242, 253]); // light blue bg
+    });
+
+    report.objection_handling.forEach(obj => {
+        drawCard(`Como Contornar: "${obj.objection}"`, obj.suggestion, colors.red, colors.redBg);
+    });
+
+    const sanitizedTitle = `Relatorio_Performance_${product.replace(/[^a-zA-Z0-9]/g, '_')}`;
     doc.save(`${sanitizedTitle}.pdf`);
 };

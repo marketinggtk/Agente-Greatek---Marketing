@@ -1,6 +1,8 @@
 
+
+
 import React, { useState, useEffect, useMemo, useRef } from 'react';
-import useAppStore from '../store/useAppStore';
+import { useAppStore } from '../store/useAppStore';
 import { SubmitButton } from './ui/SubmitButton';
 import { AppMode } from '../types';
 

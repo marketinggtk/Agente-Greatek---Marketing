@@ -1,6 +1,7 @@
 
+
 import React, { useState, useRef, useEffect } from 'react';
-import useAppStore from '../store/useAppStore';
+import { useAppStore } from '../store/useAppStore';
 import { AppMode } from '../types';
 
 interface SidebarProps {
@@ -171,6 +172,13 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
           >
             <i className="bi bi-calculator-fill w-5 h-5 mr-3 flex-shrink-0"></i>
             <span className="truncate flex-1">Calculadora de Metas</span>
+          </button>
+          <button
+            onClick={() => handleOpenTool(AppMode.PGR_CALCULATOR)}
+            className="flex items-center w-full text-left px-3 py-2 text-sm font-medium rounded-md text-text-secondary hover:bg-greatek-bg-light transition-colors"
+          >
+            <i className="bi bi-award-fill w-5 h-5 mr-3 flex-shrink-0"></i>
+            <span className="truncate flex-1">Calculadora de PGR</span>
           </button>
           <button
             onClick={() => handleOpenTool(AppMode.PRESENTATION_BUILDER)}

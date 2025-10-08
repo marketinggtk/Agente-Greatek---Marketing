@@ -1,4 +1,6 @@
 
+
+
 export enum AppMode {
   INTEGRATOR = "Integrador",
   INSTRUCTOR = "Instrutor",
@@ -14,9 +16,9 @@ export enum AppMode {
   SKYWATCH = "SkyWatch",
   GOAL_CALCULATOR = "Calculadora de Metas",
   PRESENTATION_BUILDER = "Criador de Apresentações",
-  // FIX: Added missing AppMode members for Vigia and Business Analyzer features.
-  VIGIA = "Vigia",
+  PGR_CALCULATOR = "Calculadora de PGR Individual",
   BUSINESS_ANALYZER = "Analisador de Negócios",
+  TRAINING_COACH = "Coach de Treinamento",
 }
 
 export type Role = 'user' | 'agent';
@@ -118,9 +120,50 @@ export interface GoalCalculatorState {
   wonProposals: string;
 }
 
+export type PgrMetricValues = {
+  meta: string;
+  realizado: string;
+};
+
+export interface PgrCalculatorState {
+  selectedSellerId: string;
+  sellerName: string;
+  metrics: Record<string, PgrMetricValues>;
+}
+
+export interface PgrSeller {
+  id: string;
+  name: string;
+  password?: string;
+  metas: Record<string, string>;
+}
+
+// FIX: Added missing KnowledgeBaseProduct interface.
+export interface KnowledgeBaseProduct {
+  name: string;
+  keywords: string[];
+  details: string;
+  code?: string;
+}
+
+// START: Training Video Generator Feature
+export interface TrainingScriptSection {
+  section_title: string;
+  section_text: string;
+  visual_prompt: string;
+  video_blob_url?: string;
+}
+
+export interface TrainingVideoPackage {
+  product_name: string;
+  script: TrainingScriptSection[];
+}
+// END: Training Video Generator Feature
+
+
 export interface Message {
   role: Role;
-  content: string | PageOptimizationPackage | MarketIntelReport | TrainingKitReport | ImageAdPackage | ContentPackage | PresentationPackage;
+  content: string | PageOptimizationPackage | MarketIntelReport | TrainingKitReport | ImageAdPackage | ContentPackage | PresentationPackage | VigiaReport;
   attachments?: Attachment[];
   feedback?: Feedback | null;
 }
@@ -134,6 +177,8 @@ export interface Conversation {
   skywatchDeclined?: boolean;
   presentationPackage?: PresentationPackage | null;
   goalCalculatorState?: GoalCalculatorState;
+  pgrCalculatorState?: PgrCalculatorState;
+  pgrAuthenticatedSellerId?: string | null;
 }
 
 export interface FaqItem {
@@ -165,6 +210,16 @@ export interface PageOptimizationPackage {
   tech_checklist: string[];
 }
 
+export interface TrainingAnalysisReport {
+    score: number;
+    summary: string;
+    strengths: string[];
+    areas_for_improvement: string[];
+    suggested_arguments: { title: string; explanation: string; }[];
+    objection_handling: { objection: string; suggestion: string; }[];
+}
+
+
 export function isPageOptimizationPackage(response: any): response is PageOptimizationPackage {
   return response && typeof response === 'object' && 'url' in response && 'tech_checklist' in response && 'schema_jsonld' in response;
 }
@@ -184,7 +239,6 @@ export function isContentPackage(response: any): response is ContentPackage {
 export function isPresentationPackage(response: any): response is PresentationPackage {
     return response && typeof response === 'object' && 'presentation_title' in response && Array.isArray(response.slides);
 }
-
 
 export interface ComparisonPoint {
   feature: string;
@@ -207,7 +261,7 @@ export interface MarketIntelReport {
   competitor_data_sources?: GroundingSource[];
 }
 
-// FIX: Added missing VigiaReport interface.
+// FIX: Added missing VigiaReport interface based on its usage.
 export interface VigiaReport {
   monitoring_topic: string;
   executive_summary: string[];
@@ -240,7 +294,6 @@ export interface ChartData {
   percentage: number;
 }
 
-// FIX: Added missing BusinessAnalysisResult interface.
 export interface BusinessAnalysisResult {
   kpis: KPIData[];
   winReasons: ChartData[];

@@ -1,4 +1,3 @@
-
 import { AppMode, SlideType } from './types';
 
 // FIX: Added SYSTEM_PROMPT constant to provide a base instruction for all AI agents.
@@ -27,9 +26,10 @@ export const AGENTS: AgentDefinition[] = [
     { mode: AppMode.IMAGE_ADS, title: "Gerador de Imagens", category: 'Marketing', iconClass: "bi-image-fill" },
     { mode: AppMode.GOAL_CALCULATOR, title: "Calculadora de Metas", category: 'Ferramentas', iconClass: "bi-calculator-fill" },
     { mode: AppMode.PRESENTATION_BUILDER, title: "Criador de Apresentações", category: 'Ferramentas', iconClass: "bi-file-slides-fill" },
+    { mode: AppMode.PGR_CALCULATOR, title: "Calculadora de PGR", category: 'Ferramentas', iconClass: "bi-award-fill" },
 ];
 
-// FIX: Added and exported MODE_DESCRIPTIONS to provide titles, descriptions, and usage examples for each agent mode.
+// FIX: Added and exported a record of descriptions for each agent mode.
 export const MODE_DESCRIPTIONS: Record<AppMode, { title: string; description: string; example: string; }> = {
     [AppMode.INTEGRATOR]: {
         title: 'Integrador',
@@ -101,15 +101,19 @@ export const MODE_DESCRIPTIONS: Record<AppMode, { title: string; description: st
         description: 'Cria roteiros completos de apresentações institucionais ou comerciais, slide a slide.',
         example: 'Crie uma apresentação sobre as soluções de energia da Greatek para ISPs.'
     },
-    // FIX: Added missing AppMode entries for Vigia and Business Analyzer to resolve TypeScript error.
-    [AppMode.VIGIA]: {
-        title: 'Vigia',
-        description: 'Monitora tópicos de interesse na web e gera relatórios sobre oportunidades e ameaças.',
-        example: 'Monitore o lançamento de novas tecnologias de fibra óptica no Brasil.'
+    [AppMode.PGR_CALCULATOR]: {
+        title: 'Calculadora de PGR Individual',
+        description: 'Calcula o valor da premiação (PGR) com base nas metas e resultados do vendedor.',
+        example: 'Preencha as metas e os valores realizados para ver o cálculo do PGR.'
     },
     [AppMode.BUSINESS_ANALYZER]: {
         title: 'Analisador de Negócios',
         description: 'Analisa dados de planilhas de vendas (ganhos/perdas) para extrair KPIs e insights estratégicos.',
         example: 'Faça o upload de sua planilha de vendas para começar a análise.'
+    },
+    [AppMode.TRAINING_COACH]: {
+        title: 'Coach de Treinamento',
+        description: 'Simula um cliente com dúvidas para que você treine suas respostas e receba uma avaliação detalhada.',
+        example: 'Inicie uma simulação e teste suas habilidades de argumentação e quebra de objeções.'
     },
 };

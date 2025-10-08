@@ -1,6 +1,6 @@
 import React, { useState, useRef } from 'react';
 import Modal from './ui/Modal';
-import useAppStore from '../store/useAppStore';
+import { useAppStore } from '../store/useAppStore';
 import Loader from './Loader';
 import { SubmitButton } from './ui/SubmitButton';
 

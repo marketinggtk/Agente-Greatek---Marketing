@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react';
-import useAppStore from '../store/useAppStore';
-import { SubmitButton } from './ui/SubmitButton';
+// FIX: Changed to a named import and corrected the path to match the export from the store file.
+import { useAppStore } from './store/useAppStore';
+import { SubmitButton } from './components/ui/SubmitButton';
 
 interface InteractionPanelProps {
   onSubmit: (prompt: string) => void;

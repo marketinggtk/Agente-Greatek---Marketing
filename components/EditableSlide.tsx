@@ -1,7 +1,6 @@
-
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { PresentationSlide, PresentationTheme } from '../types';
-import useAppStore from '../store/useAppStore';
+import { useAppStore } from '../store/useAppStore';
 import { generateImageAd } from '../services/geminiService';
 
 interface EditableSlideProps {
@@ -36,6 +35,7 @@ const AutoGrowTextarea = React.forwardRef<HTMLTextAreaElement, React.TextareaHTM
 
     return <textarea ref={resolvedRef} {...props} />;
 });
+AutoGrowTextarea.displayName = 'AutoGrowTextarea';
 
 
 const EditableField: React.FC<{ value: string; onChange: (newValue: string) => void; multiline?: boolean; className?: string; placeholder?: string }> = ({ value, onChange, multiline = false, className = '', placeholder }) => {

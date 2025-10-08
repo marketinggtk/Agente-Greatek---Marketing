@@ -5,7 +5,6 @@ import JsonViewer from './JsonViewer';
 import MarkdownViewer from './MarkdownViewer';
 import MarketIntelViewer from './MarketIntelViewer';
 import TrainingKitViewer from './TrainingKitViewer';
-import VigiaReportViewer from './VigiaReportViewer';
 import ComplexResponseViewer from './ComplexResponseViewer';
 import ImageAdViewer from './ImageAdViewer';
 import ContentPackageViewer from './ContentPackageViewer';

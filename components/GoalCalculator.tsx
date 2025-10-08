@@ -1,6 +1,6 @@
 
 import React, { useMemo } from 'react';
-import useAppStore from '../store/useAppStore';
+import { useAppStore } from '../store/useAppStore';
 
 const parseNumericInput = (value: string): number => {
     if (!value) return 0;
@@ -129,7 +129,6 @@ const GoalCalculator: React.FC = () => {
         avgTicket,
         dealsToWin,
         proposalsNeeded,
-        proposalsPerSeller,
         percentageOverGoal,
         goalProgress,
         workingDaysLeft,
@@ -141,16 +140,18 @@ const GoalCalculator: React.FC = () => {
         const total = parseNumericInput(calculatorState?.totalProposals || '');
         const won = parseNumericInput(calculatorState?.wonProposals || '');
 
+        // Existing KPIs
         const rate = total > 0 ? (won / total) : 0;
         const remaining = goal - sold;
         const ticket = won > 0 ? (sold / won) : 0;
-        
         const deals = remaining > 0 && ticket > 0 ? Math.ceil(remaining / ticket) : 0;
-        const needed = remaining > 0 && rate > 0 ? Math.ceil(deals / rate) : 0;
-
-        const NUMBER_OF_SELLERS = 7;
-        const perSeller = needed > 0 ? (needed / NUMBER_OF_SELLERS) : 0;
         
+        // --- DIRECT & ROBUST LOGIC FOR PROPOSALS NEEDED ---
+        // Calculate the average effective value of each proposal sent
+        const avgProposalValue = total > 0 ? (sold / total) : 0;
+        // Calculate how many proposals are needed to cover the remaining goal
+        const needed = remaining > 0 && avgProposalValue > 0 ? Math.ceil(remaining / avgProposalValue) : 0;
+
         let overGoal = 0;
         if (sold > goal && goal > 0) {
             overGoal = ((sold - goal) / goal) * 100;
@@ -171,7 +172,9 @@ const GoalCalculator: React.FC = () => {
             }
         }
         const monthName = new Date().toLocaleString('pt-BR', { month: 'long' });
-        const perSellerPerDay = needed > 0 && remainingWorkDays > 0 ? (needed / NUMBER_OF_SELLERS / remainingWorkDays) : 0;
+        
+        // User request: calculate daily proposals as total needed / remaining work days.
+        const proposalsPerSellerPerDay = needed > 0 && remainingWorkDays > 0 ? (needed / remainingWorkDays) : 0;
 
         return {
             conversionRate: rate,
@@ -179,12 +182,11 @@ const GoalCalculator: React.FC = () => {
             avgTicket: ticket,
             dealsToWin: deals,
             proposalsNeeded: needed,
-            proposalsPerSeller: perSeller,
             percentageOverGoal: overGoal,
             goalProgress: progress,
             workingDaysLeft: remainingWorkDays,
             currentMonthName: monthName.charAt(0).toUpperCase() + monthName.slice(1),
-            proposalsPerSellerPerDay: perSellerPerDay,
+            proposalsPerSellerPerDay: proposalsPerSellerPerDay,
         };
     }, [calculatorState]);
 
@@ -243,7 +245,13 @@ const GoalCalculator: React.FC = () => {
                                <ProgressRing progress={goalProgress} />
                             </div>
                             <div className="flex-grow">
-                                <p className="text-sm font-semibold text-greatek-dark-blue uppercase tracking-wider">Plano de Ação Diário</p>
+                                <p className="text-sm font-semibold text-greatek-dark-blue uppercase tracking-wider flex items-center justify-center sm:justify-start gap-1.5">
+                                    Plano de Ação Diário
+                                    <i 
+                                        className="bi bi-info-circle text-gray-400 cursor-help"
+                                        title="Calculado com base no valor restante da meta e no valor médio efetivo de cada proposta (considerando sua taxa de conversão e ticket atuais)."
+                                    ></i>
+                                </p>
                                 <p className="text-text-secondary mt-1">
                                     Faltam <strong className="text-greatek-dark-blue">{workingDaysLeft} dias úteis</strong> em {currentMonthName}. Cada vendedor precisa enviar ~<strong className="text-greatek-dark-blue text-2xl">{proposalsPerSellerPerDay.toLocaleString('pt-BR', { maximumFractionDigits: 1 })}</strong> propostas por dia para atingir a meta.
                                 </p>
@@ -261,13 +269,17 @@ const GoalCalculator: React.FC = () => {
                         </div>
                     </div>
 
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-6">
-                        <ResultCard title="Falta para a Meta" value={formatCurrency(remainingGoal)} iconClass="bi-bullseye" />
-                        <ResultCard title="Taxa de Conversão" value={`${(conversionRate * 100).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}%`} iconClass="bi-graph-up-arrow" />
-                        <ResultCard title="Dias Úteis Restantes" value={`${workingDaysLeft} dias`} iconClass="bi-calendar-week-fill" />
-                        <ResultCard title="Média Propostas / Vendedor" value={`~ ${proposalsPerSeller.toLocaleString('pt-BR', { maximumFractionDigits: 1 })}`} iconClass="bi-people-fill" />
-                        <ResultCard title="Ticket Médio" value={formatCurrency(avgTicket)} iconClass="bi-tags-fill" />
-                        <ResultCard title="Negócios a Ganhar" value={dealsToWin.toLocaleString('pt-BR')} iconClass="bi-trophy-fill" />
+                    <div className="space-y-4">
+                        <div className="p-6 rounded-lg shadow-lg bg-greatek-dark-blue text-white flex flex-col items-center justify-center text-center">
+                            <i className="bi bi-trophy-fill text-4xl text-yellow-300"></i>
+                            <p className="mt-2 text-sm font-semibold uppercase tracking-wider text-white/80">Negócios a Ganhar</p>
+                            <p className="font-bold text-white text-5xl">{dealsToWin.toLocaleString('pt-BR')}</p>
+                        </div>
+                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                           <ResultCard title="Falta para a Meta" value={formatCurrency(remainingGoal)} iconClass="bi-bullseye" />
+                           <ResultCard title="Taxa de Conversão" value={`${(conversionRate * 100).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}%`} iconClass="bi-graph-up-arrow" />
+                           <ResultCard title="Ticket Médio" value={formatCurrency(avgTicket)} iconClass="bi-tags-fill" />
+                        </div>
                     </div>
                 </div>
             )}

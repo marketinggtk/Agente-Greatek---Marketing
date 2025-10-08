@@ -1,9 +1,10 @@
-
 import React, { useState } from 'react';
 import { AppMode } from '../types';
 import { AGENTS, MODE_DESCRIPTIONS } from '../constants';
-import useAppStore from '../store/useAppStore';
+import { useAppStore } from '../store/useAppStore';
 import FeedbackModal from './FeedbackModal';
+import ControlPanel from './ControlPanel';
+import Modal from './ui/Modal';
 
 // Card principal para o grid da esquerda
 const PrimaryAgentCard: React.FC<{
@@ -53,6 +54,10 @@ interface AgentSelectionScreenProps {
 
 const AgentSelectionScreen: React.FC<AgentSelectionScreenProps> = ({ onSelectAgent }) => {
   const [isFeedbackModalOpen, setIsFeedbackModalOpen] = useState(false);
+  const [isControlPanelOpen, setIsControlPanelOpen] = useState(false);
+  const [isPasswordPromptOpen, setIsPasswordPromptOpen] = useState(false);
+  const [passwordInput, setPasswordInput] = useState('');
+  const [passwordError, setPasswordError] = useState('');
 
   const commercialAgents = AGENTS.filter(a => a.category === 'Comercial');
   const marketingAgents = AGENTS.filter(a => a.category === 'Marketing');
@@ -74,6 +79,28 @@ const AgentSelectionScreen: React.FC<AgentSelectionScreenProps> = ({ onSelectAge
     if (indexB === -1) return -1;
     return indexA - indexB;
   });
+
+  const handleControlPanelClick = () => {
+    setIsPasswordPromptOpen(true);
+  };
+
+  const handlePasswordSubmit = () => {
+    if (passwordInput === 'GTK@2025') {
+      setIsPasswordPromptOpen(false);
+      setIsControlPanelOpen(true);
+      setPasswordInput('');
+      setPasswordError('');
+    } else {
+      setPasswordError('Senha incorreta. Tente novamente.');
+      setPasswordInput('');
+    }
+  };
+
+  const handleClosePasswordPrompt = () => {
+    setIsPasswordPromptOpen(false);
+    setPasswordInput('');
+    setPasswordError('');
+  };
 
   return (
     <div className="min-h-screen w-full bg-greatek-blue flex flex-col items-center p-4 sm:p-6 lg:p-8 animate-fade-in text-white overflow-hidden">
@@ -131,19 +158,64 @@ const AgentSelectionScreen: React.FC<AgentSelectionScreenProps> = ({ onSelectAge
         <span>Agente Greatek v1.0.0 | Greatek 2025 © - Todos os direitos reservados</span>
       </footer>
 
-      {/* Botão de Feedback */}
-      <button
-        onClick={() => setIsFeedbackModalOpen(true)}
-        className="fixed bottom-6 right-6 bg-white text-greatek-dark-blue w-14 h-14 rounded-full shadow-lg flex items-center justify-center hover:bg-greatek-bg-light transform hover:scale-110 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-white"
-        aria-label="Tem alguma ideia de melhoria?"
-      >
-        <i className="bi bi-question-lg text-3xl"></i>
-      </button>
+      {/* Botões Flutuantes */}
+      <div className="fixed bottom-6 right-6 flex flex-col gap-4">
+        <button
+          onClick={handleControlPanelClick}
+          className="bg-white text-greatek-dark-blue w-14 h-14 rounded-full shadow-lg flex items-center justify-center hover:bg-greatek-bg-light transform hover:scale-110 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-white"
+          aria-label="Abrir Painel de Controle"
+          title="Painel de Controle"
+        >
+          <i className="bi bi-sliders text-2xl"></i>
+        </button>
+        <button
+          onClick={() => setIsFeedbackModalOpen(true)}
+          className="bg-white text-greatek-dark-blue w-14 h-14 rounded-full shadow-lg flex items-center justify-center hover:bg-greatek-bg-light transform hover:scale-110 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-white"
+          aria-label="Tem alguma ideia de melhoria?"
+          title="Enviar Feedback"
+        >
+          <i className="bi bi-lightbulb-fill text-3xl"></i>
+        </button>
+      </div>
       
       <FeedbackModal 
         isOpen={isFeedbackModalOpen} 
         onClose={() => setIsFeedbackModalOpen(false)} 
       />
+
+      <Modal
+        isOpen={isPasswordPromptOpen}
+        onClose={handleClosePasswordPrompt}
+        title="Acesso Restrito"
+      >
+        <div className="p-4 text-center">
+            <p className="text-text-secondary mb-4">
+                Esta área é reservada para testes. Por favor, insira a senha de acesso.
+            </p>
+            <input
+                type="password"
+                value={passwordInput}
+                onChange={(e) => setPasswordInput(e.target.value)}
+                onKeyPress={(e) => e.key === 'Enter' && handlePasswordSubmit()}
+                autoFocus
+                className="w-full max-w-xs mx-auto p-3 text-center rounded-md border-transparent shadow-sm focus:border-greatek-blue focus:ring-greatek-blue text-lg bg-[#e9e9e9] text-black placeholder:text-gray-500"
+                placeholder="••••••"
+            />
+            {passwordError && <p className="text-red-600 text-sm mt-3">{passwordError}</p>}
+            <div className="mt-6">
+                 <button
+                    onClick={handlePasswordSubmit}
+                    className="w-full max-w-xs mx-auto inline-flex items-center justify-center rounded-md border border-transparent bg-greatek-blue px-4 py-2 text-base font-medium text-white shadow-sm hover:bg-greatek-dark-blue focus:outline-none focus:ring-2 focus:ring-greatek-blue focus:ring-offset-2"
+                >
+                    Acessar
+                </button>
+            </div>
+        </div>
+      </Modal>
+
+      {isControlPanelOpen && (
+        <ControlPanel onClose={() => setIsControlPanelOpen(false)} />
+      )}
     </div>
   );
 };

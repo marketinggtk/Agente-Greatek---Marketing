@@ -144,7 +144,6 @@ const drawSlide = (doc: jsPDF, slide: PresentationSlide, presentation: Presentat
         } catch (e) {
             console.error("PDF image error:", e);
             doc.setDrawColor(colors.subtleBorder[0], colors.subtleBorder[1], colors.subtleBorder[2]);
-            // FIX: Corrected arguments for `roundedRect` to use proper width and height variables.
             doc.roundedRect(imageX, imageY, imageWidth, imageHeight, 10, 10, 'S');
             doc.text("[Falha ao carregar imagem]", imageX + imageWidth / 2, imageY + imageHeight / 2, { align: 'center' });
         }

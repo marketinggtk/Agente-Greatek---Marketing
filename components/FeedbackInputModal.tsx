@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import Modal from './ui/Modal';
-import useAppStore from '../store/useAppStore';
+import { useAppStore } from '../store/useAppStore';
 
 const FeedbackInputModal: React.FC = () => {
   const { feedbackModalState, closeFeedbackModal, submitNegativeFeedback } = useAppStore();

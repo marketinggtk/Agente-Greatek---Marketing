@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { AppMode } from '../types';
 import { generateIntegratorPdf } from '../services/pdfGenerator';
-import useAppStore from '../store/useAppStore';
+import { useAppStore } from '../store/useAppStore';
 import { DataTableView } from './ui/DataTableView';
 
 interface MarkdownViewerProps {

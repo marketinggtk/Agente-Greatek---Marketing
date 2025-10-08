@@ -1,6 +1,7 @@
 
+
 import React, { useState, useEffect } from 'react';
-import useAppStore from '../store/useAppStore';
+import { useAppStore } from '../store/useAppStore';
 import { AppMode } from '../types';
 
 const GENERAL_MESSAGES = [
@@ -34,7 +35,7 @@ const DynamicLoader: React.FC = () => {
 
     useEffect(() => {
         let messagesToShow = GENERAL_MESSAGES;
-        if (currentMode && [AppMode.MARKET_INTEL, AppMode.VIGIA].includes(currentMode)) {
+        if (currentMode === AppMode.MARKET_INTEL) {
             messagesToShow = SEARCH_MESSAGES;
         } else if (currentMode && [AppMode.PAGE, AppMode.INSTRUCTOR].includes(currentMode)) {
             messagesToShow = JSON_MESSAGES;

@@ -1,4 +1,5 @@
 
+
 import React, { useEffect } from 'react';
 
 interface ModalProps {
@@ -6,9 +7,10 @@ interface ModalProps {
   onClose: () => void;
   title: string;
   children: React.ReactNode;
+  size?: 'default' | 'large';
 }
 
-const Modal: React.FC<ModalProps> = ({ isOpen, onClose, title, children }) => {
+const Modal: React.FC<ModalProps> = ({ isOpen, onClose, title, children, size = 'default' }) => {
   useEffect(() => {
     const handleEsc = (event: KeyboardEvent) => {
       if (event.key === 'Escape') {
@@ -26,6 +28,8 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, title, children }) => {
   }, [isOpen, onClose]);
 
   if (!isOpen) return null;
+  
+  const sizeClass = size === 'large' ? 'max-w-6xl' : 'max-w-4xl';
 
   return (
     <div
@@ -39,7 +43,7 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, title, children }) => {
         onClick={onClose}
         aria-hidden="true"
       ></div>
-      <div className="relative bg-white rounded-lg shadow-xl w-full max-w-4xl max-h-[90vh] flex flex-col animate-fade-in-down z-[101]">
+      <div className={`relative bg-white rounded-lg shadow-xl w-full ${sizeClass} max-h-[90vh] flex flex-col animate-fade-in-down z-[101]`}>
         <div className="flex items-start justify-between p-4 border-b rounded-t sticky top-0 bg-white z-10">
           <h3 className="text-xl font-semibold text-greatek-dark-blue" id="modal-title">
             {title}
