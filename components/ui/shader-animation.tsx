@@ -131,20 +131,36 @@ export function ShaderAnimation() {
 
     // Cleanup function
     return () => {
-      window.removeEventListener("resize", onWindowResize)
+      window.removeEventListener("resize", onWindowResize);
 
       if (sceneRef.current) {
-        cancelAnimationFrame(sceneRef.current.animationId)
+        cancelAnimationFrame(sceneRef.current.animationId);
 
-        if (container && sceneRef.current.renderer.domElement) {
-          container.removeChild(sceneRef.current.renderer.domElement)
+        // Forcefully release the WebGL context to prevent leaks
+        try {
+          const context = sceneRef.current.renderer.getContext();
+          const loseContextExtension = context.getExtension('WEBGL_lose_context');
+          if (loseContextExtension) {
+            loseContextExtension.loseContext();
+          }
+        } catch (e) {
+          console.warn("Could not lose WebGL context:", e);
         }
 
-        sceneRef.current.renderer.dispose()
-        geometry.dispose()
-        material.dispose()
+        // Use the ref directly in cleanup to ensure we have the correct element
+        if (containerRef.current && sceneRef.current.renderer.domElement) {
+          containerRef.current.removeChild(sceneRef.current.renderer.domElement);
+        }
+
+        // Dispose of Three.js objects
+        geometry.dispose();
+        material.dispose();
+        sceneRef.current.renderer.dispose();
+        
+        // Clear the ref to prevent stale references
+        sceneRef.current = null;
       }
-    }
+    };
   }, [])
 
   return (

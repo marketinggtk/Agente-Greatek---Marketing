@@ -70,6 +70,7 @@ const AgentSelectionScreen: React.FC<AgentSelectionScreenProps> = ({ onSelectAge
     AppMode.INSTRUCTOR,
     AppMode.SKYWATCH,
     AppMode.MARKET_INTEL,
+    AppMode.CUSTOMER_DOSSIER,
     AppMode.SALES_ASSISTANT
   ];
   const orderedCommercialAgents = commercialAgents.sort((a, b) => {

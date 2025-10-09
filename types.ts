@@ -1,6 +1,5 @@
 
 
-
 export enum AppMode {
   INTEGRATOR = "Integrador",
   INSTRUCTOR = "Instrutor",
@@ -19,6 +18,7 @@ export enum AppMode {
   PGR_CALCULATOR = "Calculadora de PGR Individual",
   BUSINESS_ANALYZER = "Analisador de Negócios",
   TRAINING_COACH = "Coach de Treinamento",
+  CUSTOMER_DOSSIER = "Gerador de Dossiê",
 }
 
 export type Role = 'user' | 'agent';
@@ -120,6 +120,11 @@ export interface GoalCalculatorState {
   wonProposals: string;
 }
 
+export interface GoalComparisonState {
+  previousMonth: GoalCalculatorState;
+  currentMonth: GoalCalculatorState;
+}
+
 export type PgrMetricValues = {
   meta: string;
   realizado: string;
@@ -146,24 +151,16 @@ export interface KnowledgeBaseProduct {
   code?: string;
 }
 
-// START: Training Video Generator Feature
-export interface TrainingScriptSection {
-  section_title: string;
-  section_text: string;
-  visual_prompt: string;
-  video_blob_url?: string;
+export interface CustomerDossier {
+    company_name: string;
+    markdown_content: string;
+    sources?: GroundingSource[];
 }
-
-export interface TrainingVideoPackage {
-  product_name: string;
-  script: TrainingScriptSection[];
-}
-// END: Training Video Generator Feature
 
 
 export interface Message {
   role: Role;
-  content: string | PageOptimizationPackage | MarketIntelReport | TrainingKitReport | ImageAdPackage | ContentPackage | PresentationPackage | VigiaReport;
+  content: string | PageOptimizationPackage | MarketIntelReport | TrainingKitReport | ImageAdPackage | ContentPackage | PresentationPackage | VigiaReport | CustomerDossier;
   attachments?: Attachment[];
   feedback?: Feedback | null;
 }
@@ -177,6 +174,8 @@ export interface Conversation {
   skywatchDeclined?: boolean;
   presentationPackage?: PresentationPackage | null;
   goalCalculatorState?: GoalCalculatorState;
+  goalComparisonState?: GoalComparisonState;
+  comparisonAnalysis?: string | null;
   pgrCalculatorState?: PgrCalculatorState;
   pgrAuthenticatedSellerId?: string | null;
 }
@@ -238,6 +237,10 @@ export function isContentPackage(response: any): response is ContentPackage {
 
 export function isPresentationPackage(response: any): response is PresentationPackage {
     return response && typeof response === 'object' && 'presentation_title' in response && Array.isArray(response.slides);
+}
+
+export function isCustomerDossier(response: any): response is CustomerDossier {
+    return response && typeof response === 'object' && 'company_name' in response && 'markdown_content' in response;
 }
 
 export interface ComparisonPoint {

@@ -2,16 +2,18 @@ import React, { useState } from 'react';
 import Modal from './ui/Modal';
 import SalesCoach from './SalesCoach';
 import TrainingCoach from './TrainingCoach';
-// START: Training Video Generator Feature
-import TrainingVideoGenerator from './TrainingVideoGenerator';
-// END: Training Video Generator Feature
+import { useAppStore } from '../store/useAppStore';
+import { AppMode } from '../types';
 
 const ControlPanel: React.FC<{ onClose: () => void; }> = ({ onClose }) => {
+    const { createNewConversation } = useAppStore();
     const [isSalesCoachOpen, setIsSalesCoachOpen] = useState(false);
     const [isTrainingCoachOpen, setIsTrainingCoachOpen] = useState(false);
-    // START: Training Video Generator Feature
-    const [isTrainingVideoGeneratorOpen, setIsTrainingVideoGeneratorOpen] = useState(false);
-    // END: Training Video Generator Feature
+
+    const handleOpenDossierGenerator = () => {
+        createNewConversation(AppMode.CUSTOMER_DOSSIER);
+        onClose();
+    };
 
     return (
         <>
@@ -54,23 +56,22 @@ const ControlPanel: React.FC<{ onClose: () => void; }> = ({ onClose }) => {
                                 Treine suas respostas a um cliente e receba uma avaliação detalhada da sua performance.
                             </p>
                         </button>
-                        
-                        {/* START: Training Video Generator Feature */}
+
                         <button
-                            onClick={() => setIsTrainingVideoGeneratorOpen(true)}
+                            onClick={handleOpenDossierGenerator}
                             className="group p-4 border border-greatek-border rounded-lg text-left hover:bg-greatek-bg-light hover:border-greatek-blue transition-all"
                         >
                             <div className="flex items-center">
                                 <div className="w-10 h-10 rounded-lg bg-greatek-blue/10 flex items-center justify-center">
-                                    <i className="bi bi-film text-xl text-greatek-blue"></i>
+                                    <i className="bi bi-person-vcard-fill text-xl text-greatek-blue"></i>
                                 </div>
-                                <h5 className="ml-3 font-bold text-greatek-dark-blue">Gerador de Vídeo de Treinamento</h5>
+                                <h5 className="ml-3 font-bold text-greatek-dark-blue">Gerador de Dossiê</h5>
                             </div>
                             <p className="text-xs text-text-secondary mt-2">
-                                Crie um vídeo de treinamento com clipes visuais gerados por IA sobre um produto.
+                                Pesquise uma empresa e crie um dossiê com notícias, insights e ganchos de conversa.
                             </p>
                         </button>
-                        {/* END: Training Video Generator Feature */}
+                        
                     </div>
                 </div>
             </Modal>
@@ -97,18 +98,6 @@ const ControlPanel: React.FC<{ onClose: () => void; }> = ({ onClose }) => {
                 </Modal>
             )}
             
-            {/* START: Training Video Generator Feature */}
-            {isTrainingVideoGeneratorOpen && (
-                <Modal
-                    isOpen={isTrainingVideoGeneratorOpen}
-                    onClose={() => setIsTrainingVideoGeneratorOpen(false)}
-                    title="Gerador de Vídeo de Treinamento (Beta)"
-                    size="large"
-                >
-                    <TrainingVideoGenerator />
-                </Modal>
-            )}
-            {/* END: Training Video Generator Feature */}
         </>
     );
 };

@@ -1,6 +1,7 @@
 
+
 import React from 'react';
-import { PageOptimizationPackage, MarketIntelReport, Message, TrainingKitReport, AppMode, isPageOptimizationPackage, isImageAdPackage, ImageAdPackage, isContentPackage, isPresentationPackage } from '../types';
+import { PageOptimizationPackage, MarketIntelReport, Message, TrainingKitReport, AppMode, isPageOptimizationPackage, isImageAdPackage, ImageAdPackage, isContentPackage, isPresentationPackage, isCustomerDossier, CustomerDossier } from '../types';
 import JsonViewer from './JsonViewer';
 import MarkdownViewer from './MarkdownViewer';
 import MarketIntelViewer from './MarketIntelViewer';
@@ -9,6 +10,7 @@ import ComplexResponseViewer from './ComplexResponseViewer';
 import ImageAdViewer from './ImageAdViewer';
 import ContentPackageViewer from './ContentPackageViewer';
 import PresentationViewer from './PresentationViewer';
+import CustomerDossierViewer from './CustomerDossierViewer';
 
 
 interface ResponseDisplayProps {
@@ -40,6 +42,10 @@ const ResponseDisplay: React.FC<ResponseDisplayProps> = ({ message, mode, isLast
 
     if (isMarketIntelReport(content)) {
         return <MarketIntelViewer data={content} />;
+    }
+
+    if (isCustomerDossier(content)) {
+        return <CustomerDossierViewer data={content} />;
     }
     
     if (isTrainingKitReport(content)) {

@@ -15,6 +15,7 @@ import {
     isPresentationPackage, 
     BusinessAnalysisResult, 
     GoalCalculatorState, 
+    GoalComparisonState,
     PgrCalculatorState,
     PgrSeller,
     isAdCopy,
@@ -24,9 +25,11 @@ import {
     generateConversationTitle, 
     runGeminiJsonQuery, 
     streamGeminiQuery, 
+    streamGoalComparisonAnalysis,
     generateImageAd, 
     runImageEditingQuery, 
-    runImageCompositionQuery 
+    runImageCompositionQuery, 
+    runDossierQuery
 } from '../services/geminiService';
 import { pgrInitialSellers } from '../data/pgrData';
 
@@ -50,6 +53,7 @@ interface AppState {
     isGeneratingPresentation: boolean;
     isAnalyzerOpen: boolean;
     isAnalyzing: boolean;
+    isAnalyzingComparison: boolean;
     businessAnalysisResult: BusinessAnalysisResult | null;
     pgrSellers: PgrSeller[];
     userUploadedKnowledge: KnowledgeBaseProduct[];
@@ -73,6 +77,8 @@ interface AppState {
     createImageAdFromPrompt: (prompt: string) => void;
     updateGoalCalculatorState: (newState: Partial<GoalCalculatorState>) => void;
     resetGoalCalculator: () => void;
+    updateGoalComparisonState: (payload: { period: 'previousMonth' | 'currentMonth', newState: Partial<GoalCalculatorState> }) => void;
+    runGoalComparisonAnalysis: (data: { prev: any; curr: any; }) => Promise<void>;
     updatePgrCalculatorState: (newState: Partial<PgrCalculatorState>) => void;
     resetPgrCalculator: () => void;
     loginPgr: (sellerId: string) => void;
@@ -105,6 +111,7 @@ export const useAppStore = create<AppState>()(
         isGeneratingPresentation: false,
         isAnalyzerOpen: false,
         isAnalyzing: false,
+        isAnalyzingComparison: false,
         businessAnalysisResult: null,
         pgrSellers: pgrInitialSellers,
         userUploadedKnowledge: [],
@@ -117,6 +124,12 @@ export const useAppStore = create<AppState>()(
                 mode,
                 messages: [],
                 createdAt: new Date(),
+                goalCalculatorState: { salesGoal: '', salesSoFar: '', totalProposals: '', wonProposals: '' },
+                goalComparisonState: {
+                    previousMonth: { salesGoal: '', salesSoFar: '', totalProposals: '', wonProposals: '' },
+                    currentMonth: { salesGoal: '', salesSoFar: '', totalProposals: '', wonProposals: '' },
+                },
+                comparisonAnalysis: null,
             };
             set(state => ({
                 conversations: [...state.conversations, newConversation],
@@ -199,12 +212,28 @@ export const useAppStore = create<AppState>()(
 
                 // Handle different response types based on mode
                 const jsonModes = [AppMode.PAGE, AppMode.MARKET_INTEL, AppMode.INSTRUCTOR, AppMode.CONTENT];
+                const isFirstDossierMessage = currentConvo.mode === AppMode.CUSTOMER_DOSSIER && currentConvo.messages.length === 1;
+
 
                 if (currentConvo.mode === AppMode.IMAGE_ADS) {
-                    const result = await generateImageAd(prompt, processedAttachments, abortController.signal);
+                    // FIX: The third argument to generateImageAd should be aspectRatio (string), not an AbortSignal.
+                    // The signal is not supported by this function, so it's removed.
+                    const result = await generateImageAd(prompt, processedAttachments);
                     set(state => ({
                         conversations: state.conversations.map(c => {
                             if (c.id === activeConversationId) {
+                                const newMessages = [...c.messages];
+                                newMessages[agentMessageIndex] = { role: 'agent', content: result };
+                                return { ...c, messages: newMessages };
+                            }
+                            return c;
+                        })
+                    }));
+                } else if (isFirstDossierMessage) {
+                    const result = await runDossierQuery(history, abortController.signal);
+                    set(state => ({
+                        conversations: state.conversations.map(c => {
+                             if (c.id === activeConversationId) {
                                 const newMessages = [...c.messages];
                                 newMessages[agentMessageIndex] = { role: 'agent', content: result };
                                 return { ...c, messages: newMessages };
@@ -224,8 +253,12 @@ export const useAppStore = create<AppState>()(
                             return c;
                         })
                     }));
-                } else { // Streaming modes
-                    const stream = streamGeminiQuery(currentConvo.mode, history, abortController.signal, { userKnowledge: userUploadedKnowledge });
+                } else { // Streaming modes (now includes dossier follow-ups)
+                    const isDossierFollowUp = currentConvo.mode === AppMode.CUSTOMER_DOSSIER;
+                    const stream = streamGeminiQuery(currentConvo.mode, history, abortController.signal, { 
+                        userKnowledge: userUploadedKnowledge,
+                        isFollowUp: isDossierFollowUp
+                    });
                     for await (const chunk of stream) {
                         set(state => ({
                             conversations: state.conversations.map(c => {
@@ -251,7 +284,7 @@ export const useAppStore = create<AppState>()(
         },
         stopGeneration: () => {
             get().abortController?.abort();
-            set({ isLoading: false, abortController: null });
+            set({ isLoading: false, abortController: null, isAnalyzingComparison: false });
         },
 
         // --- Attachments ---
@@ -380,8 +413,9 @@ export const useAppStore = create<AppState>()(
             }));
 
             try {
-                const { originalPrompt, referenceImage } = message.content;
-                const result = await generateImageAd(originalPrompt, referenceImage ? [referenceImage] : undefined);
+                // FIX: Pass the existing aspect ratio when regenerating the image.
+                const { originalPrompt, referenceImage, aspectRatio } = message.content;
+                const result = await generateImageAd(originalPrompt, referenceImage ? [referenceImage] : undefined, aspectRatio);
 
                  set(state => ({
                     conversations: state.conversations.map(c => {
@@ -428,9 +462,66 @@ export const useAppStore = create<AppState>()(
             if (!activeConversationId) return;
             set(state => ({
                 conversations: state.conversations.map(c => 
-                    c.id === activeConversationId ? { ...c, goalCalculatorState: { salesGoal: '', salesSoFar: '', totalProposals: '', wonProposals: '' } } : c
+                    c.id === activeConversationId ? { 
+                        ...c, 
+                        goalCalculatorState: { salesGoal: '', salesSoFar: '', totalProposals: '', wonProposals: '' },
+                        goalComparisonState: {
+                            previousMonth: { salesGoal: '', salesSoFar: '', totalProposals: '', wonProposals: '' },
+                            currentMonth: { salesGoal: '', salesSoFar: '', totalProposals: '', wonProposals: '' },
+                        },
+                        comparisonAnalysis: null,
+                    } : c
                 )
             }));
+        },
+        updateGoalComparisonState: ({ period, newState }) => {
+            const { activeConversationId } = get();
+            if (!activeConversationId) return;
+            set(state => ({
+                conversations: state.conversations.map(c => {
+                    if (c.id === activeConversationId) {
+                        const newComparisonState = { ...c.goalComparisonState } as GoalComparisonState;
+                        newComparisonState[period] = { ...newComparisonState[period], ...newState };
+                        return { ...c, goalComparisonState: newComparisonState };
+                    }
+                    return c;
+                })
+            }));
+        },
+        runGoalComparisonAnalysis: async (data) => {
+            const { activeConversationId } = get();
+            if (!activeConversationId) return;
+            const abortController = new AbortController();
+            set({ isAnalyzingComparison: true, error: null, abortController });
+
+            // Clear previous analysis
+            set(state => ({
+                conversations: state.conversations.map(c =>
+                    c.id === activeConversationId ? { ...c, comparisonAnalysis: '' } : c
+                )
+            }));
+
+            try {
+                const stream = streamGoalComparisonAnalysis(data, abortController.signal);
+                for await (const chunk of stream) {
+                    set(state => ({
+                        conversations: state.conversations.map(c => {
+                            if (c.id === activeConversationId) {
+                                const newAnalysis = (c.comparisonAnalysis || '') + chunk;
+                                return { ...c, comparisonAnalysis: newAnalysis };
+                            }
+                            return c;
+                        })
+                    }));
+                }
+            } catch (error: any) {
+                if (error.name !== 'AbortError') {
+                    console.error("Gemini Comparison Analysis Error:", error);
+                    set({ error: error.message || 'Ocorreu um erro ao gerar a análise.' });
+                }
+            } finally {
+                set({ isAnalyzingComparison: false, abortController: null });
+            }
         },
         
         // --- Tools State (PGR Calculator) ---
@@ -628,8 +719,16 @@ export const useAppStore = create<AppState>()(
       // Don't persist non-serializable or transient state
       partialize: (state) => {
         // Omitting transient state from persisted storage
-        const { isLoading, error, abortController, attachments, toastInfo, feedbackModalState, activeConversationId, ...rest } = state;
-        return rest;
+        const { isLoading, error, abortController, attachments, toastInfo, feedbackModalState, isAnalyzingComparison, ...rest } = state;
+        
+        // Custom logic to handle activeConversationId being removed but we still want to persist conversations
+        const newRest = { ...rest };
+        delete newRest.activeConversationId;
+
+        return {
+            ...newRest,
+            conversations: state.conversations,
+        };
       },
       storage: createJSONStorage(() => localStorage, {
           replacer: (key, value) => {

@@ -116,4 +116,9 @@ export const MODE_DESCRIPTIONS: Record<AppMode, { title: string; description: st
         description: 'Simula um cliente com dúvidas para que você treine suas respostas e receba uma avaliação detalhada.',
         example: 'Inicie uma simulação e teste suas habilidades de argumentação e quebra de objeções.'
     },
+    [AppMode.CUSTOMER_DOSSIER]: {
+        title: 'Gerador de Dossiê',
+        description: 'Pesquisa uma empresa e cria um dossiê com notícias, insights e ganchos de conversa para preparar vendedores.',
+        example: 'Gere um dossiê para a empresa "Provedor de Internet XYZ Ltda".'
+    },
 };

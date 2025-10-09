@@ -186,6 +186,65 @@ export const KNOWLEDGE_BASE_PRODUCTS: KnowledgeBaseProduct[] = [
     - **Fonte de Luz Estabilizada:** Igual ao comprimento de onda do OTDR
     - **Microscópio de Fibra Óptica (opcional):** Ampliação 200x
 - **Formato do Arquivo:** .SOR`
+  },
+  {
+    name: "TP-Link VIGI C540-W - Câmera de Vigilância Turret Wi-Fi",
+    keywords: ["vigi", "c540-w", "câmera", "segurança", "cftv", "vigilância"],
+    details: `- **Link do Produto:** https://www.tp-link.com/br/business-networking/vigi-network-camera/vigi-c540-w/
+- **Tipo:** Câmera de Rede Wi-Fi Turret de 4MP para áreas externas.
+- **Resolução:** 4MP (2560 × 1440).
+- **Conectividade:** Wi-Fi e Ethernet.
+- **Visão Noturna:** Full-Color, com alcance de 30m.
+- **Inteligência Artificial:** Detecção de Pessoas e Veículos, Detecção de Movimento, Invasão de Área.
+- **Áudio:** Áudio bidirecional.
+- **Armazenamento:** Slot para cartão MicroSD (até 256 GB).
+- **Proteção:** IP66 à prova de intempéries.
+- **Aplicação:** Ideal para segurança eletrônica de fachadas, pátios e estacionamentos.`
+  },
+  {
+    name: "TP-Link Omada ER7206 - Roteador VPN Gigabit Profissional",
+    keywords: ["omada", "er7206", "roteador", "vpn", "gateway", "enterprise", "informática"],
+    details: `- **Link do Produto:** https://www.tp-link.com/br/business-networking/vpn-router/er7206/
+- **Tipo:** Roteador VPN SafeStream Gigabit Multi-WAN.
+- **Portas:** 1 Porta SFP Gigabit, 1 Porta RJ45 WAN Gigabit, 2 Portas RJ45 WAN/LAN Gigabit, 2 Portas RJ45 LAN Gigabit.
+- **VPN:** Suporte a IPsec, PPTP, L2TP e OpenVPN.
+- **Gerenciamento:** Centralizado via Omada SDN Controller.
+- **Recursos:** Firewall, Load Balance, Controle de Acesso.
+- **Aplicação:** Perfeito para redes corporativas, automação comercial e provedores que necessitam de uma solução de gateway robusta e segura.`
+  },
+  {
+    name: "Fonte Retificadora XPS SRX 60A (XPS-9901140)",
+    keywords: ["xps", "retificador", "srx 60a", "fonte", "energia", "-48v"],
+    details: `- **Link do Produto:** https://xps.com.br/produtos/sistemas-retificadores-srx/
+- **Tipo:** Sistema Retificador -48Vcc.
+- **Capacidade:** 60A (escalável).
+- **Tensão de Entrada:** 90 a 264 Vac (Full Range).
+- **Módulos:** Unidades Retificadoras de 20A hot-swap.
+- **Gerenciamento:** Remoto via interface web (SNMP).
+- **Homologação:** ANATEL.
+- **Aplicação:** Solução de energia profissional e confiável para OLTs, switches e outros equipamentos de telecom, garantindo alimentação contínua e segura.`
+  },
+  {
+    name: "Rack de Parede Volt 12U x 570mm",
+    keywords: ["volt", "rack", "gabinete", "12u", "parede", "informática"],
+    details: `- **Link do Produto:** https://volt.ind.br/produtos/racks/
+- **Tipo:** Rack de parede para equipamentos de 19 polegadas.
+- **Tamanho:** 12U de altura.
+- **Profundidade:** 570mm.
+- **Estrutura:** Aço resistente com tratamento anticorrosivo.
+- **Porta:** Frontal com visor de acrílico e chave.
+- **Ventilação:** Aberturas laterais e superior para ventilação.
+- **Aplicação:** Organização e proteção de switches, OLTs, servidores e sistemas de energia em ambientes de TI, provedores e automação comercial.`
+  },
+  {
+    name: "TP-Link Tapo P100 - Tomada Inteligente Wi-Fi",
+    keywords: ["tapo", "p100", "tomada", "inteligente", "automação", "smart plug"],
+    details: `- **Link do Produto:** https://www.tapo.com/br/product/smart-plug/tapo-p100/
+- **Tipo:** Mini Tomada Inteligente Wi-Fi.
+- **Funcionalidades:** Controle Remoto (via app Tapo), Agendamento, Timer, Modo Ausente.
+- **Controle por Voz:** Compatível com Amazon Alexa e Google Assistant.
+- **Instalação:** Simples, basta conectar e configurar pelo app.
+- **Aplicação:** Ideal para automação comercial e residencial simples, permitindo ligar/desligar equipamentos remotamente, como luzes, cafeteiras e letreiros.`
   }
 ];
 
