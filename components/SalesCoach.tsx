@@ -188,18 +188,18 @@ const SalesCoach: React.FC = () => {
         }
 
         if (audioContextRef.current) {
-            audioContextRef.current.processor.disconnect();
-            audioContextRef.current.source.disconnect();
-            audioContextRef.current.userAnalyser.disconnect();
-            micGainNodeRef.current?.disconnect();
+            // Fix: Cast to `any` to resolve TypeScript error with `disconnect()` method. The method is valid without arguments, but the type definitions may be incorrect.
+            (audioContextRef.current.processor as any).disconnect();
+            // Fix: Cast to `any` to resolve TypeScript error with `disconnect()` method. The method is valid without arguments, but the type definitions may be incorrect.
+            (audioContextRef.current.source as any).disconnect();
+            // FIX: Added 'as any' cast to resolve TypeScript error with disconnect().
+            (audioContextRef.current.userAnalyser as any).disconnect();
+            // FIX: Added 'as any' cast to resolve TypeScript error with disconnect().
+            (micGainNodeRef.current as any)?.disconnect();
             if (audioContextRef.current.input.state !== 'closed') {
-                // FIX: Added @ts-ignore to bypass incorrect type definition for AudioContext.close().
-                // @ts-ignore
                 audioContextRef.current.input.close();
             }
             if (audioContextRef.current.output.state !== 'closed') {
-                // FIX: Added @ts-ignore to bypass incorrect type definition for AudioContext.close().
-                // @ts-ignore
                 audioContextRef.current.output.close();
             }
             audioContextRef.current = null;

@@ -20,7 +20,6 @@ export const AGENTS: AgentDefinition[] = [
     { mode: AppMode.SALES_ASSISTANT, title: "Assistente Comercial", category: 'Comercial', iconClass: "bi-headset" },
     { mode: AppMode.PAGE, title: "Otimizador de Página", category: 'Marketing', iconClass: "bi-file-earmark-text-fill" },
     { mode: AppMode.AUDIT, title: "Auditoria Técnica", category: 'Marketing', iconClass: "bi-shield-check" },
-    { mode: AppMode.CONTENT, title: "Diretor de Criação", category: 'Marketing', iconClass: "bi-pencil-square" },
     { mode: AppMode.CAMPAIGN, title: "Estrategista de Campanhas", category: 'Marketing', iconClass: "bi-megaphone-fill" },
     { mode: AppMode.COMPLIANCE, title: "Endomarketing", category: 'Marketing', iconClass: "bi-card-checklist" },
     { mode: AppMode.IMAGE_ADS, title: "Gerador de Imagens", category: 'Marketing', iconClass: "bi-image-fill" },
@@ -56,11 +55,6 @@ export const MODE_DESCRIPTIONS: Record<AppMode, { title: string; description: st
         description: 'Realiza auditorias técnicas de SEO, performance e acessibilidade em uma URL e sugere melhorias.',
         example: 'Faça uma auditoria de performance no site da Greatek.'
     },
-    [AppMode.CONTENT]: {
-        title: 'Diretor de Criação',
-        description: 'Cria pacotes de conteúdo (posts de Instagram, roteiros de vídeo, etc.) sobre produtos ou temas.',
-        example: 'Crie um post para Instagram sobre os benefícios da rede Mesh com Deco X50.'
-    },
     [AppMode.CAMPAIGN]: {
         title: 'Estrategista de Campanhas',
         description: 'Desenvolve conceitos e planos estruturados para campanhas de marketing B2B.',
@@ -70,6 +64,12 @@ export const MODE_DESCRIPTIONS: Record<AppMode, { title: string; description: st
         title: 'Endomarketing',
         description: 'Cria comunicados internos, campanhas e materiais para engajamento dos colaboradores.',
         example: 'Crie um comunicado sobre a nova política de home office.'
+    },
+    // FIX: Added missing description for the Content agent mode.
+    [AppMode.CONTENT]: {
+        title: 'Gerador de Conteúdo',
+        description: 'Atua como um Diretor de Criação para desenvolver pacotes de conteúdo (posts, legendas, hashtags) para redes sociais e blogs.',
+        example: 'Crie um post para Instagram sobre a nova Máquina de Fusão X6.'
     },
     [AppMode.MARKET_INTEL]: {
         title: 'Mercado',
