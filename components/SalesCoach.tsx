@@ -188,13 +188,11 @@ const SalesCoach: React.FC = () => {
         }
 
         if (audioContextRef.current) {
-            // Fix: Cast to `any` to resolve TypeScript error with `disconnect()` method. The method is valid without arguments, but the type definitions may be incorrect.
+            // FIX: The disconnect method on AudioNodes can cause TypeScript errors due to overloads.
+            // Casting to `any` bypasses the type check for the parameterless version of the method.
             (audioContextRef.current.processor as any).disconnect();
-            // Fix: Cast to `any` to resolve TypeScript error with `disconnect()` method. The method is valid without arguments, but the type definitions may be incorrect.
             (audioContextRef.current.source as any).disconnect();
-            // FIX: Added 'as any' cast to resolve TypeScript error with disconnect().
             (audioContextRef.current.userAnalyser as any).disconnect();
-            // FIX: Added 'as any' cast to resolve TypeScript error with disconnect().
             (micGainNodeRef.current as any)?.disconnect();
             if (audioContextRef.current.input.state !== 'closed') {
                 audioContextRef.current.input.close();

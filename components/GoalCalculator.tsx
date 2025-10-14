@@ -1,10 +1,11 @@
 
-
 import React, { useMemo, useState } from 'react';
 import { useAppStore } from '../store/useAppStore';
 import DynamicLoader from './DynamicLoader';
 import MarkdownViewer from './MarkdownViewer';
 import { AppMode } from '../types';
+
+const NUMBER_OF_SELLERS = 7;
 
 const parseNumericInput = (value: string): number => {
     if (!value) return 0;
@@ -215,7 +216,9 @@ const GoalCalculator: React.FC = () => {
         }
         const monthName = new Date().toLocaleString('pt-BR', { month: 'long' });
         
-        const proposalsPerSellerPerDay = needed > 0 && remainingWorkDays > 0 ? (needed / remainingWorkDays) : 0;
+        const proposalsPerSellerPerDay = needed > 0 && remainingWorkDays > 0 && NUMBER_OF_SELLERS > 0
+            ? (needed / NUMBER_OF_SELLERS / remainingWorkDays)
+            : 0;
 
         return {
             conversionRate,
