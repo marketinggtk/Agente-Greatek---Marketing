@@ -1200,6 +1200,644 @@ export const KNOWLEDGE_BASE_PRODUCTS: KnowledgeBaseProduct[] = [
 - **Proteção da Fibra:** Fibras agrupadas e protegidas em uma unidade básica (tubo loose) com gel.
 - **Resistência Mecânica:** Excelente resistência à tração devido a fios de aramida e dois elementos de sustentação FRP acordoados à unidade óptica.
 - **Revestimento Externo:** Capa de polietileno (PE).`
+  },
+  {
+    name: "OLT GPON Pizza-box de 1 Porta DeltaStream (DS-P7001-01)",
+    keywords: ["olt", "gpon", "pizza-box", "1 porta", "ds-p7001-01", "deltastream", "tp-link"],
+    details: `- **Marca:** TP-Link
+- **Porta GPON:** Suporta razão de divisão 1:128 para até 128 ONTs.
+- **Portas de Uplink:** 1x porta SFP+ 10G, 1x porta 2.5 GbE.
+- **Alimentação:** DC e 802.3at PoE.
+- **Funções:** L2/L2+ (Roteamento Estático, IGMP Snooping).
+- **Gerenciamento:** DeltaStream PON Management System (DPMS), SNMP, CLI, Web UI.`
+  },
+  {
+    name: "OLT GPON Pizza-box de 8 Portas DeltaStream (DS-P7001-08)",
+    keywords: ["olt", "gpon", "pizza-box", "8 portas", "ds-p7001-08", "deltastream", "tp-link"],
+    details: `- **Marca:** TP-Link
+- **Portas GPON:** 8 portas, suporta até 1024 ONTs (1:128 por porta).
+- **Portas de Uplink:** 2x portas 10GE SFP+, 1x porta gigabit.
+- **Alimentação:** Fontes duplas redundantes AC+DC hot-swap.
+- **Funções:** L2 completas e L3 avançadas (Roteamento estático, IGMP Snooping).
+- **Gerenciamento:** DPMS, SNMP, CLI, Web UI.`
+  },
+  {
+    name: "OLT GPON Pizza-box de 16 Portas DeltaStream (DS-P7001-16)",
+    keywords: ["olt", "gpon", "pizza-box", "16 portas", "ds-p7001-16", "deltastream", "tp-link"],
+    details: `- **Marca:** TP-Link
+- **Portas GPON:** 16 portas, suporta até 2048 ONTs (1:128 por porta).
+- **Portas de Uplink:** 4x portas 10GE SFP+, 2x portas gigabit.
+- **Alimentação:** Fontes duplas redundantes hot-swap (AC, DC ou mista).
+- **Funções:** L2 completas e L3 avançadas (Static Routing, IGMP Snooping).
+- **Gerenciamento:** DPMS, SNMP, CLI, Web UI.`
+  },
+  {
+    name: "OLT Chassi X2 XGS-PON e GPON de 32 Portas (DS-P8000-X2)",
+    keywords: ["olt", "chassi", "xgs-pon", "gpon", "32 portas", "ds-p8000-x2", "tp-link"],
+    details: `- **Marca:** TP-Link
+- **Portas PON:** 32 portas (2x placas de serviço), suporta GPON ou combo XGS-PON & GPON.
+- **Escalabilidade:** Razão de divisão 1:128 (GPON) e 1:256 (XGS-PON).
+- **Confiabilidade:** Unidades de controle principais duplas com troca automática.
+- **Portas de Uplink:** 6x portas 10G SFP+ por unidade de controle.
+- **Alimentação:** Fontes duplas AC+DC.
+- **Funções:** L2 e L3 avançadas.
+- **Gerenciamento:** DPMS, SNMP, CLI, Web UI.
+- **Compatibilidade:** DS-LGPA-08 e DS-LGPA-16.`
+  },
+  {
+    name: "Placa de Serviço XGS-PON e GPON Combo de 16 Portas (DS-LSGA-16)",
+    keywords: ["placa de serviço", "olt", "chassi", "xgs-pon", "gpon", "16 portas", "ds-lsga-16", "tp-link"],
+    details: `- **Marca:** TP-Link
+- **Portas PON:** 16 portas combinadas XGS-PON e GPON.
+- **Escalabilidade:** Razão de divisão até 1:128 (GPON) e 1:256 (XGS-PON) por porta.
+- **Implantação:** Compatível com OLTs de chassi da TP-Link, suporta hot swapping.
+- **Funções:** L2 e L3 avançadas.
+- **Gerenciamento:** DPMS, SNMP, CLI, Web UI.`
+  },
+  {
+    name: "Placa de Serviço OLT Chassi com 8 Portas GPON (DS-LGPA-08)",
+    keywords: ["placa de serviço", "olt", "chassi", "gpon", "8 portas", "ds-lgpa-08", "tp-link"],
+    details: `- **Marca:** TP-Link
+- **Portas GPON:** 8 portas (Downstream 2.488 Gbps, Upstream 1.244 Gbps por porta).
+- **Escalabilidade:** Relação de divisão 1:128 por porta.
+- **Implantação:** Compatível com OLTs de chassi da TP-Link, suporta hot swapping.
+- **Funções:** L2 e L3 avançadas.
+- **Gerenciamento:** DPMS, SNMP, CLI, Web UI.`
+  },
+  {
+    name: "Placa de Serviço OLT Chassi com 16 Portas GPON (DS-LGPA-16)",
+    keywords: ["placa de serviço", "olt", "chassi", "gpon", "16 portas", "ds-lgpa-16", "tp-link"],
+    details: `- **Marca:** TP-Link
+- **Portas GPON:** 16 portas (Downstream 2.488 Gbps, Upstream 1.244 Gbps por porta).
+- **Escalabilidade:** Relação de divisão 1:128 por porta.
+- **Implantação:** Compatível com OLTs de chassi da TP-Link, suporta hot swapping.
+- **Funções:** L2 e L3 avançadas.
+- **Gerenciamento:** DPMS, SNMP, CLI, Web UI.`
+  },
+  {
+    name: "OLT GPON Pizza-box de 4 Portas DeltaStream (DS-P7001-04)",
+    keywords: ["olt", "gpon", "pizza-box", "4 portas", "ds-p7001-04", "deltastream", "tp-link"],
+    details: `- **Marca:** TP-Link
+- **Portas GPON:** 4 portas, suporta até 512 ONTs (1:128 por porta).
+- **Portas de Uplink:** 1x porta 10GE SFP+, 1x porta gigabit.
+- **Alimentação:** Fontes duplas redundantes AC+DC.
+- **Funções:** L2 e L3 avançadas (Roteamento estático, IGMP Snooping).
+- **Gerenciamento:** DPMS, SNMP, CLI, Web UI.`
+  },
+  {
+    name: "ONT Terminal XPON VoIP Wi-Fi 5 Dual Band AC1200 (XC220-G3v)",
+    keywords: ["ont", "xpon", "voip", "wi-fi 5", "ac1200", "xc220-g3v", "tp-link"],
+    details: `- **Marca:** TP-Link
+- **Wi-Fi:** AC1200 Dual Band (867 Mbps em 5 GHz, 300 Mbps em 2.4 GHz).
+- **Portas:** 4x Gigabit LAN, 1x FXS (VoIP).
+- **Tecnologia PON:** XPON (GPON/EPON).
+- **Padrão GPON:** ITU-T G.984/G.988 (Down 2.488Gbps, Up 1.244Gbps).
+- **Gerenciamento Remoto:** OMCI, TR-069.
+- **Recursos:** Suporta VLAN, 802.1q, IPTV, Compatível com EasyMesh.`
+  },
+  {
+    name: "ONT Terminal XPON Wi-Fi 5 Dual Band AC1200 (XC220-G3)",
+    keywords: ["ont", "xpon", "wi-fi 5", "ac1200", "xc220-g3", "tp-link"],
+    details: `- **Marca:** TP-Link
+- **Wi-Fi:** AC1200 Dual Band (867 Mbps em 5 GHz, 300 Mbps em 2.4 GHz).
+- **Portas:** 4x Gigabit LAN.
+- **Tecnologia PON:** XPON (GPON/EPON).
+- **Segurança:** WPA3.
+- **Recursos:** Compatível com EasyMesh, IGMP Proxy/Snooping para IPTV, design compacto de bandeja de fibra.
+- **Gerenciamento:** OMCI, TR-069, App Aginet.`
+  },
+  {
+    name: "ONT Terminal XPON VoIP Wi-Fi 6 Dual Band AX1800 (XX230v)",
+    keywords: ["ont", "xpon", "voip", "wi-fi 6", "ax1800", "xx230v", "tp-link"],
+    details: `- **Marca:** TP-Link
+- **Wi-Fi:** AX1800 Wi-Fi 6 Dual Band (1201 Mbps em 5GHz + 574 Mbps em 2.4GHz).
+- **Portas:** 1x GbE WAN/LAN, 3x GbE LAN, 1x FXS (VoIP).
+- **Tecnologia PON:** XPON (GPON/EPON).
+- **Recursos:** OFDMA, MU-MIMO, EasyMesh, WPA3, IPTV, design compacto de bandeja de fibra.
+- **Gerenciamento:** TAUC (baseado em TR-369), OMCI, TR-069 e outros.`
+  },
+  {
+    name: "Roteador Wi-Fi 6 Gigabit Dual Band AX5400 (Archer AX72)",
+    keywords: ["roteador", "wi-fi 6", "ax5400", "archer ax72", "tp-link", "homesheld", "onemesh"],
+    details: `- **Marca:** TP-Link
+- **Velocidade Wi-Fi:** AX5400 (4804 Mbps em 5 GHz com HE160, 574 Mbps em 2.4 GHz).
+- **Portas:** 1x Gigabit WAN, 4x Gigabit LAN, 1x USB 3.0.
+- **Antenas:** 6 antenas externas de alto desempenho.
+- **Recursos:** 4T4R, OFDMA, MU-MIMO, Beamforming, HomeShield, OneMesh.
+- **CPU:** Qualcomm 64-bit.
+- **Gerenciamento:** App Tether.`
+  },
+  {
+    name: "Roteador Wi-Fi 6 Gigabit Dual Band AX3000 (Archer AX53)",
+    keywords: ["roteador", "wi-fi 6", "ax3000", "archer ax53", "tp-link", "homesheld", "onemesh"],
+    details: `- **Marca:** TP-Link
+- **Velocidade Wi-Fi:** AX3000 (2402 Mbps em 5 GHz com 160MHz, 574 Mbps em 2.4 GHz).
+- **Portas:** 1x Gigabit WAN, 4x Gigabit LAN.
+- **Antenas:** 4 antenas externas de alto desempenho.
+- **Recursos:** OFDMA, Beamforming, HomeShield, OneMesh, WPA3, Target Wake Time.
+- **CPU:** Dual-Core.
+- **Gerenciamento:** App Tether.`
+  },
+  {
+    name: "Roteador Wi-Fi 6 Gigabit Dual Band AX1500 (Archer AX12)",
+    keywords: ["roteador", "wi-fi 6", "ax1500", "archer ax12", "tp-link"],
+    details: `- **Marca:** TP-Link
+- **Velocidade Wi-Fi:** AX1500 (1201 Mbps em 5 GHz, 300 Mbps em 2.4 GHz).
+- **Portas:** 1x Gigabit WAN, 3x Gigabit LAN.
+- **Antenas:** 4 antenas externas.
+- **Recursos:** OFDMA, MU-MIMO, Beamforming, WPA3, Target Wake Time.
+- **Gerenciamento:** App Tether.`
+  },
+  {
+    name: "Roteador Wi-Fi 6 Gamer Gigabit Tri-Band AX6600 (Archer GX90)",
+    keywords: ["roteador", "gamer", "wi-fi 6", "ax6600", "tri-band", "archer gx90", "tp-link"],
+    details: `- **Marca:** TP-Link
+- **Velocidade Wi-Fi:** AX6600 Tri-Band (4804 Mbps em 5GHz-1 'Game Band', 1201 Mbps em 5GHz-2, 574 Mbps em 2.4 GHz).
+- **Portas:** 1x 2.5 Gbps WAN/LAN, 1x Gigabit WAN/LAN, 3x Gigabit LAN, 2x USB.
+- **Antenas:** 8 antenas externas.
+- **Recursos Gamer:** Game Band dedicada, Game Accelerator, Game Statistics, Game Protector (Homecare).
+- **Recursos Gerais:** OFDMA, MU-MIMO, Beamforming, OneMesh.
+- **CPU:** Quad-Core 1.5 GHz.`
+  },
+  {
+    name: "Roteador Wi-Fi 6 Multi-Gigabit Dual Band AX3000 com Porta 2.5G (Archer AX55 Pro)",
+    keywords: ["roteador", "wi-fi 6", "ax3000", "multi-gigabit", "2.5g", "archer ax55 pro", "tp-link"],
+    details: `- **Marca:** TP-Link
+- **Velocidade Wi-Fi:** AX3000 (2402 Mbps em 5 GHz com 160MHz, 574 Mbps em 2.4 GHz).
+- **Portas:** 1x 2.5 Gbps WAN/LAN, 1x 1 Gbps WAN/LAN, 3x Gigabit LAN, 1x USB 3.0.
+- **Antenas:** 4 antenas de alto ganho com 4x FEM de alta potência.
+- **Recursos:** OFDMA, Beamforming, HomeShield, EasyMesh, Cliente VPN, Smart Connect, compatível com Alexa.
+- **CPU:** Qualcomm com 512 MB de RAM.`
+  },
+  {
+    name: "Roteador Gamer Wi-Fi 7 Dual-Band BE3600 (Archer GE230)",
+    keywords: ["roteador", "gamer", "wi-fi 7", "be3600", "archer ge230", "tp-link"],
+    details: `- **Marca:** TP-Link
+- **Velocidade Wi-Fi:** BE3600 (2882 Mbps em 5 GHz, 688 Mbps em 2.4 GHz).
+- **Portas:** 2x 2.5 Gbps (1 WAN/LAN, 1 LAN dedicada para jogos).
+- **Recursos Wi-Fi 7:** Multi-Link Operation (MLO), 4K-QAM.
+- **Recursos Gamer:** Aceleração Turbo Game, Painel Gamer Dedicado, iluminação RGB.
+- **Recursos Gerais:** EasyMesh, HomeShield.
+- **CPU:** Quad-Core.`
+  },
+  {
+    name: "Roteador Gigabit Wi-Fi Dual Band 7 BE3600 (Archer BE220)",
+    keywords: ["roteador", "wi-fi 7", "be3600", "archer be220", "tp-link"],
+    details: `- **Marca:** TP-Link
+- **Velocidade Wi-Fi:** BE3600 (2882 Mbps em 5 GHz, 688 Mbps em 2.4 GHz).
+- **Portas:** 1x 1 Gbps WAN, 4x 1 Gbps LAN.
+- **Recursos Wi-Fi 7:** Multi-Link Operation (MLO), Multi-RUs, 4K-QAM.
+- **Recursos Gerais:** EasyMesh, HomeShield, Cliente e Servidor VPN.
+- **Antenas:** 4 antenas externas com Beamforming.`
+  },
+  {
+    name: "Roteador Wi-Fi 6 Gigabit Dual Band AX3000 (EX511)",
+    keywords: ["roteador", "wi-fi 6", "ax3000", "ex511", "easymesh", "tr-069", "aginet", "tp-link"],
+    details: `- **Marca:** TP-Link (linha Aginet para ISPs)
+- **Velocidade Wi-Fi:** AX3000 (2402 Mbps em 5 GHz, 574 Mbps em 2.4 GHz).
+- **Portas:** 1x Gigabit WAN, 4x Gigabit LAN.
+- **Recursos:** OFDMA, MU-MIMO, EasyMesh, WPA3, Multi-SSID, Controle de Pais.
+- **Gerenciamento Remoto:** TAUC (TP-Link Aginet Unified Cloud), TR-069, TR-098, TR-181, TR-111, TR-143.
+- **Gerenciamento Local:** App Aginet.`
+  },
+  {
+    name: "Roteador Wi-Fi 6 Gigabit Dual Band AX1500 (EX141)",
+    keywords: ["roteador", "wi-fi 6", "ax1500", "ex141", "easymesh", "tr-069", "aginet", "tp-link"],
+    details: `- **Marca:** TP-Link (linha Aginet para ISPs)
+- **Velocidade Wi-Fi:** AX1500 (1201 Mbps em 5 GHz, 300 Mbps em 2.4 GHz).
+- **Portas:** Gigabit.
+- **Recursos:** WiFi 6, OFDMA, MU-MIMO, Beamforming, EasyMesh, WPA3, Target Wake Time.
+- **Gerenciamento Remoto:** TR-069, TR-098, TR-181, TR-111, TR-143.
+- **Gerenciamento Local:** App Aginet.`
+  },
+  {
+    name: "Roteador Wi-Fi Dual Band AC750 (Archer C21)",
+    keywords: ["roteador", "wi-fi 5", "ac750", "archer c21", "agile config", "tp-link"],
+    details: `- **Marca:** TP-Link
+- **Velocidade Wi-Fi:** AC750 (433 Mbps em 5 GHz, 300 Mbps em 2.4 GHz).
+- **Portas:** 1x 10/100 Mbps WAN, 4x 10/100 Mbps LAN.
+- **Antenas:** 4 antenas externas.
+- **Modos:** Roteador, Access Point, Repetidor.
+- **Recursos:** Controle dos Pais, Rede de Visitantes, IGMP Proxy/Snooping para IPTV, Agile Config (para provedores).
+- **Ideal para:** Planos de internet de até 100 Mega.`
+  },
+  {
+    name: "Roteador Wi-Fi Multimodo 300 Mbps (TL-WR829N)",
+    keywords: ["roteador", "n300", "300mbps", "tl-wr829n", "agile config", "tp-link"],
+    details: `- **Marca:** TP-Link
+- **Velocidade Wi-Fi:** 300 Mbps em 2.4 GHz.
+- **Portas:** 1x 10/100 Mbps WAN, 2x 10/100 Mbps LAN.
+- **Antenas:** 2 antenas de 5 dBi.
+- **Modos:** Roteador, Access Point (AP), Extensor de Alcance (Repetidor), WISP.
+- **Recursos:** IPTV (IGMP Proxy/Snooping), Controle dos Pais, Rede para Convidados, Agile Config (para provedores).
+- **Ideal para:** Planos de internet de até 100 Mega.`
+  },
+  {
+    name: "Roteador Wi-Fi 7 BE3600 Dual Band (Archer BE230)",
+    keywords: ["roteador", "wi-fi 7", "be3600", "archer be230", "2.5g", "tp-link"],
+    details: `- **Marca:** TP-Link
+- **Velocidade Wi-Fi:** BE3600 (2882 Mbps em 5 GHz, 688 Mbps em 2.4 GHz).
+- **Portas:** 1x 2.5 Gbps WAN, 1x 2.5 Gbps LAN, 3x 1 Gbps LAN, 1x USB 3.0.
+- **Recursos Wi-Fi 7:** Multi-Link Operation (MLO), Multi-RUs, 4K-QAM.
+- **Recursos Gerais:** EasyMesh, HomeShield, Clientes e Servidores VPN.
+- **Antenas:** 4 antenas externas com Beamforming.`
+  },
+  {
+    name: "Roteador Wi-Fi 5 Gigabit Dual Band AC1300 (EC225-G5)",
+    keywords: ["roteador", "wi-fi 5", "ac1300", "ec225-g5", "easymesh", "tr-069", "aginet", "tp-link"],
+    details: `- **Marca:** TP-Link (linha Aginet para ISPs)
+- **Velocidade Wi-Fi:** AC1300 (867 Mbps em 5 GHz, 400 Mbps em 2.4 GHz).
+- **Portas:** 1x Gigabit WAN, 3x Gigabit LAN.
+- **Recursos:** MU-MIMO, Beamforming, EasyMesh, WPA3, Controle de Pais.
+- **Gerenciamento Remoto:** Aginet ACS, TR-069, TR-181, TR-111, TR-143.
+- **Gerenciamento Local:** App Aginet.`
+  },
+  {
+    name: "Roteador Wi-Fi 7 Dual Band BE3600 com Porta 2.5G (EB210 Pro)",
+    keywords: ["roteador", "wi-fi 7", "be3600", "eb210 pro", "2.5g", "aginet", "tp-link"],
+    details: `- **Marca:** TP-Link (linha Aginet para ISPs)
+- **Velocidade Wi-Fi:** BE3600 (2880 Mbps em 5 GHz EHT160, 688 Mbps em 2.4 GHz EHT40).
+- **Portas:** 1x 2.5GE WAN, 1x 2.5GE LAN, 3x GE LAN, 1x USB 3.0.
+- **Recursos Wi-Fi 7:** Multi-Link Operation (MLO), 4K-QAM, Multi-RUs.
+- **Recursos Gerais:** EasyMesh, WPA3, Multi-SSID.
+- **Gerenciamento Remoto:** TAUC, TR-069, TR-369.
+- **Gerenciamento Local:** App Aginet.`
+  },
+  {
+    name: "Roteador Wi-Fi 7 Dual Band BE3600 (EB210)",
+    keywords: ["roteador", "wi-fi 7", "be3600", "eb210", "aginet", "tp-link"],
+    details: `- **Marca:** TP-Link (linha Aginet para ISPs)
+- **Velocidade Wi-Fi:** BE3600 (2880 Mbps em 5 GHz EHT160, 688 Mbps em 2.4 GHz EHT40).
+- **Portas:** 1x Gigabit WAN, 4x Gigabit LAN.
+- **Recursos Wi-Fi 7:** Multi-Link Operation (MLO), 4K-QAM, Multi-RUs.
+- **Recursos Gerais:** EasyMesh, WPA3, Multi-SSID.
+- **Gerenciamento Remoto:** TAUC, TR-069, TR-369.
+- **Gerenciamento Local:** App Aginet.`
+  },
+  {
+    name: "Roteador Wi-Fi 6 Dual Band AX3000 (EX521)",
+    keywords: ["roteador", "wi-fi 6", "ax3000", "ex521", "easymesh", "aginet", "tp-link"],
+    details: `- **Marca:** TP-Link (linha Aginet para ISPs)
+- **Velocidade Wi-Fi:** AX3000 (2402 Mbps em 5 GHz, 574 Mbps em 2.4 GHz).
+- **Portas:** 1x Gigabit WAN, 3x Gigabit LAN.
+- **Recursos:** OFDMA, MU-MIMO, EasyMesh, WPA3, Multi-SSID, Controle Parental.
+- **Gerenciamento Remoto:** TAUC, TR-069, TR-098, TR-181, TR-111, TR-143.
+- **Gerenciamento Local:** App Aginet.`
+  },
+  {
+    name: "Roteador Wi-Fi 6 Dual Band AX1800 (EX220 V2)",
+    keywords: ["roteador", "wi-fi 6", "ax1800", "ex220 v2", "easymesh", "aginet", "tp-link"],
+    details: `- **Marca:** TP-Link (linha Aginet para ISPs)
+- **Velocidade Wi-Fi:** AX1800 (1201 Mbps em 5 GHz, 574 Mbps em 2.4 GHz).
+- **Portas:** 1x Gigabit WAN, 3x Gigabit LAN.
+- **Recursos:** OFDMA, MU-MIMO, EasyMesh, WPA3, Multi-SSID, Controles Parentais.
+- **Gerenciamento Remoto:** TAUC, TR-069, TR-098, TR-181, TR-111, TR-143.
+- **Gerenciamento Local:** App Aginet.`
+  },
+  {
+    name: "Roteador Wi-Fi 5 Gigabit Dual Band AC1200 (EC220-G5 V3.8)",
+    keywords: ["roteador", "wi-fi 5", "ac1200", "ec220-g5", "easymesh", "aginet", "tp-link", "agile config"],
+    details: `- **Marca:** TP-Link (linha Aginet para ISPs)
+- **Velocidade Wi-Fi:** AC1200 (867 Mbps em 5 GHz, 300 Mbps em 2.4 GHz).
+- **Portas:** 1x Gigabit WAN, 4x Gigabit LAN.
+- **Recursos:** Beamforming, EasyMesh, WPA3, Controle dos Pais, Multi-SSID.
+- **Gerenciamento Remoto:** Aginet ACS, TR-069, TR-181, TR-111, TR-143.
+- **Gerenciamento Local:** App Aginet/Tether.
+- **Recurso para Provedor:** Aginet Config para customização de configurações padrão.`
+  },
+  {
+    name: "Switch PoE++ Gerenciável L3 Empilhável Omada Pro 48 portas 2.5G (S6500-48MPP6Y)",
+    keywords: ["switch", "l3", "omada pro", "empilhável", "poe++", "2.5g", "s6500-48mpp6y", "tp-link"],
+    details: `- **Marca:** TP-Link Omada Pro
+- **Portas:** 48x RJ45 PoE++ de 2.5 Gbps (até 60W/porta), 6x slots SFP28 de 25 Gbps.
+- **PoE Budget:** Até 1484 W.
+- **Empilhamento:** Físico.
+- **Recursos L3:** OSPF, BGP, IS-IS, VRRP, PIM, ECMP, PBR.
+- **Segurança:** MACsec, Secure Boot, RADSEC, IMPB.
+- **Alta Disponibilidade:** Duas fontes de alimentação substituíveis, VRRP, ERPS, BFD.
+- **Gerenciamento:** Omada SDN (nuvem), Web, CLI, NETCONF.`
+  },
+  {
+    name: "Switch de Agregação/Núcleo L3 Empilhável Omada Pro 24 Portas 25G (S7500-24Y4C)",
+    keywords: ["switch", "l3", "omada pro", "agregação", "25g", "100g", "s7500-24y4c", "tp-link"],
+    details: `- **Marca:** TP-Link Omada Pro
+- **Portas:** 24x slots SFP28 de 25 Gbps, 4x slots QSFP28 de 100 Gbps.
+- **Empilhamento:** Físico.
+- **Recursos L3:** OSPF, BGP, IS-IS, VRRP, PIM, ECMP, PBR.
+- **Segurança:** Secure Boot, RADSEC, IMPB, Dynamic ARP Inspection.
+- **Alta Disponibilidade:** Duas fontes de alimentação substituíveis, VRRP, ERPS, BFD.
+- **Gerenciamento:** Omada SDN (nuvem), Web, CLI, NETCONF.`
+  },
+  {
+    name: "Switch de Agregação L3 Empilhável Omada Pro 48 Portas 10G (S7500-48XF4C)",
+    keywords: ["switch", "l3", "omada pro", "agregação", "10g", "100g", "s7500-48xf4c", "tp-link"],
+    details: `- **Marca:** TP-Link Omada Pro
+- **Portas:** 48x slots SFP+ de 10 Gbps, 4x slots QSFP28 de 100 Gbps.
+- **Empilhamento:** Físico.
+- **Recursos L3:** OSPF, BGP, IS-IS, VRRP, PIM, ECMP, PBR.
+- **Segurança:** Secure Boot, RADSEC, IMPB, Dynamic ARP Inspection.
+- **Alta Disponibilidade:** Duas fontes de alimentação substituíveis, VRRP, ERPS, BFD.
+- **Gerenciamento:** Omada SDN (nuvem), Web, CLI, NETCONF.`
+  },
+  {
+    name: "Switch de Agregação L3 Empilhável Omada Pro 26 Portas 10G (S7500-26XF6Y)",
+    keywords: ["switch", "l3", "omada pro", "agregação", "10g", "25g", "s7500-26xf6y", "tp-link"],
+    details: `- **Marca:** TP-Link Omada Pro
+- **Portas:** 26x slots SFP+ de 10 Gbps, 6x slots SFP28 de 25 Gbps.
+- **Empilhamento:** Físico.
+- **Recursos L3:** OSPF, BGP, IS-IS, VRRP, PIM, ECMP, PBR.
+- **Segurança:** Secure Boot, RADSEC, IMPB, Dynamic ARP Inspection.
+- **Alta Disponibilidade:** Duas fontes de alimentação substituíveis, VRRP, ERPS, BFD.
+- **Gerenciamento:** Omada SDN (nuvem), Web, CLI, NETCONF.`
+  },
+  {
+    name: "Switch L3 Empilhável Omada Pro 48 Portas 2.5G (S6500-48M6Y)",
+    keywords: ["switch", "l3", "omada pro", "empilhável", "2.5g", "25g", "s6500-48m6y", "tp-link"],
+    details: `- **Marca:** TP-Link Omada Pro
+- **Portas:** 48x portas RJ45 de 2.5 Gbps, 6x slots SFP28 de 25 Gbps.
+- **Empilhamento:** Físico.
+- **Recursos L3:** OSPF, BGP, IS-IS, VRF, VRRP, PIM, ECMP, PBR.
+- **Segurança:** MACsec, Secure Boot, RADSEC, IMPB.
+- **Alta Disponibilidade:** Duas fontes de alimentação internas fixas, VRRP, ERPS, BFD, M-LAG.
+- **Gerenciamento:** Omada SDN (nuvem), Web, CLI, NETCONF.`
+  },
+  {
+    name: "Switch PoE++ L3 Empilhável Omada Pro 24 portas 2.5G (S6500-24MPP4Y)",
+    keywords: ["switch", "l3", "omada pro", "empilhável", "poe++", "2.5g", "25g", "s6500-24mpp4y", "tp-link"],
+    details: `- **Marca:** TP-Link Omada Pro
+- **Portas:** 24x portas PoE++ RJ45 de 2.5 Gbps (até 60W/porta), 4x slots SFP28 de 25 Gbps.
+- **PoE Budget:** Até 1440W.
+- **Empilhamento:** Físico.
+- **Recursos L3:** OSPF, BGP, IS-IS, VRRP, PIM, ECMP, PBR.
+- **Segurança:** MACsec, Secure Boot, RADSEC, IMPB.
+- **Alta Disponibilidade:** Duas fontes de alimentação substituíveis, VRRP, ERPS, BFD.
+- **Gerenciamento:** Omada SDN (nuvem), Web, CLI, NETCONF.`
+  },
+  {
+    name: "Switch L3 Empilhável Omada Pro 24 portas 2.5G (S6500-24M4Y)",
+    keywords: ["switch", "l3", "omada pro", "empilhável", "2.5g", "25g", "s6500-24m4y", "tp-link"],
+    details: `- **Marca:** TP-Link Omada Pro
+- **Portas:** 24x portas RJ45 de 2.5 Gbps, 4x slots SFP28 de 25 Gbps.
+- **Empilhamento:** Físico.
+- **Recursos L3:** OSPF, BGP, IS-IS, VRRP, PIM, ECMP, PBR.
+- **Segurança:** MACsec, Secure Boot, RADSEC, IMPB.
+- **Alta Disponibilidade:** Duas fontes de alimentação fixas internas, VRRP, ERPS, BFD.
+- **Gerenciamento:** Omada SDN (nuvem), Web, CLI, NETCONF.`
+  },
+  {
+    name: "Switch PoE+ L3 Empilhável Omada Pro 48 Portas Gigabit (S6500-48GP6XF)",
+    keywords: ["switch", "l3", "omada pro", "empilhável", "poe+", "gigabit", "10g", "s6500-48gp6xf", "tp-link"],
+    details: `- **Marca:** TP-Link Omada Pro
+- **Portas:** 48x portas Gigabit PoE+ RJ45, 6x slots SFP+ de 10 Gbps.
+- **PoE Budget:** Até 1440 W.
+- **Empilhamento:** Físico.
+- **Recursos L3:** OSPF, BGP, IS-IS, VRRP, PIM, ECMP, PBR.
+- **Segurança:** MACsec, Secure Boot, RADSEC, IMPB.
+- **Alta Disponibilidade:** Duas fontes de alimentação substituíveis, VRRP, ERPS, BFD.
+- **Gerenciamento:** Omada SDN (nuvem), Web, CLI, NETCONF.`
+  },
+  {
+    name: "Switch L3 Empilhável Omada Pro 48 Portas Gigabit (S6500-48G6XF)",
+    keywords: ["switch", "l3", "omada pro", "empilhável", "gigabit", "10g", "s6500-48g6xf", "tp-link"],
+    details: `- **Marca:** TP-Link Omada Pro
+- **Portas:** 48x portas Gigabit RJ45, 6x slots SFP+ de 10 Gbps.
+- **Empilhamento:** Físico.
+- **Recursos L3:** OSPF, BGP, IS-IS, VRRP, PIM, ECMP, PBR.
+- **Segurança:** MACsec, Secure Boot, RADSEC, IMPB.
+- **Alta Disponibilidade:** Duas fontes de alimentação fixas internas, VRRP, ERPS, BFD.
+- **Gerenciamento:** Omada SDN (nuvem), Web, CLI, NETCONF.`
+  },
+  {
+    name: "Switch PoE+ L3 Empilhável Omada Pro 24 Portas Gigabit (S6500-24GP4XF)",
+    keywords: ["switch", "l3", "omada pro", "empilhável", "poe+", "gigabit", "10g", "s6500-24gp4xf", "tp-link"],
+    details: `- **Marca:** TP-Link Omada Pro
+- **Portas:** 24x portas Gigabit PoE+ RJ45, 4x slots SFP+ de 10 Gbps.
+- **PoE Budget:** Até 720 W.
+- **Empilhamento:** Físico.
+- **Recursos L3:** OSPF, BGP, IS-IS, VRRP, PIM, ECMP, PBR.
+- **Segurança:** MACsec, Secure Boot, RADSEC, IMPB.
+- **Alta Disponibilidade:** Duas fontes de alimentação substituíveis, VRRP, ERPS, BFD.
+- **Gerenciamento:** Omada SDN (nuvem), Web, CLI, NETCONF.`
+  },
+  {
+    name: "Switch L3 Empilhável Omada Pro 24 Portas Gigabit (S6500-24G4XF)",
+    keywords: ["switch", "l3", "omada pro", "empilhável", "gigabit", "10g", "s6500-24g4xf", "tp-link"],
+    details: `- **Marca:** TP-Link Omada Pro
+- **Portas:** 24x portas Gigabit RJ45, 4x slots SFP+ de 10 Gbps.
+- **Empilhamento:** Físico.
+- **Recursos L3:** OSPF, BGP, IS-IS, VRRP, PIM, ECMP, PBR.
+- **Segurança:** MACsec, Secure Boot, RADSEC, IMPB.
+- **Alta Disponibilidade:** Duas fontes de alimentação fixas internas, VRRP, ERPS, BFD.
+- **Gerenciamento:** Omada SDN (nuvem), Web, CLI, NETCONF.`
+  },
+  {
+    name: "Switch Gigabit de Mesa com 8 portas (LS108G V2)",
+    keywords: ["switch", "gigabit", "8 portas", "ls108g", "litewave", "tp-link"],
+    details: `- **Marca:** TP-Link LiteWave
+- **Portas:** 8x 10/100/1000Mbps RJ45 com Autonegociação.
+- **Recursos:** Plug and Play, Auto MDI/MDIX, QoS 802.1p/DSCP, Green Technology.
+- **Carcaça:** Metal, para mesa ou parede.`
+  },
+  {
+    name: "Switch Gigabit de Mesa com 5 portas (LS105G)",
+    keywords: ["switch", "gigabit", "5 portas", "ls105g", "litewave", "tp-link"],
+    details: `- **Marca:** TP-Link LiteWave
+- **Portas:** 5x 10/100/1000Mbps RJ45 com Autonegociação.
+- **Recursos:** Plug and Play, Auto MDI/MDIX, QoS 802.1p/DSCP, Green Technology.
+- **Carcaça:** Metal, para mesa ou parede.`
+  },
+  {
+    name: "Switch Gigabit de Mesa com 8 Portas (LS1008G V3)",
+    keywords: ["switch", "gigabit", "8 portas", "ls1008g", "litewave", "tp-link"],
+    details: `- **Marca:** TP-Link LiteWave
+- **Portas:** 8x 10/100/1000Mbps RJ45 com Autonegociação.
+- **Recursos:** Plug and Play, Auto MDI/MDIX, Green Technology, sem ventoinha (silencioso).
+- **Carcaça:** Plástico, para mesa ou parede.`
+  },
+  {
+    name: "Switch Gigabit de Mesa com 5 portas (LS1005G V3)",
+    keywords: ["switch", "gigabit", "5 portas", "ls1005g", "litewave", "tp-link"],
+    details: `- **Marca:** TP-Link LiteWave
+- **Portas:** 5x 10/100/1000Mbps RJ45 com Autonegociação.
+- **Recursos:** Plug and Play, Auto MDI/MDIX, Green Technology, sem ventoinha (silencioso).
+- **Carcaça:** Plástico, para mesa ou parede.`
+  },
+  {
+    name: "Switch Fast de Mesa com 8 portas (LS1008)",
+    keywords: ["switch", "fast ethernet", "8 portas", "ls1008", "litewave", "tp-link"],
+    details: `- **Marca:** TP-Link LiteWave
+- **Portas:** 8x 10/100Mbps RJ45 com Autonegociação.
+- **Recursos:** Plug and Play, Auto MDI/MDIX, Green Technology, sem ventoinha (silencioso).
+- **Carcaça:** Plástico, para mesa ou parede.`
+  },
+  {
+    name: "Switch Fast Ethernet de Mesa de 5 Portas (LS1005 V2)",
+    keywords: ["switch", "fast ethernet", "5 portas", "ls1005", "litewave", "tp-link"],
+    details: `- **Marca:** TP-Link LiteWave
+- **Portas:** 5x 10/100Mbps RJ45 com Autonegociação.
+- **Recursos:** Plug and Play, Auto MDI/MDIX, Green Technology, sem ventoinha (silencioso).
+- **Carcaça:** Plástico, para mesa ou parede.`
+  },
+  {
+    name: "Switch Gigabit de Mesa de 8 Portas (TL-SG108 V6)",
+    keywords: ["switch", "gigabit", "8 portas", "tl-sg108", "tp-link"],
+    details: `- **Marca:** TP-Link
+- **Portas:** 8x 10/100/1000Mbps RJ45 com Autonegociação.
+- **Recursos:** Plug and Play, Auto MDI/MDIX, Green Technology, QoS 802.1p/DSCP, IGMP Snooping.
+- **Carcaça:** Metal, para mesa ou parede.`
+  },
+  {
+    name: "Switch Gigabit de Mesa de 5 Portas (TL-SG105)",
+    keywords: ["switch", "gigabit", "5 portas", "tl-sg105", "tp-link"],
+    details: `- **Marca:** TP-Link
+- **Portas:** 5x 10/100/1000Mbps RJ45 com Autonegociação.
+- **Recursos:** Plug and Play, Auto MDI/MDIX, Green Technology (economiza até 84%), QoS 802.1p/DSCP, IGMP Snooping.
+- **Carcaça:** Metal, para mesa ou parede.`
+  },
+  {
+    name: "Access Point Wi-Fi 7 Tri-Band BE11000 de Teto (EAP773)",
+    keywords: ["access point", "ap", "wi-fi 7", "be11000", "tri-band", "10g", "eap773", "omada", "tp-link"],
+    details: `- **Marca:** TP-Link Omada
+- **Velocidade Wi-Fi:** BE11000 Tri-Band (5760 Mbps em 6 GHz, 4320 Mbps em 5 GHz, 574 Mbps em 2.4 GHz).
+- **Porta:** 1x 10G PoE.
+- **Recursos Wi-Fi 7:** Banda de 6 GHz, Largura de banda de 320 MHz, Multi-Link Operation (MLO), Multi-RUs, 4096-QAM.
+- **Recursos Omada:** Gerenciamento centralizado em nuvem, Omada Mesh, Roaming de IA.
+- **Design:** Ultrafino (Φ220 mm × 32.5 mm).`
+  },
+  {
+    name: "Access Point Wi-Fi 7 de Teto BE3600 (EAP723)",
+    keywords: ["access point", "ap", "wi-fi 7", "be3600", "dual-band", "2.5g", "eap723", "omada", "tp-link"],
+    details: `- **Marca:** TP-Link Omada
+- **Velocidade Wi-Fi:** BE3600 Dual-Band (2882 Mbps em 5 GHz, 688 Mbps em 2.4 GHz).
+- **Porta:** 1x 2.5G PoE+ (802.3at).
+- **Recursos Wi-Fi 7:** Largura de banda de 160 MHz, MLO, Multi-RUs, 4K-QAM.
+- **Recursos Omada:** Gerenciamento centralizado em nuvem, Omada Mesh, Roaming Contínuo.
+- **Segurança:** WPA3, Rede para Convidados, Detecção de APs Ilegítimos.`
+  },
+  {
+    name: "Access Point Wi-Fi 7 Tri-Band BE11000 de Teto (EAP772)",
+    keywords: ["access point", "ap", "wi-fi 7", "be11000", "tri-band", "2.5g", "eap772", "omada", "tp-link"],
+    details: `- **Marca:** TP-Link Omada
+- **Velocidade Wi-Fi:** BE11000 Tri-Band (5760 Mbps em 6 GHz, 4320 Mbps em 5 GHz, 574 Mbps em 2.4 GHz).
+- **Porta:** 1x 2.5G PoE.
+- **Recursos Wi-Fi 7:** Banda de 6 GHz, Largura de banda de 320 MHz, MLO, Multi-RUs, 4096-QAM.
+- **Recursos Omada:** Gerenciamento centralizado em nuvem, Omada Mesh, Roaming de IA.
+- **Design:** Ultrafino.`
+  },
+  {
+    name: "Access Point Omada AX1800 Wi-Fi 6 GPON de parede (EAP625GP-Wall)",
+    keywords: ["access point", "ap", "wi-fi 6", "gpon", "ax1800", "de parede", "eap625gp-wall", "omada", "tp-link"],
+    details: `- **Marca:** TP-Link Omada
+- **Velocidade Wi-Fi:** AX1800 Wi-Fi 6 (1201 Mbps em 5 GHz, 574 Mbps em 2.4 GHz).
+- **Portas:** 1x GPON, 2x Gigabit RJ45 (1 com saída PoE 802.3af).
+- **Recursos:** ONU Wi-Fi 6 integrada, Omada Mesh, Roaming Contínuo, VoIP, PPSK, Captive Portal.
+- **Gerenciamento:** Unificado com OLT e dispositivos Omada.`
+  },
+  {
+    name: "Access Point Wi-Fi 6 GPON Dual Band AX1800 de Parede e Mesa (EAP610GP-Desktop)",
+    keywords: ["access point", "ap", "wi-fi 6", "gpon", "ax1800", "eap610gp-desktop", "omada", "tp-link"],
+    details: `- **Marca:** TP-Link Omada
+- **Velocidade Wi-Fi:** AX1800 Wi-Fi 6 (1201 Mbps em 5 GHz, 574 Mbps em 2.4 GHz).
+- **Porta:** 1x GPON.
+- **Recursos:** ONU Wi-Fi 6 integrada, MU-MIMO, Roaming Contínuo, VoIP, PPSK, Múltiplos Portais.
+- **Instalação:** Mesa e parede.
+- **Gerenciamento:** Integração com Solução Óptica Unificada.`
+  },
+  {
+    name: "Access Point Wi-Fi 6 Dual Band AX1800 de Parede (EAP615-Wall)",
+    keywords: ["access point", "ap", "wi-fi 6", "ax1800", "de parede", "eap615-wall", "omada", "tp-link"],
+    details: `- **Marca:** TP-Link Omada
+- **Velocidade Wi-Fi:** AX1800 Wi-Fi 6 (1201 Mbps em 5 GHz, 574 Mbps em 2.4 GHz).
+- **Portas:** 4x Gigabit Ethernet (1x uplink, 3x downlink), 1 porta downlink com passagem PoE.
+- **Recursos:** OFDMA, MU-MIMO, BSS Coloring, Roaming Contínuo, WPA3.
+- **Gerenciamento:** Omada SDN (nuvem).
+- **Instalação:** Caixa de junção padrão 86mm, UE e EUA.`
+  },
+  {
+    name: "Access Point Wi-Fi 6 Dual Band AX3000 de Parede (EAP655-Wall)",
+    keywords: ["access point", "ap", "wi-fi 6", "ax3000", "de parede", "eap655-wall", "omada", "tp-link"],
+    details: `- **Marca:** TP-Link Omada
+- **Velocidade Wi-Fi:** AX3000 Wi-Fi 6 (2402 Mbps em 5 GHz com HE160, 574 Mbps em 2.4 GHz).
+- **Portas:** 4x Gigabit Ethernet (1x uplink, 3x downlink), 1 porta downlink com passagem PoE.
+- **Recursos:** OFDMA, Canal de 160 MHz, Roaming Contínuo, WPA3.
+- **Gerenciamento:** Omada SDN (nuvem).
+- **Instalação:** Caixa de junção padrão 86mm, UE e EUA.`
+  },
+  {
+    name: "Access Point Wi-Fi 6 Dual Band AX3000 Outdoor (EAP650-Outdoor)",
+    keywords: ["access point", "ap", "wi-fi 6", "ax3000", "outdoor", "externo", "eap650-outdoor", "omada", "tp-link"],
+    details: `- **Marca:** TP-Link Omada
+- **Velocidade Wi-Fi:** AX3000 Wi-Fi 6 (2402 Mbps em 5 GHz com HE160, 574 Mbps em 2.4 GHz).
+- **Proteção:** IP67 (à prova d'água e poeira), proteção contra raios 6KV e ESD 15KV.
+- **Cobertura:** Longo alcance com amplificador de alta potência e antenas profissionais (Smart Antenna).
+- **Recursos:** OFDMA, MU-MIMO, Omada Mesh, Roaming Contínuo.
+- **Alimentação:** PoE+ 802.3at ou PoE passivo (adaptador incluído).
+- **Gerenciamento:** Omada SDN (nuvem).`
+  },
+  {
+    name: "Access Point Wi-Fi 5 Dual Band AC1200 Outdoor (EAP225-Outdoor V3)",
+    keywords: ["access point", "ap", "wi-fi 5", "ac1200", "outdoor", "externo", "eap225-outdoor", "omada", "tp-link"],
+    details: `- **Marca:** TP-Link Omada
+- **Velocidade Wi-Fi:** AC1200 (867 Mbps em 5 GHz, 300 Mbps em 2.4 GHz).
+- **Proteção:** IP65 (resistente a intempéries), proteção contra raios 6KV e ESD 15KV.
+- **Cobertura:** Longo alcance com amplificador de alta potência e antenas destacáveis.
+- **Recursos:** MU-MIMO, Omada Mesh, Roaming Contínuo (802.11k/v).
+- **Alimentação:** PoE+ 802.3af/at ou PoE passivo (adaptador incluído).
+- **Gerenciamento:** Omada SDN (nuvem).`
+  },
+  {
+    name: "Access Point Wi-Fi 6 Dual Band AX1800 Outdoor (EAP610-Outdoor)",
+    keywords: ["access point", "ap", "wi-fi 6", "ax1800", "outdoor", "externo", "eap610-outdoor", "omada", "tp-link"],
+    details: `- **Marca:** TP-Link Omada
+- **Velocidade Wi-Fi:** AX1800 Wi-Fi 6 (1201 Mbps em 5 GHz, 574 Mbps em 2.4 GHz).
+- **Proteção:** IP67 (à prova d'água e poeira), proteção contra raios 6KV e ESD 15KV.
+- **Cobertura:** Longo alcance com amplificador de alta potência e antenas profissionais.
+- **Recursos:** OFDMA, MU-MIMO, Omada Mesh, Roaming Rápido.
+- **Alimentação:** PoE+ 802.3at ou PoE passivo.
+- **Gerenciamento:** Omada SDN (nuvem).`
+  },
+  {
+    name: "Módulo SFP+ 10G Base-SR LC Duplex (SM5110-SR / TL-SM5110-SR)",
+    keywords: ["módulo", "sfp+", "10g", "base-sr", "lc", "multimodo", "sm5110-sr", "tl-sm5110-sr", "tp-link"],
+    details: `- **Marca:** TP-Link
+- **Tipo:** Transceptor SFP+ 10GBASE-SR de 850 nm Multimodo.
+- **Conector:** LC Duplex.
+- **Distância:** Até 300m com fibra 50/125µm ou 33m com fibra 62.5/125µm.
+- **Recursos:** Hot-Pluggable, Suporta Monitoramento Diagnóstico Digital (DDM).
+- **Compatibilidade:** Switches com portas SFP+ 10G (SG3428X, T3700, T1700, TX432 etc.).`
+  },
+  {
+    name: "Módulo SFP GPON Classe C+ (DS-PMA-C+)",
+    keywords: ["módulo", "sfp", "gpon", "classe c+", "ds-pma-c+", "tp-link"],
+    details: `- **Marca:** TP-Link
+- **Tipo:** Módulo de Fibra Monomodo SFP GPON Classe C+.
+- **Recursos:** Hot-Pluggable, Suporta Monitoramento de Diagnóstico Digital (DDM).
+- **Compatibilidade:** TP-Link GPON OLTs (DS-P7001-01, DS-P7001-04, DS-P7001-08, DS-P7001-16, DS-P8000-X2).`
+  },
+  {
+    name: "Módulo de fonte de Alimentação DC de 150W (PSM150-DC)",
+    keywords: ["módulo", "fonte", "alimentação", "dc", "150w", "psm150-dc", "tp-link"],
+    details: `- **Marca:** TP-Link
+- **Potência:** Saída de até 150 W (Converte para 12 Volts).
+- **Proteção:** Sobretensão/subtensão/curto-circuito/sobrecorrente.
+- **Recursos:** Troca a quente (hot-swap).
+- **Compatibilidade:** GPON OLTs DS-P7001-08 e DS-P7001-16.`
+  },
+  {
+    name: "Módulo SFP GPON Classe C++ (DS-PMA-C++)",
+    keywords: ["módulo", "sfp", "gpon", "classe c++", "ds-pma-c++", "tp-link"],
+    details: `- **Marca:** TP-Link
+- **Velocidade:** Conexões de até 2.488 Gbps downstream e 1.244 Gbps upstream.
+- **Modos UNI:** Suporta 2.5G e 1G Ethernet.
+- **Recursos:** Hot swapping, OMCI, DDM (Monitoramento de Diagnóstico Digital).`
+  },
+  {
+    name: "SFP XGS-PON & GPON Combo Class C+ Module (DS-PMA-Combo C+)",
+    keywords: ["módulo", "sfp", "xgs-pon", "gpon", "combo", "classe c+", "ds-pma-combo c+", "10g", "tp-link"],
+    details: `- **Marca:** TP-Link
+- **Velocidade:** Conexões simétricas de até 10 Gbps.
+- **Tecnologia:** Suporta XGS-PON/XG-PON e GPON para implantação flexível.
+- **Recursos:** Hot swapping, OMCI, DDM (Monitoramento de Diagnóstico Digital).`
   }
 ];
 
@@ -1208,25 +1846,30 @@ export const KNOWLEDGE_BASE_SKYWATCH: string = `
 # Base de Conhecimento SkyWatch
 
 ## O que é o SkyWatch?
-O SkyWatch é a solução de monitoramento de ativos de rede da Greatek. Ele permite que provedores de internet (ISPs) monitorem remotamente seus equipamentos em postes (como CTOs e Switches) e em racks (como OLTs e servidores), garantindo a integridade da rede e agindo proativamente contra falhas e furtos.
+O SkyWatch é a solução de monitoramento inteligente da Greatek, projetada para que provedores e empresas possam enxergar a qualidade da sua rede com os olhos do cliente final. Em vez de apenas monitorar IPs e servidores, o SkyWatch acompanha a experiência real de navegação, identificando lentidão e falhas antes que seus clientes reclamem.
 
-## Principais Componentes e Funcionalidades
-- **Hardware (Dispositivos de Monitoramento):**
-  - **SkyWatch POSTE:** Monitora a abertura de caixas (CTOs), quedas de energia, e possui GPS para localização em caso de furto.
-  - **SkyWatch RACK:** Monitora temperatura, umidade, tensão da rede elétrica, estado de disjuntores e abertura de portas do rack.
-- **Software (Plataforma Central):**
-  - Interface web amigável para visualização de todos os ativos em um mapa.
-  - Dashboard com status em tempo real dos equipamentos.
-  - Sistema de alertas configurável via Telegram, SMS ou e-mail.
-  - Geração de relatórios históricos de eventos.
-  - Controle de acesso por nível de usuário.
 
-## Benefícios para o ISP
-1.  **Redução de OPEX:** Diminui a necessidade de deslocamento de equipes técnicas para verificar problemas, pois o diagnóstico pode ser feito remotamente.
-2.  **Aumento da Disponibilidade da Rede:** Alertas proativos permitem que a equipe técnica resolva problemas (como uma bateria de nobreak falhando) antes que causem uma parada na rede.
-3.  **Segurança Patrimonial:** O monitoramento de abertura de caixas e o GPS ajudam a inibir furtos e a localizar equipamentos roubados.
-4.  **Melhora na Qualidade do Serviço (SLA):** Com uma rede mais estável e menos tempo de parada, a satisfação do cliente final aumenta.
-5.  **Tomada de Decisão Baseada em Dados:** Relatórios históricos ajudam a identificar pontos problemáticos na rede que necessitam de manutenção ou upgrade.
+## Como funciona?
+Através de sondas (probes) plug-and-play instaladas em pontos estratégicos, a ferramenta simula o acesso de um usuário, medindo a performance real de sites e serviços críticos para o seu negócio.
+
+
+## Requisito de Instalação:
+A sonda SkyWatch deve ser conectada, sem exceção, a um Roteador ou ONT dentro do POP ou na localidade do cliente B2B dedicado.
+
+
+## Principais Benefícios:
+1.  **Visão Real do Usuário:** Saiba exatamente como está a qualidade da navegação do seu cliente.
+2.  **Ação Proativa:** Identifique problemas de latência, DNS ou disponibilidade e atue antes de impactar seus clientes.
+3.  **Diagnóstico Simplificado:** A plataforma centralizada oferece dashboards intuitivos e relatórios com IA para facilitar a identificação da causa raiz dos problemas.
+4.  **Fácil de Usar:** Não é preciso ser um especialista em redes. A solução foi desenhada para ser simples e segura, com sondas que funcionam de forma automática.
+
+
+## Interessado em saber mais?
+O SkyWatch é uma ferramenta poderosa para garantir a satisfação dos seus clientes e a estabilidade da sua operação. Para uma demonstração ou para entender como a solução pode se aplicar ao seu negócio, entre em contato com nosso Time Comercial.
+
+
+## Contato Comercial Greatek:
+- **Telefone/WhatsApp:** (12) 99221-8852
 `;
 
 // FIX: Created a function to format all knowledge into a single string and exported the result.
