@@ -1,5 +1,3 @@
-
-
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 import * as XLSX from 'xlsx';
@@ -159,6 +157,41 @@ export const useAppStore = create<AppState>()(
         submitQuery: async (prompt) => {
             const { activeConversationId, attachments, userUploadedKnowledge } = get();
             if (!activeConversationId) return;
+
+            // Universal rule to handle "thank you" messages
+            const normalizedPrompt = prompt.toLowerCase().trim().replace(/[!.,?]/g, '');
+            const thanksWords = ['obrigado', 'obrigada', 'agradeço', 'valeu', 'grato', 'grata', 'agradecido', 'agradecida', 'thanks', 'thank you'];
+            const isThankYou = thanksWords.some(word => normalizedPrompt.includes(word)) && normalizedPrompt.length < 30;
+
+            if (isThankYou) {
+                const userMessage: Message = { role: 'user', content: prompt };
+                
+                const cannedResponses = [
+                    "De nada! Fico feliz em ajudar.",
+                    "Por nada! Caso precise de algo, me avise.",
+                    "Por nada.",
+                ];
+                
+                let agentResponseContent = cannedResponses[0];
+                if (normalizedPrompt.includes('ok')) {
+                    agentResponseContent = cannedResponses[2];
+                } else if (normalizedPrompt.includes('resposta')) {
+                    agentResponseContent = cannedResponses[1];
+                }
+                
+                const agentMessage: Message = { role: 'agent', content: agentResponseContent };
+
+                set(state => ({
+                    conversations: state.conversations.map(c => 
+                        c.id === activeConversationId 
+                            ? { ...c, messages: [...c.messages, userMessage, agentMessage] } 
+                            : c
+                    ),
+                    attachments: [],
+                }));
+                
+                return; // Stop execution to prevent API call
+            }
 
             const abortController = new AbortController();
             set({ isLoading: true, error: null, abortController });

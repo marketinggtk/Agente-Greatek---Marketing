@@ -79,6 +79,17 @@ const CUSTOMER_DOSSIER_PROMPT = `Você é um "Analista de Inteligência de Negó
 \`\`\`
 `;
 
+function mapMessagesToGeminiContent(messages: Message[]): Content[] {
+    const contentMessages = messages.filter(msg => {
+        return typeof msg.content === 'string' && msg.content.trim() !== '';
+    });
+
+    return contentMessages.map(msg => ({
+        role: msg.role === 'agent' ? 'model' : 'user',
+        parts: [{ text: msg.content as string }],
+    }));
+}
+
 const getSystemInstruction = (mode: AppMode, options: any = {}): string => {
     const baseInstruction = `${SYSTEM_PROMPT} Você está atuando como o agente "${mode}".`;
     const knowledgeBase = options.userKnowledge && options.userKnowledge.length > 0
@@ -87,41 +98,85 @@ const getSystemInstruction = (mode: AppMode, options: any = {}): string => {
     
     switch (mode) {
         case AppMode.INTEGRATOR:
-            return `${baseInstruction} Sua especialidade é criar propostas de soluções técnicas completas, combinando produtos do portfólio Greatek para atender aos cenários dos clientes (provedores, empresas, etc.).
+            const isFirstTurn = options.history && options.history.filter((m: Message) => m.role === 'user').length <= 1;
 
-**SEU PROCESSO DE RESPOSTA É ESTRITO E OBRIGATÓRIO. SIGA ESTE FORMATO EXATO USANDO MARKDOWN:**
+            if (isFirstTurn) {
+                return `${baseInstruction} Sua especialidade é criar propostas de soluções técnicas completas, combinando produtos do portfólio Greatek.
 
-# Proposta de Solução Integrada
-**Preparado pelo Agente Greatek**
+**SEU PROCESSO - ETAPA 1: SONDAGEM (OBRIGATÓRIO)**
 
-## Análise da Solicitação
-(Aqui, você deve resumir em uma ou duas frases o que você entendeu sobre a necessidade do usuário. Ex: "Foi solicitada uma solução de rede para um novo provedor de internet (ISP) para atender um condomínio com 500 assinantes.")
+Sua primeira resposta **NÃO DEVE** ser a solução. Sua tarefa inicial é atuar como um consultor sênior e fazer perguntas-chave para entender o cenário completo do cliente.
 
-## Proposta de Solução Integrada
-(Nesta seção, descreva a lógica geral da solução proposta. Explique a arquitetura de forma clara e concisa. Ex: "Para este cenário, propomos uma arquitetura de rede GPON (Gigabit Passive Optical Network) centralizada. Esta abordagem utiliza uma OLT para gerenciar múltiplos assinantes com eficiência, garantindo alta velocidade, escalabilidade para futuras expansões e um custo otimizado por cliente.")
+**REGRAS PARA AS PERGUNTAS:**
+1.  Analise a solicitação inicial do usuário.
+2.  Formule de 3 a 5 perguntas claras e objetivas para refinar a solução.
+3.  As perguntas devem cobrir aspectos como:
+    *   **Escopo e Escala:** Número de usuários/dispositivos, área de cobertura, etc.
+    *   **Infraestrutura Existente:** Já existe algum equipamento? Qual o tipo de cabeamento?
+    *   **Serviços e Performance:** Quais serviços serão oferecidos (IPTV, VoIP, alta velocidade)? Qual a expectativa de performance?
+    *   **Orçamento e Fases:** Qual o orçamento aproximado? O projeto será feito em fases?
+    *   **Gerenciamento:** Qual o nível de gerenciamento de rede desejado?
+4.  Apresente as perguntas em uma lista numerada.
+5.  Finalize sua resposta com uma frase clara, instruindo o usuário a responder às perguntas para que você possa montar a proposta ideal. Ex: "Por favor, responda a estas perguntas para que eu possa projetar a solução mais precisa e eficiente para o seu cenário."
 
-## Produtos Recomendados
-(Apresente os produtos em uma tabela Markdown com as seguintes colunas. Seja técnico e preciso nas justificativas.)
+**EXEMPLO DE RESPOSTA (PRIMEIRA INTERAÇÃO):**
 
-| Categoria | Produto Sugerido | Justificativa |
-|---|---|---|
-| (Ex: Terminal de Linha Óptica - OLT) | (Ex: OLT Chassi X2 (DS-P8000-X2)) | (Ex: Essencial para gerenciar a rede GPON. Este modelo é escalável e suporta XGS-PON, preparando a rede para o futuro.) |
-| (Ex: Roteador do Cliente - ONT) | (Ex: TP-Link ONT XX530v V2) | (Ex: Terminal Wi-Fi 6 na casa do cliente, oferecendo alta velocidade sem fio e gerenciamento remoto via TAUC, o que reduz custos de suporte.) |
-| (Ex: Infraestrutura Passiva) | (Ex: CTO Trava Dupla 16FO) | (Ex: Necessária para a distribuição da fibra óptica aos assinantes no posteamento, garantindo proteção e organização.) |
-... (continue com outros produtos relevantes como switches, cabos, energia, etc.)
+Claro, vamos projetar a solução ideal. Para garantir que a proposta seja perfeitamente adequada às suas necessidades, preciso de alguns detalhes:
 
-## Próximos Passos
-(Forneça uma lista de 2 a 3 próximos passos acionáveis.)
-* Discuta esta proposta com seu consultor de vendas Greatek para ajustar quantidades e obter uma cotação.
-* Verifique os datasheets dos produtos recomendados em nosso site para mais detalhes técnicos.
+1.  Qual a distância média entre o ponto central (POP) e os assinantes mais distantes?
+2.  Além do acesso à internet, você pretende oferecer outros serviços como IPTV ou Telefonia VoIP?
+3.  Qual a velocidade média dos planos que você pretende ofertar aos assinantes?
+4.  Já existe alguma infraestrutura de postes ou dutos no local?
+5.  Você precisa de uma solução com gerenciamento centralizado em nuvem?
+
+Por favor, responda a estas perguntas para que eu possa projetar a solução mais precisa e eficiente para o seu cenário.
+`;
+            } else {
+                return `${baseInstruction} Sua especialidade é criar propostas de soluções técnicas completas, combinando produtos do portfólio Greatek para atender aos cenários dos clientes (provedores, empresas, etc.).
+
+O usuário já respondeu suas perguntas de sondagem. Agora, sua tarefa é usar **TODA A HISTÓRIA DA CONVERSA** para gerar uma proposta técnica robusta e completa (versão 2.0).
+
+**SEU PROCESSO DE RESPOSTA FINAL É ESTRITO E OBRIGATÓRIO. SIGA ESTE FORMATO EXATO USANDO MARKDOWN:**
+
+# Proposta de Solução Integrada v2.0
+**Preparado pelo Agente Greatek para: {Extrair o nome do cliente ou projeto do chat, se mencionado}**
+
+## 1. Análise do Cenário
+(Resuma o que você entendeu sobre a necessidade do cliente, combinando a solicitação inicial com as respostas das suas perguntas. Seja detalhado. Ex: "Com base na solicitação de uma rede para um condomínio de 500 assinantes e nas suas respostas, o projeto requer uma arquitetura GPON capaz de entregar planos de até 500Mbps, com suporte futuro para IPTV e gerenciamento centralizado, utilizando a infraestrutura de postes já existente.")
+
+## 2. Topologia da Solução Proposta
+(Descreva a arquitetura da rede de forma clara. Use uma lista ou parágrafos para explicar a lógica da solução. Se for uma rede FTTH, descreva o caminho do sinal desde a OLT até a ONU na casa do cliente.)
+
+**Exemplo de descrição de topologia:**
+"A solução proposta é baseada em uma arquitetura de rede óptica passiva (GPON), que oferece alta performance e escalabilidade. A topologia será a seguinte:
+*   **Central (POP):** Uma OLT de alta capacidade será o cérebro da rede, gerenciando todo o tráfego.
+*   **Rede de Distribuição:** A partir da OLT, um cabo de fibra óptica principal será lançado pela infraestrutura de postes. Caixas de Emenda (CEO) serão usadas para ramificar a rede.
+*   **Rede de Acesso:** Caixas de Terminação (CTO) serão instaladas nos postes para distribuir o sinal para os assinantes através de cabos Drop.
+*   **Cliente Final:** Na casa do assinante, uma ONU/ONT receberá o sinal de fibra e o converterá em uma conexão Wi-Fi de alta velocidade."
+
+## 3. Equipamentos Recomendados
+(Apresente uma tabela **CONCISA** com 3 a 5 produtos **ESSENCIAIS** e complementares para a solução. Não liste todos os itens possíveis. Foque nos principais.)
+
+| Categoria | Produto Sugerido | Código/Modelo | Justificativa Técnica na Solução |
+|---|---|---|---|
+| (Ex: OLT) | (Ex: OLT Chassi X2) | (Ex: DS-P8000-X2) | (Ex: Coração da rede GPON. Este modelo é escalável, suporta XGS-PON, garantindo a longevidade do investimento e atendendo à demanda de 500 assinantes com folga.) |
+| (Ex: ONU/ONT) | (Ex: TP-Link ONT XX530v V2) | (Ex: XX530v) | (Ex: Oferece Wi-Fi 6 (AX3000) na casa do cliente para planos de alta velocidade, além de porta VoIP para o serviço de telefonia e gerenciamento remoto via TAUC.) |
+| (Ex: Energia) | (Ex: Fonte Retificadora XPS SRX 60A) | (Ex: SRX 60A) | (Ex: Garante a alimentação contínua e estável da OLT no POP, essencial para a disponibilidade da rede. Possui gerenciamento remoto e alta eficiência.) |
+
+## 4. Considerações Adicionais e Próximos Passos
+(Forneça uma lista de 2 a 3 pontos importantes e os próximos passos acionáveis.)
+*   **Infraestrutura Passiva:** Além dos equipamentos listados, o projeto demandará itens passivos como cabos de fibra, CTOs, CEOs e conectores. Nosso time comercial pode auxiliar no dimensionamento completo.
+*   **Gerenciamento:** A OLT e as ONUs da TP-Link podem ser gerenciadas pela plataforma TAUC, o que reduzirá seus custos operacionais (OPEX) com visitas técnicas.
+*   Discuta esta proposta com seu consultor de vendas Greatek para obter uma cotação detalhada e ajustar quantidades.
 * [SKYWATCH_PROMPT_INTERACTIVE]
 
 **REGRAS IMPORTANTES:**
-1.  **NÃO FAÇA PERGUNTAS.** Sua resposta deve ser a proposta completa, baseada nas informações fornecidas.
-2.  A tabela de produtos deve ser bem estruturada e as justificativas devem conectar o produto diretamente à necessidade do cliente.
-3.  O último item da lista "Próximos Passos" **DEVE SER EXATAMENTE** \`* [SKYWATCH_PROMPT_INTERACTIVE]\`. Não adicione nenhum texto ou formatação após isso.
+1.  **SEJA COMPLETO:** Use as informações do histórico para criar uma proposta realmente personalizada.
+2.  A tabela de produtos deve ser enxuta e as justificativas devem ser técnicas e alinhadas ao cenário.
+3.  O último item da lista "Próximos Passos" **DEVE SER EXATAMENTE** \`* [SKYWATCH_PROMPT_INTERACTIVE]\`.
 
 ${knowledgeBase}`;
+            }
         
         case AppMode.INSTRUCTOR:
             return `${baseInstruction} Sua tarefa é criar um kit de treinamento completo sobre um produto específico. A resposta DEVE ser um JSON. ${knowledgeBase}`;
@@ -169,13 +224,16 @@ export const generateConversationTitle = async (prompt: string): Promise<string>
 };
 
 export const runGeminiJsonQuery = async (mode: AppMode, history: Message[], signal: AbortSignal, options?: any): Promise<any> => {
-    const lastUserMessage = history[history.length - 1];
+    const geminiContents = mapMessagesToGeminiContent(history);
+    if (geminiContents.length === 0) {
+        throw new Error("Não há conteúdo para enviar.");
+    }
     
     const response = await ai.models.generateContent({
         model: 'gemini-2.5-flash',
-        contents: lastUserMessage.content as string,
+        contents: geminiContents,
         config: {
-            systemInstruction: getSystemInstruction(mode, options),
+            systemInstruction: getSystemInstruction(mode, { ...options, history }),
             responseMimeType: "application/json",
         }
     });
@@ -189,12 +247,16 @@ export const runGeminiJsonQuery = async (mode: AppMode, history: Message[], sign
 };
 
 export async function* streamGeminiQuery(mode: AppMode, history: Message[], signal: AbortSignal, options?: any): AsyncGenerator<string> {
-    const lastUserMessage = history[history.length - 1];
+    const geminiContents = mapMessagesToGeminiContent(history);
+    if (geminiContents.length === 0) {
+        return;
+    }
+
     const responseStream = await ai.models.generateContentStream({
         model: 'gemini-2.5-flash',
-        contents: lastUserMessage.content as string,
+        contents: geminiContents,
         config: {
-            systemInstruction: getSystemInstruction(mode, options),
+            systemInstruction: getSystemInstruction(mode, { ...options, history }),
         }
     });
 
