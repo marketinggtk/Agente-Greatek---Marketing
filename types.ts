@@ -88,7 +88,7 @@ export interface BlogPostPackage {
     conclusion: string;
     seo_title: string;
     seo_meta_description: string;
-    image_prompt_suggestion: string;
+    seo_tags: string[];
     cta_html: string;
 }
 
@@ -250,7 +250,7 @@ export function isContentPackage(response: any): response is ContentPackage {
 }
 
 export function isBlogPostPackage(response: any): response is BlogPostPackage {
-    return response && typeof response === 'object' && 'seo_title' in response && Array.isArray(response.sections) && 'cta_html' in response;
+    return response && typeof response === 'object' && 'seo_title' in response && Array.isArray(response.sections) && 'cta_html' in response && 'seo_tags' in response && Array.isArray(response.seo_tags);
 }
 
 export function isPresentationPackage(response: any): response is PresentationPackage {

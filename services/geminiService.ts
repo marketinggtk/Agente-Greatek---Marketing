@@ -231,7 +231,7 @@ ${knowledgeBase}`;
   "conclusion": "Um parágrafo de conclusão forte que resume a proposta de valor e reforça a confiança na Greatek. Deve preparar o leitor para a chamada para ação.",
   "seo_title": "Um título otimizado para SEO com no máximo 60 caracteres.",
   "seo_meta_description": "Uma meta descrição otimizada para SEO com no máximo 160 caracteres.",
-  "image_prompt_suggestion": "Uma sugestão de prompt detalhada para gerar a imagem de destaque do post, em um estilo profissional e tecnológico.",
+  "seo_tags": ["Gere de 5 a 10 tags (palavras-chave) otimizadas para SEO que resumam os principais tópicos do post.", "As tags devem ser curtas, relevantes e em minúsculas."],
   "cta_html": "<a style=\\"display: inline-block; background-color: #25d366; color: white; padding: 15px 30px; text-align: center; text-decoration: none; border-radius: 5px; font-size: 18px; font-weight: bold;\\" href=\\"https://wa.me/5512992218852?text=Ol%C3%A1%2C%20vim%20pelo%20blog%20da%20Greatek.%20Poderia%20me%20auxiliar%3F\\" target=\\"_blank\\" rel=\\"noopener\\">Chamar no WhatsApp</a>"
 }
 \`\`\`

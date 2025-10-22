@@ -84,7 +84,7 @@ const SimpleMarkdownRenderer: React.FC<{ content: string }> = ({ content }) => {
 
 
 const BlogPostViewer: React.FC<{ data: BlogPostPackage }> = ({ data }) => {
-    const { createImageAdFromPrompt, showToast } = useAppStore();
+    const { showToast } = useAppStore();
 
     // Function to convert simple markdown from agent to HTML for WordPress
     const markdownToHtml = (text: string) => {
@@ -202,18 +202,22 @@ ${data.cta_html}
                         </button>
                     </div>
 
-                    <div className="bg-gradient-to-br from-greatek-blue to-greatek-dark-blue text-white p-4 rounded-lg shadow-lg">
-                        <h3 className="text-base font-semibold flex items-center mb-2">
-                            <i className="bi bi-image-fill mr-3 text-lg"></i>
-                            Imagem de Destaque
-                        </h3>
-                        <p className="text-sm italic text-white/80 mb-4 line-clamp-3">"{data.image_prompt_suggestion}"</p>
-                        <button 
-                            onClick={() => createImageAdFromPrompt(data.image_prompt_suggestion)}
-                            className="flex items-center justify-center w-full px-4 py-2 text-sm font-bold text-greatek-dark-blue bg-white rounded-lg hover:bg-greatek-bg-light transition-colors transform hover:scale-105">
-                            <i className="bi bi-magic mr-2"></i>
-                            Gerar Imagem
-                        </button>
+                    <div className="bg-white p-4 rounded-lg border border-greatek-border shadow-sm">
+                        <div className="flex justify-between items-center mb-2">
+                            <h3 className="text-base font-semibold text-text-primary flex items-center">
+                               <i className="bi bi-tags-fill mr-3 text-lg text-greatek-blue"></i>
+                               Tags (Palavras-chave)
+                            </h3>
+                            <CopyButton text={data.seo_tags.join(', ')} label="Copiar Todas"/>
+                        </div>
+                        <p className="text-xs text-text-secondary mb-3">Use estas tags para melhorar a busca e o SEO do seu post.</p>
+                        <div className="flex flex-wrap gap-1.5">
+                            {data.seo_tags.map((tag, index) => (
+                                <span key={index} className="text-xs bg-greatek-blue/10 text-greatek-blue font-medium px-2 py-1 rounded">
+                                    {tag}
+                                </span>
+                            ))}
+                        </div>
                     </div>
                     
                     <div className="bg-white p-4 rounded-lg border border-greatek-border">
