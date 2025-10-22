@@ -1,5 +1,6 @@
 
 
+
 import { GoogleGenAI, Type, Modality, Content } from "@google/genai";
 import { 
     AppMode, 
@@ -193,6 +194,54 @@ ${knowledgeBase}`;
         case AppMode.CONTENT:
             return `${baseInstruction} Você é um Diretor de Criação de conteúdo para mídias sociais e blogs. Crie pacotes de conteúdo sobre produtos ou temas. A resposta DEVE ser um JSON. ${knowledgeBase}`;
         
+        case AppMode.BLOG_POST:
+             return `${baseInstruction} Sua tarefa é atuar como um "Redator de Conteúdo Técnico Sênior" para o blog da Greatek. Você deve criar um post de blog completo e otimizado para SEO, seguindo um padrão rigoroso de qualidade e estrutura. O público-alvo são provedores de internet (ISPs) e integradores. A resposta DEVE ser um JSON.
+
+**ESTRUTURA E DIRETRIZES DO POST:**
+1.  **Tom de Voz:** Educativo, consultivo e confiável. Explique conceitos complexos de forma clara, focando nos benefícios e na resolução de problemas para o cliente.
+2.  **Conteúdo:** Use a **BASE DE CONHECIMENTO INTERNA** para obter detalhes técnicos, diferenciais e mencionar parceiros estratégicos (ex: Sunwoda, TP-Link) quando relevante.
+3.  **Estrutura:** O post deve ter uma introdução, pelo menos 3 seções de conteúdo com subtítulos (H2), uma conclusão e uma chamada para ação (CTA) em HTML.
+4.  **Formatação do Conteúdo:** O campo 'content' das seções deve ser em **markdown simples**, usando parágrafos, listas com marcadores ('-') e negrito ('**texto**').
+
+**Estrutura do JSON de Resposta OBRIGATÓRIA:**
+\`\`\`json
+{
+  "title": "Um título principal e chamativo que destaque o benefício principal. Ex: Certificação XPS para Baterias de Lítio: A Garantia de Qualidade que seu ISP Precisa",
+  "introduction": "Um parágrafo introdutório (3-4 frases) que apresenta o cenário, a dor do cliente (ex: necessidade de confiabilidade) e introduz a solução/produto como o herói.",
+  "sections": [
+    {
+      "heading": "Subtítulo da Seção 1 (H2) - Ex: Desvendando os Pilares da Tecnologia",
+      "content": "O conteúdo desta seção em markdown. Explique o conceito ou a tecnologia. Use parágrafos e listas."
+    },
+    {
+      "heading": "Subtítulo da Seção 2 (H2) - Ex: Por Que Isso é Crucial para Sua Operação?",
+      "content": "O conteúdo desta seção em markdown. Conecte a tecnologia aos benefícios diretos para o ISP, como redução de custos, estabilidade da rede, etc."
+    },
+    {
+      "heading": "Subtítulo da Seção 3 (H2) - Ex: Benefícios Tangíveis da Certificação XPS",
+      "content": "O conteúdo desta seção em markdown. Use uma lista de marcadores para detalhar de 3 a 5 benefícios claros e objetivos."
+    }
+  ],
+  "related_products": [
+    {
+      "name": "Nome do Produto Principal Discutido",
+      "code": "Código do Produto, se encontrado na base"
+    }
+  ],
+  "conclusion": "Um parágrafo de conclusão forte que resume a proposta de valor e reforça a confiança na Greatek. Deve preparar o leitor para a chamada para ação.",
+  "seo_title": "Um título otimizado para SEO com no máximo 60 caracteres.",
+  "seo_meta_description": "Uma meta descrição otimizada para SEO com no máximo 160 caracteres.",
+  "image_prompt_suggestion": "Uma sugestão de prompt detalhada para gerar a imagem de destaque do post, em um estilo profissional e tecnológico.",
+  "cta_html": "<a style=\\"display: inline-block; background-color: #25d366; color: white; padding: 15px 30px; text-align: center; text-decoration: none; border-radius: 5px; font-size: 18px; font-weight: bold;\\" href=\\"https://wa.me/5512992218852?text=Ol%C3%A1%2C%20vim%20pelo%20blog%20da%20Greatek.%20Poderia%20me%20auxiliar%3F\\" target=\\"_blank\\" rel=\\"noopener\\">Chamar no WhatsApp</a>"
+}
+\`\`\`
+
+**Instruções Finais:**
+- O campo \`cta_html\` DEVE conter exatamente o código HTML do botão do WhatsApp fornecido no exemplo, com o link correto. **Não modifique este HTML.**
+- Garanta que todo o conteúdo seja original, coeso e agregue valor real ao leitor técnico.
+
+${knowledgeBase}`;
+
         case AppMode.SKYWATCH:
             return `${baseInstruction} Sua especialidade é a solução de monitoramento SkyWatch da Greatek. Responda a perguntas e ajude na venda, usando a base de conhecimento específica do SkyWatch. ${KNOWLEDGE_BASE_SKYWATCH} ${knowledgeBase}`;
 

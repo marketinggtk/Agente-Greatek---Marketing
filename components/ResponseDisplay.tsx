@@ -1,7 +1,8 @@
 
 
+
 import React from 'react';
-import { PageOptimizationPackage, MarketIntelReport, Message, TrainingKitReport, AppMode, isPageOptimizationPackage, isImageAdPackage, ImageAdPackage, isContentPackage, isPresentationPackage, isCustomerDossier, CustomerDossier } from '../types';
+import { PageOptimizationPackage, MarketIntelReport, Message, TrainingKitReport, AppMode, isPageOptimizationPackage, isImageAdPackage, ImageAdPackage, isContentPackage, isPresentationPackage, isCustomerDossier, CustomerDossier, isBlogPostPackage } from '../types';
 import JsonViewer from './JsonViewer';
 import MarkdownViewer from './MarkdownViewer';
 import MarketIntelViewer from './MarketIntelViewer';
@@ -9,6 +10,7 @@ import TrainingKitViewer from './TrainingKitViewer';
 import ComplexResponseViewer from './ComplexResponseViewer';
 import ImageAdViewer from './ImageAdViewer';
 import ContentPackageViewer from './ContentPackageViewer';
+import BlogPostViewer from './BlogPostViewer';
 import PresentationViewer from './PresentationViewer';
 import CustomerDossierViewer from './CustomerDossierViewer';
 
@@ -54,6 +56,10 @@ const ResponseDisplay: React.FC<ResponseDisplayProps> = ({ message, mode, isLast
     
     if (isContentPackage(content)) {
         return <ContentPackageViewer data={content} />;
+    }
+
+    if (isBlogPostPackage(content)) {
+        return <BlogPostViewer data={content} />;
     }
 
     if (isPageOptimizationPackage(content)) {

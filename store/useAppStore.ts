@@ -1,3 +1,4 @@
+
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 import * as XLSX from 'xlsx';
@@ -244,7 +245,7 @@ export const useAppStore = create<AppState>()(
                 const agentMessageIndex = history.length;
 
                 // Handle different response types based on mode
-                const jsonModes = [AppMode.PAGE, AppMode.MARKET_INTEL, AppMode.INSTRUCTOR, AppMode.CONTENT];
+                const jsonModes = [AppMode.PAGE, AppMode.MARKET_INTEL, AppMode.INSTRUCTOR, AppMode.CONTENT, AppMode.BLOG_POST];
                 const isFirstDossierMessage = currentConvo.mode === AppMode.CUSTOMER_DOSSIER && currentConvo.messages.length === 1;
 
 
@@ -749,18 +750,77 @@ export const useAppStore = create<AppState>()(
     }),
     {
       name: 'greatek-agent-storage-v1',
-      // Don't persist non-serializable or transient state
       partialize: (state) => {
-        // Omitting transient state from persisted storage
-        const { isLoading, error, abortController, attachments, toastInfo, feedbackModalState, isAnalyzingComparison, ...rest } = state;
-        
-        // Custom logic to handle activeConversationId being removed but we still want to persist conversations
-        const newRest = { ...rest };
-        delete newRest.activeConversationId;
+        const { 
+            // Transient state to omit
+            isLoading, 
+            error, 
+            abortController, 
+            attachments, 
+            toastInfo, 
+            feedbackModalState, 
+            isAnalyzingComparison, 
+            activeConversationId,
+            
+            // State to persist (but needs sanitization)
+            conversations,
+            
+            // All other state to persist as-is
+            ...rest 
+        } = state;
+
+        // Sanitize conversations to remove large base64 data to prevent storage quota errors
+        const sanitizedConversations = conversations.map(conv => {
+            const sanitizedMessages = conv.messages.map(msg => {
+                const sanitizedMsg = { ...msg };
+
+                // 1. Sanitize top-level attachments by removing the 'data' field
+                if (sanitizedMsg.attachments) {
+                    // FIX: Cast to any to satisfy TypeScript during serialization, as 'data' is intentionally removed.
+                    sanitizedMsg.attachments = sanitizedMsg.attachments.map(att => ({
+                        name: att.name,
+                        type: att.type,
+                        size: att.size,
+                    })) as any;
+                }
+
+                // 2. Sanitize complex content objects
+                if (typeof sanitizedMsg.content === 'object' && sanitizedMsg.content !== null) {
+                    let newContent: any = { ...sanitizedMsg.content };
+
+                    // Handle ImageAdPackage: remove imageUrl and sanitize referenceImage
+                    if (isImageAdPackage(newContent)) {
+                        newContent.imageUrl = ''; // Remove base64 image URL
+                        if (newContent.referenceImage) {
+                            // FIX: Cast to any to satisfy TypeScript during serialization, as 'data' is intentionally removed.
+                            newContent.referenceImage = {
+                                name: newContent.referenceImage.name,
+                                type: newContent.referenceImage.type,
+                                size: newContent.referenceImage.size,
+                            } as any;
+                        }
+                    }
+
+                    // Handle PresentationPackage: remove potentially large image data from slides
+                    if (isPresentationPackage(newContent)) {
+                        newContent.slides = newContent.slides.map((slide: PresentationSlide) => {
+                            const { userImage, imageUrl, ...restOfSlide } = slide;
+                            return restOfSlide; // Return a new slide object without image data
+                        });
+                    }
+
+                    sanitizedMsg.content = newContent;
+                }
+
+                return sanitizedMsg;
+            });
+
+            return { ...conv, messages: sanitizedMessages };
+        });
 
         return {
-            ...newRest,
-            conversations: state.conversations,
+            ...rest,
+            conversations: sanitizedConversations,
         };
       },
       storage: createJSONStorage(() => localStorage, {

@@ -23,6 +23,7 @@ export const AGENTS: AgentDefinition[] = [
     { mode: AppMode.CAMPAIGN, title: "Estrategista de Campanhas", category: 'Marketing', iconClass: "bi-megaphone-fill" },
     { mode: AppMode.COMPLIANCE, title: "Endomarketing", category: 'Marketing', iconClass: "bi-card-checklist" },
     { mode: AppMode.IMAGE_ADS, title: "Gerador de Imagens", category: 'Marketing', iconClass: "bi-image-fill" },
+    { mode: AppMode.BLOG_POST, title: "Criador de Blog Post", category: 'Marketing', iconClass: "bi-file-post-fill" },
     { mode: AppMode.GOAL_CALCULATOR, title: "Calculadora de Metas", category: 'Ferramentas', iconClass: "bi-calculator-fill" },
     { mode: AppMode.PRESENTATION_BUILDER, title: "Criador de Apresentações", category: 'Ferramentas', iconClass: "bi-file-slides-fill" },
     { mode: AppMode.PGR_CALCULATOR, title: "Calculadora de PGR", category: 'Ferramentas', iconClass: "bi-award-fill" },
@@ -90,6 +91,11 @@ export const MODE_DESCRIPTIONS: Record<AppMode, { title: string; description: st
         title: 'SkyWatch',
         description: 'Responde perguntas e auxilia na venda da solução de monitoramento SkyWatch da Greatek.',
         example: 'Quais os principais benefícios do SkyWatch para um provedor de internet?'
+    },
+    [AppMode.BLOG_POST]: {
+        title: 'Criador de Blog Post',
+        description: 'Gera um post de blog completo e otimizado para SEO sobre produtos ou tecnologias da Greatek.',
+        example: 'Crie um post de blog sobre as vantagens da nossa nova Máquina de Fusão X6.'
     },
     [AppMode.GOAL_CALCULATOR]: {
         title: 'Calculadora de Metas',

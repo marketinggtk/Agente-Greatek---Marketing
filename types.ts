@@ -1,5 +1,6 @@
 
 
+
 export enum AppMode {
   INTEGRATOR = "Integrador",
   INSTRUCTOR = "Instrutor",
@@ -19,6 +20,7 @@ export enum AppMode {
   BUSINESS_ANALYZER = "Analisador de Negócios",
   TRAINING_COACH = "Coach de Treinamento",
   CUSTOMER_DOSSIER = "Gerador de Dossiê",
+  BLOG_POST = "Criador de Blog Post",
 }
 
 export type Role = 'user' | 'agent';
@@ -76,6 +78,18 @@ export interface ContentPackage {
   hashtags: string[];
   image_prompt_suggestion: string;
   cta_suggestion: string;
+}
+
+export interface BlogPostPackage {
+    title: string;
+    introduction: string;
+    sections: { heading: string; content: string; }[];
+    related_products: { name: string; code?: string; }[];
+    conclusion: string;
+    seo_title: string;
+    seo_meta_description: string;
+    image_prompt_suggestion: string;
+    cta_html: string;
 }
 
 export type SlideType = 
@@ -160,7 +174,7 @@ export interface CustomerDossier {
 
 export interface Message {
   role: Role;
-  content: string | PageOptimizationPackage | MarketIntelReport | TrainingKitReport | ImageAdPackage | ContentPackage | PresentationPackage | VigiaReport | CustomerDossier;
+  content: string | PageOptimizationPackage | MarketIntelReport | TrainingKitReport | ImageAdPackage | ContentPackage | BlogPostPackage | PresentationPackage | VigiaReport | CustomerDossier;
   attachments?: Attachment[];
   feedback?: Feedback | null;
 }
@@ -233,6 +247,10 @@ export function isImageAdPackage(response: any): response is ImageAdPackage {
 
 export function isContentPackage(response: any): response is ContentPackage {
     return response && typeof response === 'object' && 'content_type' in response && 'image_prompt_suggestion' in response;
+}
+
+export function isBlogPostPackage(response: any): response is BlogPostPackage {
+    return response && typeof response === 'object' && 'seo_title' in response && Array.isArray(response.sections) && 'cta_html' in response;
 }
 
 export function isPresentationPackage(response: any): response is PresentationPackage {

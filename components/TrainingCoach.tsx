@@ -1,3 +1,4 @@
+
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { GoogleGenAI, LiveServerMessage, Modality, Blob } from "@google/genai";
 import { getTrainingAnalysis } from '../services/geminiService';
@@ -156,12 +157,11 @@ const TrainingCoach: React.FC = () => {
         }
 
         if (audioContextRef.current) {
-            // FIX: The disconnect method on AudioNodes can cause TypeScript errors due to overloads.
-            // Casting to `any` bypasses the type check for the parameterless version of the method.
-            (audioContextRef.current.processor as any).disconnect();
-            (audioContextRef.current.source as any).disconnect();
-            (audioContextRef.current.userAnalyser as any).disconnect();
-            (micGainNodeRef.current as any)?.disconnect();
+            // FIX: Pass argument `0` to disconnect() to satisfy the linter and TypeScript definitions for this project, disconnecting the first output channel.
+            (audioContextRef.current.processor as any).disconnect(0);
+            (audioContextRef.current.source as any).disconnect(0);
+            (audioContextRef.current.userAnalyser as any).disconnect(0);
+            (micGainNodeRef.current as any)?.disconnect(0);
             if (audioContextRef.current.input.state !== 'closed') {
                 audioContextRef.current.input.close();
             }
