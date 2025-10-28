@@ -71,6 +71,55 @@ const SlideContent: React.FC<{ slide: PresentationPackage['slides'][0] }> = ({ s
                     </table>
                 </div>
             );
+        case 'numbered_list':
+            const listItems = slide.content.items || [];
+            return (
+                <div className="mt-6 space-y-4">
+                    {listItems.map((item: any, index: number) => (
+                        <div key={index} className="flex items-start">
+                            <div className="flex-shrink-0 w-8 h-8 rounded-full bg-greatek-blue text-white font-bold flex items-center justify-center mr-4">{index + 1}</div>
+                            <div>
+                                <h4 className="font-bold text-greatek-dark-blue">{item.title}</h4>
+                                <p className="text-sm text-text-secondary mt-1">{parseMarkdown(item.description)}</p>
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            );
+        case 'bento_grid':
+            const gridItems = slide.content.items || [];
+            const sizeMap: Record<string, string> = { 'small': 'lg:col-span-1', 'large': 'lg:col-span-2' };
+            return (
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mt-6">
+                    {gridItems.map((item: any, index: number) => (
+                        <div key={index} className={`p-4 bg-white rounded-lg border border-greatek-border ${sizeMap[item.size] || 'lg:col-span-1'}`}>
+                            <h4 className="font-bold text-greatek-dark-blue">{item.title}</h4>
+                            <p className="text-sm text-text-secondary mt-1">{parseMarkdown(item.description)}</p>
+                        </div>
+                    ))}
+                </div>
+            );
+        case 'two_column_text':
+            const left_column = Array.isArray(slide.content.left_column) ? slide.content.left_column : [];
+            const right_column = Array.isArray(slide.content.right_column) ? slide.content.right_column : [];
+            return (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mt-6">
+                    <div>
+                        <ul className="list-disc pl-5 space-y-2 text-text-secondary">
+                            {left_column.map((item: string, index: number) => (
+                                <li key={`left-${index}`}>{parseMarkdown(item)}</li>
+                            ))}
+                        </ul>
+                    </div>
+                    <div>
+                        <ul className="list-disc pl-5 space-y-2 text-text-secondary">
+                            {right_column.map((item: string, index: number) => (
+                                <li key={`right-${index}`}>{parseMarkdown(item)}</li>
+                            ))}
+                        </ul>
+                    </div>
+                </div>
+            );
         default:
             const contentArray = Array.isArray(slide.content) ? slide.content : [String(slide.content)];
             return (

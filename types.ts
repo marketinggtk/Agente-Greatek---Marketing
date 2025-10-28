@@ -1,6 +1,5 @@
 
 
-
 export enum AppMode {
   INTEGRATOR = "Integrador",
   INSTRUCTOR = "Instrutor",
@@ -101,9 +100,10 @@ export type SlideType =
   // New visual layouts
   | 'key_metrics'
   | 'three_column_cards'
+  | 'table_slide'
   | 'numbered_list'
   | 'bento_grid'
-  | 'table_slide';
+  | 'two_column_text';
 
 export interface PresentationSlide {
   id: string;
@@ -112,10 +112,10 @@ export interface PresentationSlide {
   content: any; // Can be string[] for bullets, or a structured object for visual layouts
   summary?: string; // Optional summary text below the main content
   speaker_notes: string;
-  image_prompt_suggestion?: string;
-  imageUrl?: string;
-  userImage?: string; // Base64 data URL for user-uploaded image
   warning?: string;
+  // FIX: Add optional properties for generated and user-uploaded images to align with store logic.
+  imageUrl?: string;
+  userImage?: string;
 }
 
 export type PresentationTheme = 'light' | 'dark' | 'classic';

@@ -213,7 +213,7 @@ export const generateQuizResultPdf = (
     doc.setFont('helvetica', 'normal');
     doc.setFontSize(12);
     doc.setTextColor(colors.textSecondary[0], colors.textSecondary[1], colors.textSecondary[2]);
-    doc.text(`Produto: ${productName}`, margin, finalY);
+    doc.text(`Produto: ${productName || 'Não especificado'}`, margin, finalY);
     finalY += 15;
 
     // --- Bento Grid Summary ---
@@ -343,7 +343,7 @@ export const generateQuizResultPdf = (
         finalY += cardHeight + 10;
     });
 
-    const sanitizedTitle = `Resultado_Quiz_${productName.replace(/[^a-zA-Z0-9]/g, '_')}`;
+    const sanitizedTitle = `Resultado_Quiz_${(productName || 'Produto').replace(/[^a-zA-Z0-9]/g, '_')}`;
     doc.save(`${sanitizedTitle}.pdf`);
 };
 
@@ -471,7 +471,7 @@ export const generateTrainingReportPdf = (report: TrainingAnalysisReport, produc
     doc.setFont('helvetica', 'normal');
     doc.setFontSize(11);
     doc.setTextColor(colors.textSecondary[0], colors.textSecondary[1], colors.textSecondary[2]);
-    doc.text(`Produto Treinado: ${product}`, margin, finalY);
+    doc.text(`Produto Treinado: ${product || 'Não especificado'}`, margin, finalY);
     finalY += 15;
 
     // --- Score and Summary ---
@@ -590,6 +590,6 @@ export const generateTrainingReportPdf = (report: TrainingAnalysisReport, produc
         drawCard(`Como Contornar: "${obj.objection}"`, obj.suggestion, colors.red, colors.redBg);
     });
 
-    const sanitizedTitle = `Relatorio_Performance_${product.replace(/[^a-zA-Z0-9]/g, '_')}`;
+    const sanitizedTitle = `Relatorio_Performance_${(product || 'Produto').replace(/[^a-zA-Z0-9]/g, '_')}`;
     doc.save(`${sanitizedTitle}.pdf`);
 };

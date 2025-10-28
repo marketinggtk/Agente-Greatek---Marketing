@@ -1,4 +1,5 @@
 
+
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { GoogleGenAI, LiveServerMessage, Modality, Blob } from "@google/genai";
 import { FULL_KNOWLEDGE_BASE_TEXT } from '../services/knowledgeBase';
@@ -190,11 +191,12 @@ const SalesCoach: React.FC = () => {
         }
 
         if (audioContextRef.current) {
-            // FIX: The `disconnect` method on AudioNode should be called without arguments to disconnect all outputs. The error "Expected 1 arguments, but got 0" is misleading; the issue is passing `0` as an argument.
-            audioContextRef.current.processor.disconnect();
-            audioContextRef.current.source.disconnect();
-            audioContextRef.current.userAnalyser.disconnect();
-            micGainNodeRef.current?.disconnect();
+            // FIX: The `disconnect` method on this AudioNode requires an argument in this environment. Passing 0 for the output index.
+            audioContextRef.current.processor.disconnect(0);
+            // FIX: The `disconnect` method on this AudioNode requires an argument in this environment. Passing 0 for the output index.
+            audioContextRef.current.source.disconnect(0);
+            audioContextRef.current.userAnalyser.disconnect(0);
+            micGainNodeRef.current?.disconnect(0);
             if (audioContextRef.current.input.state !== 'closed') {
                 audioContextRef.current.input.close();
             }

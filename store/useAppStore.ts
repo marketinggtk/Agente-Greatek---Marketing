@@ -32,6 +32,7 @@ import {
     runDossierQuery
 } from '../services/geminiService';
 import { pgrInitialSellers } from '../data/pgrData';
+import { AGENTS } from '../constants';
 
 const fileToBase64 = (file: File): Promise<string> =>
   new Promise((resolve, reject) => {
@@ -117,10 +118,13 @@ export const useAppStore = create<AppState>()(
         userUploadedKnowledge: [],
 
         // --- Conversation Management ---
-        createNewConversation: async (mode) => {
+        createNewConversation: (mode: AppMode) => {
+            const agentInfo = AGENTS.find(a => a.mode === mode);
+            const title = agentInfo ? agentInfo.title : `Nova Conversa`;
+
             const newConversation: Conversation = {
                 id: `conv_${Date.now()}`,
-                title: `Nova Conversa (${mode})`,
+                title: title,
                 mode,
                 messages: [],
                 createdAt: new Date(),
@@ -157,7 +161,7 @@ export const useAppStore = create<AppState>()(
 
         // --- Core Query Logic ---
         submitQuery: async (prompt) => {
-            const { activeConversationId, attachments, userUploadedKnowledge } = get();
+            const { activeConversationId, attachments } = get();
             if (!activeConversationId) return;
 
             // Universal rule to handle "thank you" messages
@@ -218,19 +222,39 @@ export const useAppStore = create<AppState>()(
                 }
             }
 
-            // Update conversation with user message
-            set(state => ({
-                conversations: state.conversations.map(c => 
-                    c.id === activeConversationId ? { ...c, messages: [...c.messages, userMessage] } : c
-                ),
-                attachments: [], // Clear attachments after sending
-            }));
+            // Update conversation with user message and trigger title generation if needed
+            set(state => {
+                const conversation = state.conversations.find(c => c.id === activeConversationId);
+                if (!conversation) {
+                    console.error("Active conversation not found during state update.");
+                    return state; 
+                }
 
-            // Generate title for new conversations
-            const conversation = get().conversations.find(c => c.id === activeConversationId);
-            if (conversation && conversation.messages.length === 1) {
-                generateConversationTitle(prompt).then(title => get().updateConversationTitle(conversation.id, title));
-            }
+                const isFirstUserMessage = conversation.messages.length === 0;
+
+                if (isFirstUserMessage) {
+                    const agentInfo = AGENTS.find(a => a.mode === conversation.mode);
+                    if (agentInfo && agentInfo.category !== 'Ferramentas') {
+                        // Fire-and-forget promise to avoid blocking the UI
+                        generateConversationTitle(prompt).then(title => {
+                            get().updateConversationTitle(activeConversationId, title);
+                        });
+                    }
+                }
+                
+                const updatedConversations = state.conversations.map(c =>
+                    c.id === activeConversationId
+                        ? { ...c, messages: [...c.messages, userMessage] }
+                        : c
+                );
+
+                return {
+                    ...state,
+                    conversations: updatedConversations,
+                    attachments: [], // Clear attachments after processing
+                };
+            });
+
 
             try {
                 const currentConvo = get().conversations.find(c => c.id === activeConversationId)!;
@@ -277,7 +301,7 @@ export const useAppStore = create<AppState>()(
                         })
                     }));
                 } else if (jsonModes.includes(currentConvo.mode)) {
-                    const result = await runGeminiJsonQuery(currentConvo.mode, history, abortController.signal, { userKnowledge: userUploadedKnowledge });
+                    const result = await runGeminiJsonQuery(currentConvo.mode, history, abortController.signal, { userKnowledge: get().userUploadedKnowledge });
                     set(state => ({
                         conversations: state.conversations.map(c => {
                              if (c.id === activeConversationId) {
@@ -291,7 +315,7 @@ export const useAppStore = create<AppState>()(
                 } else { // Streaming modes (now includes dossier follow-ups)
                     const isDossierFollowUp = currentConvo.mode === AppMode.CUSTOMER_DOSSIER;
                     const stream = streamGeminiQuery(currentConvo.mode, history, abortController.signal, { 
-                        userKnowledge: userUploadedKnowledge,
+                        userKnowledge: get().userUploadedKnowledge,
                         isFollowUp: isDossierFollowUp
                     });
                     for await (const chunk of stream) {
@@ -761,7 +785,9 @@ export const useAppStore = create<AppState>()(
             toastInfo, 
             feedbackModalState, 
             isAnalyzingComparison, 
-            activeConversationId,
+            isGeneratingPresentation,
+            isAnalyzing,
+            isAnalyzerOpen,
             
             // State to persist (but needs sanitization)
             conversations,
@@ -777,7 +803,7 @@ export const useAppStore = create<AppState>()(
 
                 // 1. Sanitize top-level attachments by removing the 'data' field
                 if (sanitizedMsg.attachments) {
-                    // FIX: Cast to any to satisfy TypeScript during serialization, as 'data' is intentionally removed.
+                    // Cast to any to satisfy TypeScript during serialization, as 'data' is intentionally removed.
                     sanitizedMsg.attachments = sanitizedMsg.attachments.map(att => ({
                         name: att.name,
                         type: att.type,
@@ -793,7 +819,7 @@ export const useAppStore = create<AppState>()(
                     if (isImageAdPackage(newContent)) {
                         newContent.imageUrl = ''; // Remove base64 image URL
                         if (newContent.referenceImage) {
-                            // FIX: Cast to any to satisfy TypeScript during serialization, as 'data' is intentionally removed.
+                            // Cast to any to satisfy TypeScript during serialization, as 'data' is intentionally removed.
                             newContent.referenceImage = {
                                 name: newContent.referenceImage.name,
                                 type: newContent.referenceImage.type,
@@ -802,47 +828,28 @@ export const useAppStore = create<AppState>()(
                         }
                     }
 
-                    // Handle PresentationPackage: remove potentially large image data from slides
+                    // Handle PresentationPackage: remove imageUrl and userImage from slides
                     if (isPresentationPackage(newContent)) {
                         newContent.slides = newContent.slides.map((slide: PresentationSlide) => {
-                            const { userImage, imageUrl, ...restOfSlide } = slide;
-                            return restOfSlide; // Return a new slide object without image data
+                            const { imageUrl, userImage, ...restOfSlide } = slide;
+                            return restOfSlide;
                         });
                     }
-
+                    
                     sanitizedMsg.content = newContent;
                 }
-
                 return sanitizedMsg;
             });
 
             return { ...conv, messages: sanitizedMessages };
         });
 
-        return {
-            ...rest,
-            conversations: sanitizedConversations,
+        return { 
+            conversations: sanitizedConversations, 
+            ...rest 
         };
       },
-      storage: createJSONStorage(() => localStorage, {
-          replacer: (key, value) => {
-              if (value instanceof Date) {
-                  return { __type: 'Date', value: value.toISOString() };
-              }
-              return value;
-          },
-          reviver: (key, value) => {
-              if (
-                typeof value === 'object' &&
-                value !== null &&
-                (value as any).__type === 'Date' &&
-                typeof (value as any).value === 'string'
-              ) {
-                return new Date((value as any).value);
-              }
-              return value;
-          },
-      }),
+      storage: createJSONStorage(() => localStorage),
     }
   )
 );

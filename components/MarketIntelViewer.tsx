@@ -1,13 +1,77 @@
-import React, { useState } from 'react';
-import { MarketIntelReport } from '../types';
+import React, { useState, useMemo } from 'react';
+import { MarketIntelReport, ComparisonPoint } from '../types';
 import { DataTableView } from './ui/DataTableView';
 
 interface MarketIntelViewerProps {
-  data: MarketIntelReport;
+  data: any; // Accept 'any' to handle both flat and nested structures initially
 }
 
 const MarketIntelViewer: React.FC<MarketIntelViewerProps> = ({ data }) => {
     const [copied, setCopied] = useState(false);
+
+    const normalizedData: MarketIntelReport = useMemo(() => {
+        const isNested = (d: any): d is { relatorio_inteligencia_mercado: any } => d && d.relatorio_inteligencia_mercado;
+
+        if (!isNested(data)) {
+            // It's already the flat structure we want
+            return data as MarketIntelReport;
+        }
+        
+        // --- Normalization Logic for Nested Structure ---
+        const report = data.relatorio_inteligencia_mercado;
+        const greatekProduct = report.produto_greatek || {};
+        const competitorProduct = report.produto_concorrente || {};
+        const comparison = report.comparacao || {};
+
+        const comparison_points: ComparisonPoint[] = [];
+
+        // Map internal keys to user-friendly feature names
+        const featureMap: Record<string, string> = {
+            padrao_wifi: 'Padrão Wi-Fi',
+            velocidade_wifi_total: 'Velocidade Total',
+            bandas: 'Bandas',
+            velocidades_por_banda: 'Velocidades por Banda',
+            portas_ethernet: 'Portas Ethernet',
+            recursos_mesh: 'Recursos Mesh',
+            recursos_adicionais: 'Recursos Adicionais',
+        };
+
+        const allKeys = new Set([...Object.keys(greatekProduct), ...Object.keys(competitorProduct)]);
+        
+        for (const key of allKeys) {
+             // Ignore keys that are not direct features
+            if (['nome', 'marca', 'tipo', 'observacao'].includes(key)) continue;
+
+            const featureName = featureMap[key] || key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+            
+            let greatekValue = greatekProduct[key];
+            let competitorValue = competitorProduct[key];
+
+            // Helper to format values (arrays or objects) into strings
+            const formatValue = (value: any): string => {
+                if (value === null || typeof value === 'undefined') return 'N/A';
+                if (Array.isArray(value)) return value.join(', ');
+                if (typeof value === 'object') return Object.entries(value).map(([k,v]) => `${k.toUpperCase()}: ${v}`).join('; ');
+                return String(value);
+            }
+            
+            comparison_points.push({
+                feature: featureName,
+                greatek: formatValue(greatekValue),
+                competitor: formatValue(competitorValue),
+            });
+        }
+        
+        return {
+            greatek_product_name: greatekProduct.nome || 'Produto Greatek',
+            competitor_product_name: competitorProduct.nome || 'Produto Concorrente',
+            sales_pitch_summary: comparison.recomendacao_greatek || comparison.resumo || '',
+            comparison_points: comparison_points,
+            competitive_advantages: comparison.pontos_diferentes || [],
+            commercial_arguments: comparison.pontos_diferentes || [], // Re-using is acceptable here
+            competitor_data_sources: competitorProduct.fontes || [],
+        };
+    }, [data]);
     
     const { 
         greatek_product_name, 
@@ -17,7 +81,7 @@ const MarketIntelViewer: React.FC<MarketIntelViewerProps> = ({ data }) => {
         commercial_arguments,
         sales_pitch_summary,
         competitor_data_sources
-    } = data;
+    } = normalizedData;
 
     const formatReportForCopy = () => {
         let text = `Resumo de Vendas (Gancho Comercial):\n${sales_pitch_summary}\n\n`;
@@ -31,12 +95,12 @@ const MarketIntelViewer: React.FC<MarketIntelViewerProps> = ({ data }) => {
         
         text += `\n--- Por que escolher ${greatek_product_name}? ---\n`;
         competitive_advantages.forEach(adv => {
-            text += `- ${adv}\n`;
+            text += `- ${adv.replace(/\*\*/g, '')}\n`;
         });
 
         text += "\n--- Argumentos de Venda para o Cliente ---\n";
         commercial_arguments.forEach(arg => {
-            text += `- ${arg}\n`;
+            text += `- ${arg.replace(/\*\*/g, '')}\n`;
         });
 
         if (competitor_data_sources && competitor_data_sources.length > 0) {
@@ -89,13 +153,13 @@ const MarketIntelViewer: React.FC<MarketIntelViewerProps> = ({ data }) => {
             <div className="mt-8">
                 <h3 className="text-xl font-semibold text-text-primary flex items-center mb-3">
                     <i className="bi bi-shield-check text-green-600 mr-3"></i>
-                    Por que escolher {greatek_product_name}?
+                    Por que escolher {greatek_product_name}? (Vantagens)
                 </h3>
                 <div className="space-y-3 not-prose">
                     {competitive_advantages.map((item, idx) => (
                         <div key={idx} className="p-4 bg-green-50 border border-green-200 rounded-lg flex items-start text-green-900 shadow-sm">
                             <i className="bi bi-check-circle-fill text-green-600 mr-3 mt-1 flex-shrink-0"></i>
-                            <span className="text-text-secondary leading-relaxed">{item}</span>
+                            <span className="text-text-secondary leading-relaxed" dangerouslySetInnerHTML={{ __html: item.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>') }} />
                         </div>
                     ))}
                 </div>
@@ -111,7 +175,7 @@ const MarketIntelViewer: React.FC<MarketIntelViewerProps> = ({ data }) => {
                         <div key={idx} className="p-4 bg-greatek-blue/10 border-l-4 border-greatek-blue rounded-r-lg">
                             <p className="flex items-start text-text-secondary leading-relaxed">
                                 <i className="bi bi-quote text-2xl text-greatek-blue mr-3 -mt-1 flex-shrink-0"></i>
-                                <span>{item}</span>
+                                <span dangerouslySetInnerHTML={{ __html: item.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>') }} />
                             </p>
                         </div>
                     ))}

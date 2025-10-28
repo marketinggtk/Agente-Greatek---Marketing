@@ -1,3 +1,4 @@
+
 import jsPDF from 'jspdf';
 import 'jspdf-autotable';
 import { PresentationPackage, PresentationSlide, PresentationTheme } from '../types';
@@ -42,7 +43,7 @@ const themes: Record<PresentationTheme, ThemeColors> = {
     }
 };
 
-const renderRichText = (doc: jsPDF, text: string, x: number, y: number, maxWidth: number, options: {
+const renderRichText = (doc: jsPDF, text: any, x: number, y: number, maxWidth: number, options: {
     fontSize: number;
     color: [number, number, number];
     lineSpacing?: number;
@@ -56,11 +57,12 @@ const renderRichText = (doc: jsPDF, text: string, x: number, y: number, maxWidth
         doc.setTextColor(color[0], color[1], color[2]);
     }
     
-    if (!text) {
+    const safeText = String(text || '');
+    if (!safeText) {
         return y;
     }
 
-    const parts = text.split(/(\*\*.*?\*\*|\*.*?\*)/g).filter(Boolean);
+    const parts = safeText.split(/(\*\*.*?\*\*|\*.*?\*)/g).filter(Boolean);
     const spaceWidth = doc.getStringUnitWidth(' ') * fontSize / doc.internal.scaleFactor;
     
     const lines: { words: { text: string; style: 'normal' | 'bold' | 'italic'; width: number }[] }[] = [{ words: [] }];
@@ -124,31 +126,6 @@ const drawSlide = (doc: jsPDF, slide: PresentationSlide, presentation: Presentat
     let textMaxWidth = pageW - margin * 2;
     let contentStartY = margin + 20;
 
-    // Image Layout
-    if (slide.userImage) {
-        const imageWidth = pageW * 0.35;
-        const imageHeight = pageH - margin * 2;
-        const imageX = pageW - margin - imageWidth;
-        const imageY = margin;
-        
-        textMaxWidth = pageW - margin * 2 - imageWidth - 20;
-
-        try {
-            const format = slide.userImage.split(';')[0].split('/')[1].toUpperCase();
-            doc.save();
-            doc.roundedRect(imageX, imageY, imageWidth, imageHeight, 10, 10);
-            doc.clip();
-            doc.addImage(slide.userImage, format, imageX, imageY, imageWidth, imageHeight);
-            // FIX: Replaced non-existent `restore` method with `restoreGraphicsState`.
-            doc.restoreGraphicsState();
-        } catch (e) {
-            console.error("PDF image error:", e);
-            doc.setDrawColor(colors.subtleBorder[0], colors.subtleBorder[1], colors.subtleBorder[2]);
-            doc.roundedRect(imageX, imageY, imageWidth, imageHeight, 10, 10, 'S');
-            doc.text("[Falha ao carregar imagem]", imageX + imageWidth / 2, imageY + imageHeight / 2, { align: 'center' });
-        }
-    }
-
     // Title
     doc.setFontSize(28);
     doc.setFont('helvetica', 'bold');
@@ -181,12 +158,12 @@ const drawSlide = (doc: jsPDF, slide: PresentationSlide, presentation: Presentat
                 doc.setFontSize(26);
                 doc.setFont('helvetica', 'bold');
                 doc.setTextColor(colors.accent[0], colors.accent[1], colors.accent[2]);
-                doc.text(metric.value, cardX + cardWidth / 2, contentStartY + 30, { align: 'center' });
+                doc.text(String(metric.value ?? 'N/A'), cardX + cardWidth / 2, contentStartY + 30, { align: 'center' });
                 
                 doc.setFontSize(10);
                 doc.setFont('helvetica', 'normal');
                 doc.setTextColor(colors.secondaryText[0], colors.secondaryText[1], colors.secondaryText[2]);
-                doc.text(metric.label, cardX + cardWidth / 2, contentStartY + 45, { align: 'center' });
+                doc.text(String(metric.label ?? 'N/A'), cardX + cardWidth / 2, contentStartY + 45, { align: 'center' });
                 
                 cardX += cardWidth + cardGap;
             });
@@ -249,6 +226,115 @@ const drawSlide = (doc: jsPDF, slide: PresentationSlide, presentation: Presentat
                 });
                 contentStartY = (doc as any).lastAutoTable.finalY;
             }
+            break;
+        }
+        case 'numbered_list': {
+            const listItems = slide.content.items || [];
+            let listY = contentStartY;
+            listItems.forEach((item: any, index: number) => {
+                const itemHeight = Math.max(
+                    renderRichText(doc, item.title, 0, 0, textMaxWidth - 30, { fontSize: 12, color: colors.header, draw: false }),
+                    renderRichText(doc, item.description, 0, 0, textMaxWidth - 30, { fontSize: 10, color: colors.secondaryText, draw: false })
+                ) + 15;
+                
+                if (listY + itemHeight > pageH - margin) {
+                    doc.addPage();
+                    listY = margin;
+                }
+
+                doc.setFillColor(colors.accent[0], colors.accent[1], colors.accent[2]);
+                doc.setTextColor(colors.bg[0], colors.bg[1], colors.bg[2]);
+                doc.setFont('helvetica', 'bold');
+                doc.setFontSize(14);
+                doc.circle(textStartX + 10, listY + 8, 10, 'F');
+                doc.text(String(index + 1), textStartX + 10, listY + 11, { align: 'center' });
+
+                const titleY = listY + 12 * 0.85;
+                const titleFinalY = renderRichText(doc, item.title, textStartX + 30, titleY, textMaxWidth - 30, { fontSize: 12, color: colors.header, draw: true });
+                
+                const descY = titleFinalY + 4;
+                const finalY = renderRichText(doc, item.description, textStartX + 30, descY, textMaxWidth - 30, { fontSize: 10, color: colors.secondaryText, draw: true });
+                
+                listY = finalY + 15;
+            });
+            contentStartY = listY;
+            break;
+        }
+        case 'bento_grid': {
+             const gridItems = slide.content.items || [];
+             if (gridItems.length === 0) break;
+             const gap = 10;
+             const smallWidth = (textMaxWidth - gap) / 2;
+             const largeWidth = textMaxWidth;
+             let cursorY = contentStartY;
+             
+             // Simple layout for PDF: large items take full width, small items are 2-per-row
+             for (let i = 0; i < gridItems.length; i++) {
+                 const item = gridItems[i];
+                 if (item.size === 'large') {
+                     const itemHeight = renderRichText(doc, item.description, 0, 0, largeWidth - 20, { fontSize: 10, color: colors.secondaryText, draw: false }) + 40;
+                     if (cursorY + itemHeight > pageH - margin) { doc.addPage(); cursorY = margin; }
+                     doc.setFillColor(colors.cardBg[0], colors.cardBg[1], colors.cardBg[2]);
+                     doc.roundedRect(textStartX, cursorY, largeWidth, itemHeight, 5, 5, 'F');
+                     const titleY = renderRichText(doc, item.title, textStartX + 10, cursorY + 10 + 11 * 0.85, largeWidth - 20, { fontSize: 11, color: colors.header });
+                     renderRichText(doc, item.description, textStartX + 10, titleY + 5, largeWidth - 20, { fontSize: 10, color: colors.secondaryText });
+                     cursorY += itemHeight + gap;
+                 } else { // 'small'
+                     const item1 = item;
+                     const item2 = (i + 1 < gridItems.length && gridItems[i+1].size !== 'large') ? gridItems[i+1] : null;
+
+                     const h1 = renderRichText(doc, item1.description, 0, 0, smallWidth - 20, { fontSize: 10, color: colors.secondaryText, draw: false }) + 40;
+                     const h2 = item2 ? renderRichText(doc, item2.description, 0, 0, smallWidth - 20, { fontSize: 10, color: colors.secondaryText, draw: false }) + 40 : 0;
+                     const rowHeight = Math.max(h1, h2, 60);
+
+                     if (cursorY + rowHeight > pageH - margin) { doc.addPage(); cursorY = margin; }
+
+                     // Draw item 1
+                     doc.setFillColor(colors.cardBg[0], colors.cardBg[1], colors.cardBg[2]);
+                     doc.roundedRect(textStartX, cursorY, smallWidth, rowHeight, 5, 5, 'F');
+                     const title1Y = renderRichText(doc, item1.title, textStartX + 10, cursorY + 10 + 11 * 0.85, smallWidth - 20, { fontSize: 11, color: colors.header });
+                     renderRichText(doc, item1.description, textStartX + 10, title1Y + 5, smallWidth - 20, { fontSize: 10, color: colors.secondaryText });
+                     
+                     if (item2) {
+                         // Draw item 2
+                         const item2X = textStartX + smallWidth + gap;
+                         doc.setFillColor(colors.cardBg[0], colors.cardBg[1], colors.cardBg[2]);
+                         doc.roundedRect(item2X, cursorY, smallWidth, rowHeight, 5, 5, 'F');
+                         const title2Y = renderRichText(doc, item2.title, item2X + 10, cursorY + 10 + 11 * 0.85, smallWidth - 20, { fontSize: 11, color: colors.header });
+                         renderRichText(doc, item2.description, item2X + 10, title2Y + 5, smallWidth - 20, { fontSize: 10, color: colors.secondaryText });
+                         i++; // Skip next item since we drew it
+                     }
+                     cursorY += rowHeight + gap;
+                 }
+             }
+             contentStartY = cursorY;
+             break;
+        }
+        case 'two_column_text': {
+            const left_column = Array.isArray(slide.content.left_column) ? slide.content.left_column : [];
+            const right_column = Array.isArray(slide.content.right_column) ? slide.content.right_column : [];
+            const colGap = 20;
+            const colWidth = (textMaxWidth - colGap) / 2;
+            const col1X = textStartX;
+            const col2X = textStartX + colWidth + colGap;
+
+            let leftY = contentStartY + 11 * 0.85;
+            left_column.forEach((item: string) => {
+                doc.setFillColor(colors.accent[0], colors.accent[1], colors.accent[2]);
+                doc.circle(col1X + 4, leftY - 3, 2, 'F');
+                const nextY = renderRichText(doc, item, col1X + 15, leftY, colWidth - 15, { fontSize: 11, color: colors.secondaryText });
+                leftY = nextY + 5;
+            });
+
+            let rightY = contentStartY + 11 * 0.85;
+            right_column.forEach((item: string) => {
+                doc.setFillColor(colors.accent[0], colors.accent[1], colors.accent[2]);
+                doc.circle(col2X + 4, rightY - 3, 2, 'F');
+                const nextY = renderRichText(doc, item, col2X + 15, rightY, colWidth - 15, { fontSize: 11, color: colors.secondaryText });
+                rightY = nextY + 5;
+            });
+            
+            contentStartY = Math.max(leftY, rightY);
             break;
         }
         default: { // Handles bullets, agenda, etc.

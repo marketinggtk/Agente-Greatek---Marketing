@@ -1,26 +1,7 @@
-import React, { useState, useRef, useEffect, useCallback } from 'react';
+
+import React, { useState, useRef, useEffect } from 'react';
 import { PresentationSlide, PresentationTheme } from '../types';
-import { useAppStore } from '../store/useAppStore';
-import { generateImageAd } from '../services/geminiService';
 
-interface EditableSlideProps {
-    slide: PresentationSlide;
-    theme: PresentationTheme;
-    onUpdate: (slideId: string, field: keyof PresentationSlide, value: any) => void;
-    onDelete: (slideId: string) => void;
-    onExport: (slideId: string) => void;
-    onUserImageUpdate: (slideId: string, imageBase64: string | null) => void;
-}
-
-const fileToBase64 = (file: File): Promise<string> =>
-  new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.readAsDataURL(file);
-    reader.onload = () => resolve(reader.result as string);
-    reader.onerror = (error) => reject(error);
-  });
-
-// FIX: Refactored AutoGrowTextarea to use React.forwardRef to correctly accept a ref from its parent component.
 const AutoGrowTextarea = React.forwardRef<HTMLTextAreaElement, React.TextareaHTMLAttributes<HTMLTextAreaElement>>((props, ref) => {
     const internalRef = useRef<HTMLTextAreaElement>(null);
     const resolvedRef = ref || internalRef;
@@ -116,47 +97,18 @@ const EditableField: React.FC<{ value: string; onChange: (newValue: string) => v
     );
 };
 
-const EditableSlide: React.FC<EditableSlideProps> = ({ slide, theme, onUpdate, onDelete, onExport, onUserImageUpdate }) => {
-    const { updateSlideImage, showToast } = useAppStore();
-    const [isGeneratingImage, setIsGeneratingImage] = useState(false);
-    const [isUploading, setIsUploading] = useState(false);
-    const fileInputRef = useRef<HTMLInputElement>(null);
+interface EditableSlideProps {
+    slide: PresentationSlide;
+    theme: PresentationTheme;
+    onUpdate: (slideId: string, field: keyof PresentationSlide, value: any) => void;
+    onDelete: (slideId: string) => void;
+    onExport: (slideId: string) => void;
+    // FIX: Add missing onUserImageUpdate prop to match the usage in PresentationBuilder.tsx.
+    onUserImageUpdate: (slideId: string, base64: string | null) => void;
+}
 
-    const handleGenerateImage = async () => {
-        if (!slide.image_prompt_suggestion) return;
-        setIsGeneratingImage(true);
-        try {
-            const result = await generateImageAd(slide.image_prompt_suggestion, undefined, undefined);
-            updateSlideImage(slide.id, result.imageUrl);
-            showToast('Imagem gerada com sucesso!', 'success');
-        } catch (error) {
-            console.error("Image generation failed:", error);
-            showToast('Falha ao gerar a imagem.', 'error');
-        } finally {
-            setIsGeneratingImage(false);
-        }
-    };
-
-    const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
-        const file = e.target.files?.[0];
-        if (!file) return;
+const EditableSlide: React.FC<EditableSlideProps> = ({ slide, theme, onUpdate, onDelete, onExport }) => {
     
-        if (file.size > 4 * 1024 * 1024) { // 4MB limit
-            showToast('A imagem é muito grande. O limite é 4MB.', 'error');
-            return;
-        }
-        
-        setIsUploading(true);
-        try {
-            const base64 = await fileToBase64(file);
-            onUserImageUpdate(slide.id, base64);
-        } catch (err) {
-            showToast('Falha ao processar a imagem.', 'error');
-        } finally {
-            setIsUploading(false);
-        }
-    };
-
     const renderContent = () => {
         switch (slide.slide_type) {
             case 'key_metrics':
@@ -216,6 +168,108 @@ const EditableSlide: React.FC<EditableSlideProps> = ({ slide, theme, onUpdate, o
                         ))}
                     </div>
                  );
+            case 'numbered_list':
+                const listItems = slide.content.items || [];
+                return (
+                    <div className="space-y-4">
+                        {listItems.map((item: any, index: number) => (
+                            <div key={index} className="flex items-start">
+                                <div className="flex-shrink-0 w-8 h-8 rounded-full bg-greatek-blue text-white font-bold flex items-center justify-center mr-4 mt-1">{index + 1}</div>
+                                <div className="flex-grow">
+                                    <EditableField
+                                        value={item.title}
+                                        onChange={(val) => {
+                                            const newItems = [...listItems];
+                                            newItems[index] = { ...newItems[index], title: val };
+                                            onUpdate(slide.id, 'content', { ...slide.content, items: newItems });
+                                        }}
+                                        className="font-bold text-greatek-dark-blue text-base"
+                                    />
+                                    <EditableField
+                                        value={item.description}
+                                        onChange={(val) => {
+                                            const newItems = [...listItems];
+                                            newItems[index] = { ...newItems[index], description: val };
+                                            onUpdate(slide.id, 'content', { ...slide.content, items: newItems });
+                                        }}
+                                        multiline
+                                        className="text-sm text-text-secondary mt-1"
+                                    />
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                );
+            case 'bento_grid':
+                const gridItems = slide.content.items || [];
+                const sizeMap: Record<string, string> = { 'small': 'lg:col-span-1', 'large': 'lg:col-span-2' };
+                return (
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                        {gridItems.map((item: any, index: number) => (
+                            <div key={index} className={`p-4 bg-white rounded-lg border border-greatek-border flex flex-col ${sizeMap[item.size] || 'lg:col-span-1'}`}>
+                                 <EditableField
+                                    value={item.title}
+                                    onChange={(val) => {
+                                        const newItems = [...gridItems];
+                                        newItems[index] = { ...newItems[index], title: val };
+                                        onUpdate(slide.id, 'content', { ...slide.content, items: newItems });
+                                    }}
+                                    className="font-bold text-greatek-dark-blue text-base"
+                                />
+                                <EditableField
+                                    value={item.description}
+                                    onChange={(val) => {
+                                        const newItems = [...gridItems];
+                                        newItems[index] = { ...newItems[index], description: val };
+                                        onUpdate(slide.id, 'content', { ...slide.content, items: newItems });
+                                    }}
+                                    multiline
+                                    className="text-sm text-text-secondary mt-1"
+                                />
+                            </div>
+                        ))}
+                    </div>
+                );
+            case 'two_column_text':
+                const left_column = Array.isArray(slide.content.left_column) ? slide.content.left_column : [];
+                const right_column = Array.isArray(slide.content.right_column) ? slide.content.right_column : [];
+
+                const handleColumnUpdate = (columnIndex: 'left_column' | 'right_column', itemIndex: number, value: string) => {
+                    const newContent = { ...slide.content };
+                    newContent[columnIndex][itemIndex] = value;
+                    onUpdate(slide.id, 'content', newContent);
+                };
+
+                return (
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                        <div>
+                            {left_column.map((item: string, index: number) => (
+                                <div key={`left-${index}`} className="flex items-start">
+                                    <span className="text-greatek-blue mr-2 mt-1.5 flex-shrink-0">•</span>
+                                    <EditableField
+                                        value={item}
+                                        onChange={(val) => handleColumnUpdate('left_column', index, val)}
+                                        multiline
+                                        className="w-full text-base text-text-secondary leading-relaxed"
+                                    />
+                                </div>
+                            ))}
+                        </div>
+                         <div>
+                            {right_column.map((item: string, index: number) => (
+                                <div key={`right-${index}`} className="flex items-start">
+                                    <span className="text-greatek-blue mr-2 mt-1.5 flex-shrink-0">•</span>
+                                    <EditableField
+                                        value={item}
+                                        onChange={(val) => handleColumnUpdate('right_column', index, val)}
+                                        multiline
+                                        className="w-full text-base text-text-secondary leading-relaxed"
+                                    />
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                );
             default: // Caters to title, section, agenda, bullets, closing
                 const contentArray = Array.isArray(slide.content) ? slide.content : [String(slide.content)];
                 return (
@@ -276,49 +330,20 @@ const EditableSlide: React.FC<EditableSlideProps> = ({ slide, theme, onUpdate, o
                  )}
             </div>
 
-             {/* Speaker Notes & Image Prompt */}
-             <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-                <div className="p-4 bg-white border border-greatek-border rounded-lg shadow-sm">
-                    <h3 className="text-sm font-semibold uppercase text-text-secondary/80 tracking-wider flex items-center mb-2">
-                        <i className="bi bi-mic-fill mr-2 text-greatek-blue"></i>
-                        Roteiro
-                    </h3>
-                    <EditableField
-                        value={slide.speaker_notes}
-                        onChange={(val) => onUpdate(slide.id, 'speaker_notes', val)}
-                        multiline
-                        className="w-full text-sm text-text-secondary"
-                        placeholder="Adicione as notas do apresentador aqui..."
-                    />
-                </div>
-                <div className="p-4 bg-white border border-greatek-border rounded-lg shadow-sm">
-                    <h3 className="text-sm font-semibold uppercase text-text-secondary/80 tracking-wider flex items-center mb-2">
-                        <i className="bi bi-card-image mr-2 text-greatek-blue"></i>
-                        Imagem do Slide
-                    </h3>
-                    <input type="file" ref={fileInputRef} onChange={handleFileSelect} className="hidden" accept="image/png, image/jpeg, image/webp" />
-                    {slide.userImage ? (
-                        <div className="mt-2 relative group">
-                            <img src={slide.userImage} alt="Imagem do slide" className="rounded-md max-h-40 w-full object-contain bg-gray-100" />
-                            <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2 rounded-md">
-                                <button onClick={() => fileInputRef.current?.click()} className="text-xs font-semibold text-black bg-white/80 px-3 py-1.5 rounded-md hover:bg-white">
-                                    Alterar
-                                </button>
-                                <button onClick={() => onUserImageUpdate(slide.id, null)} className="text-xs font-semibold text-white bg-red-600/80 px-3 py-1.5 rounded-md hover:bg-red-600">
-                                    Remover
-                                </button>
-                            </div>
-                        </div>
-                    ) : (
-                         <div className="mt-2">
-                            <button onClick={() => fileInputRef.current?.click()} disabled={isUploading} className="w-full flex items-center justify-center gap-2 text-sm font-semibold text-greatek-dark-blue bg-greatek-bg-light px-3 py-2 rounded-md hover:bg-greatek-border transition-colors disabled:bg-gray-200">
-                                <i className="bi bi-upload"></i>
-                                {isUploading ? 'Enviando...' : 'Adicionar Imagem'}
-                            </button>
-                        </div>
-                    )}
-                </div>
-             </div>
+             {/* Speaker Notes */}
+             <div className="p-4 bg-white border border-greatek-border rounded-lg shadow-sm">
+                <h3 className="text-sm font-semibold uppercase text-text-secondary/80 tracking-wider flex items-center mb-2">
+                    <i className="bi bi-mic-fill mr-2 text-greatek-blue"></i>
+                    Roteiro
+                </h3>
+                <EditableField
+                    value={slide.speaker_notes}
+                    onChange={(val) => onUpdate(slide.id, 'speaker_notes', val)}
+                    multiline
+                    className="w-full text-sm text-text-secondary"
+                    placeholder="Adicione as notas do apresentador aqui..."
+                />
+            </div>
         </div>
     );
 };

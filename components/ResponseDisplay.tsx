@@ -24,7 +24,11 @@ interface ResponseDisplayProps {
 }
 
 function isMarketIntelReport(response: any): response is MarketIntelReport {
-    return response && typeof response === 'object' && 'comparison_points' in response && 'greatek_product_name' in response;
+    // Check for the correct flat structure
+    const isFlat = response && typeof response === 'object' && 'comparison_points' in response && 'greatek_product_name' in response;
+    // Check for the incorrect nested structure the AI sometimes returns
+    const isNested = response && typeof response === 'object' && response.relatorio_inteligencia_mercado;
+    return isFlat || isNested;
 }
 
 function isTrainingKitReport(response: any): response is TrainingKitReport {

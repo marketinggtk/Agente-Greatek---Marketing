@@ -18,6 +18,72 @@ const slideTypeMap: Record<string, { icon: string; label: string; }> = {
     closing_slide: { icon: 'bi-flag-fill', label: 'Final' },
 };
 
+const GenerationProgress: React.FC<{ prompt: string; slideCount: number }> = ({ prompt, slideCount }) => {
+    const [currentStep, setCurrentStep] = useState(0);
+
+    const steps = useMemo(() => [
+        "Analisando o tema principal",
+        "Definindo o público-alvo e o tom",
+        "Estruturando a narrativa da apresentação",
+        "Esboçando o slide de Título",
+        "Definindo a Agenda",
+        ...Array.from({ length: slideCount - 4 > 0 ? slideCount - 4 : 1 }, (_, i) => `Gerando conteúdo para o slide ${i + 3}`),
+        "Criando o slide de Conclusão",
+        "Revisando a coerência e o fluxo",
+        "Finalizando e montando o roteiro",
+    ], [slideCount]);
+
+    useEffect(() => {
+        const interval = setInterval(() => {
+            setCurrentStep(prev => {
+                if (prev < steps.length - 1) {
+                    return prev + 1;
+                }
+                clearInterval(interval);
+                return prev;
+            });
+        }, 1800); // Adjust timing as needed
+
+        return () => clearInterval(interval);
+    }, [steps.length]);
+
+    const getStatusIcon = (index: number) => {
+        if (index < currentStep) {
+            return <i className="bi bi-check-circle-fill text-green-500"></i>;
+        }
+        if (index === currentStep) {
+            return <div className="w-4 h-4 border-2 border-greatek-blue/50 border-t-greatek-blue rounded-full animate-spin"></div>;
+        }
+        return <i className="bi bi-circle-dotted text-gray-400"></i>;
+    };
+
+    return (
+        <div className="flex flex-col items-center justify-center p-8 text-center animate-fade-in h-full">
+            <div className="w-full max-w-md bg-white p-6 rounded-lg shadow-xl border border-greatek-border">
+                <h2 className="text-xl font-bold text-greatek-dark-blue">Construindo sua apresentação...</h2>
+                <p className="text-sm text-text-secondary mt-2 line-clamp-2">
+                    Com base em: <span className="italic">"{prompt}"</span>
+                </p>
+                <div className="mt-6 space-y-3 text-left">
+                    {steps.map((step, index) => (
+                        <div
+                            key={index}
+                            className={`flex items-center gap-3 text-sm transition-all duration-300 ${index <= currentStep ? 'opacity-100' : 'opacity-40'}`}
+                        >
+                            <div className="w-5 h-5 flex items-center justify-center flex-shrink-0">
+                                {getStatusIcon(index)}
+                            </div>
+                            <span className={`font-medium ${index <= currentStep ? 'text-text-primary' : 'text-text-secondary'}`}>
+                                {step}
+                            </span>
+                        </div>
+                    ))}
+                </div>
+            </div>
+        </div>
+    );
+};
+
 
 const PresentationBuilder: React.FC = () => {
     const { 
@@ -117,12 +183,7 @@ const PresentationBuilder: React.FC = () => {
     );
 
     if (isGeneratingPresentation) {
-        return (
-             <div className="flex flex-col items-center justify-center p-8 text-center animate-fade-in h-full">
-              <div className="w-12 h-12 border-4 border-greatek-blue/20 border-t-greatek-blue rounded-full animate-spin"></div>
-              <p className="mt-4 text-base font-medium text-text-secondary">Gerando o roteiro da sua apresentação...</p>
-            </div>
-        );
+        return <GenerationProgress prompt={prompt} slideCount={slideCount} />;
     }
     
     if (!presentationState) {

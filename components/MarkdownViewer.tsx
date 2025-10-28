@@ -60,6 +60,42 @@ const parseDiagnosisContent = (content: string) => {
     return { title, body };
 };
 
+const parsePillarCardContent = (content: string) => {
+    const titleMatch = content.match(/### (.*)/);
+    const title = titleMatch ? titleMatch[1].trim() : 'Pilar do Design';
+    const body = content.replace(/### .*\n?/, '').trim();
+    const iconMap: Record<string, string> = {
+        'escalabilidade': 'bi-arrows-angle-expand',
+        'gerenciamento centralizado': 'bi-motherboard-fill',
+        'segurança': 'bi-shield-lock-fill',
+        'performance': 'bi-speedometer2',
+        'redundância': 'bi-intersect',
+    };
+    const icon = iconMap[title.toLowerCase()] || 'bi-check2-circle';
+    return { title, body, icon };
+};
+
+const parseComponentCardContent = (content: string) => {
+    const titleMatch = content.match(/### (.*)/);
+    const title = titleMatch ? titleMatch[1].trim() : 'Componente';
+    
+    const productMatch = content.match(/\*\*Produto Recomendado:\*\*\s*(.*)/);
+    const product = productMatch ? productMatch[1].trim() : '';
+
+    const whyMatch = content.match(/\*\*Por que foi escolhido\?\*\*\s*([\s\S]*?)\s*(\*\*Recursos-Chave|\n\n)/);
+    const why = whyMatch ? whyMatch[1].trim().replace(/\n$/, '') : '';
+
+    const specsMatch = content.match(/\*\*Recursos-Chave para este projeto:\*\*\s*([\s\S]*)/);
+    const specsContent = specsMatch ? specsMatch[1].trim() : '';
+    
+    const specs = specsContent.split('\n')
+        .map(line => line.trim())
+        .filter(line => line.startsWith('*'))
+        .map(line => line.substring(1).trim());
+        
+    return { title, product, why, specs };
+};
+
 
 const MarkdownViewer: React.FC<MarkdownViewerProps> = ({ content, mode, isLastMessage }) => {
   const [copied, setCopied] = useState(false);
@@ -102,6 +138,11 @@ const MarkdownViewer: React.FC<MarkdownViewerProps> = ({ content, mode, isLastMe
     let inDiagnosisCard = false;
     let diagnosisCardContent = '';
     let blockquoteItems: string[] = [];
+    let inPillarCard = false;
+    let pillarCardContent = '';
+    let inComponentCard = false;
+    let componentCardContent = '';
+
 
     const flushList = () => {
         if (listItems.length > 0) {
@@ -146,6 +187,18 @@ const MarkdownViewer: React.FC<MarkdownViewerProps> = ({ content, mode, isLastMe
           continue;
       }
       
+      if (line.trim() === '[DESIGN_PILLAR_START]') {
+          flushList(); flushBlockquote();
+          inPillarCard = true;
+          continue;
+      }
+      
+      if (line.trim() === '[COMPONENT_CARD_START]') {
+          flushList(); flushBlockquote();
+          inComponentCard = true;
+          continue;
+      }
+
       if (line.trim() === '[RECOMENDACAO_PRINCIPAL_END]') {
           if (inSalesCard) {
               const cardData = parseSalesCardContent(salesCardContent);
@@ -202,18 +255,67 @@ const MarkdownViewer: React.FC<MarkdownViewerProps> = ({ content, mode, isLastMe
           }
           continue;
       }
+      
+      if (line.trim() === '[DESIGN_PILLAR_END]') {
+          if (inPillarCard) {
+              const cardData = parsePillarCardContent(pillarCardContent);
+              elements.push(
+                   <div key={`pillar-${i}`} className="not-prose my-4 p-5 bg-greatek-bg-light border-l-4 border-greatek-blue rounded-r-lg animate-fade-in">
+                        <div className="flex items-start">
+                            <i className={`bi ${cardData.icon} text-2xl mr-4 text-greatek-blue mt-1`}></i>
+                            <div>
+                                <h3 className="text-lg font-bold text-greatek-dark-blue not-prose m-0">{cardData.title}</h3>
+                                <div className="text-text-secondary mt-2 leading-relaxed text-sm">{parseInlineMarkdown(cardData.body)}</div>
+                            </div>
+                        </div>
+                    </div>
+              );
+              pillarCardContent = '';
+              inPillarCard = false;
+          }
+          continue;
+      }
+      
+      if (line.trim() === '[COMPONENT_CARD_END]') {
+          if (inComponentCard) {
+              const cardData = parseComponentCardContent(componentCardContent);
+              elements.push(
+                  <div key={`component-card-${i}`} className="not-prose my-6 p-5 bg-white border border-greatek-border rounded-xl shadow-sm animate-fade-in hover:border-greatek-blue/50 transition-colors">
+                    <h3 className="text-sm font-semibold uppercase text-greatek-blue tracking-wider">{cardData.title}</h3>
+                    <h4 className="text-xl font-bold text-greatek-dark-blue not-prose mt-1">{cardData.product}</h4>
+                    
+                    <div className="mt-4 pl-3 border-l-4 border-greatek-blue/30">
+                        <p className="font-semibold text-text-primary text-sm">Por que foi escolhido?</p>
+                        <p className="text-text-secondary text-sm leading-relaxed">{cardData.why}</p>
+                    </div>
 
-
-      if (inSalesCard) {
-          salesCardContent += line + '\n';
+                    {cardData.specs.length > 0 && (
+                        <div className="mt-4">
+                            <p className="font-semibold text-text-primary text-sm">Recursos-Chave para este projeto:</p>
+                            <ul className="mt-2 space-y-1.5 list-none p-0">
+                                {cardData.specs.map((spec, index) => (
+                                    <li key={index} className="flex items-start text-sm text-text-secondary">
+                                        <i className="bi bi-check-circle-fill text-green-600 mr-2.5 mt-0.5 flex-shrink-0"></i>
+                                        <span dangerouslySetInnerHTML={{ __html: spec.replace(/\*\*(.*?)\*\*/g, '<strong class="font-semibold text-text-primary">$1</strong>') }} />
+                                    </li>
+                                ))}
+                            </ul>
+                        </div>
+                    )}
+                </div>
+              );
+              componentCardContent = '';
+              inComponentCard = false;
+          }
           continue;
       }
 
-      if (inDiagnosisCard) {
-          diagnosisCardContent += line + '\n';
-          continue;
-      }
 
+      if (inSalesCard) { salesCardContent += line + '\n'; continue; }
+      if (inDiagnosisCard) { diagnosisCardContent += line + '\n'; continue; }
+      if (inPillarCard) { pillarCardContent += line + '\n'; continue; }
+      if (inComponentCard) { componentCardContent += line + '\n'; continue; }
+      
       const isTableSeparator = (l: string) => l.trim().startsWith('|') && l.includes('---') && l.trim().endsWith('|');
       const isTableRow = (l: string) => l.trim().startsWith('|') && l.trim().endsWith('|');
       
