@@ -1,182 +1,148 @@
 
-
 export enum AppMode {
-  INTEGRATOR = "Integrador",
-  INSTRUCTOR = "Instrutor",
-  PAGE = "Página",
-  SALES_ASSISTANT = "Assistente Comercial",
-  AUDIT = "Auditoria",
-  CONTENT = "Conteúdo",
-  CAMPAIGN = "Campanhas",
-  COMPLIANCE = "Endomarketing",
-  MARKET_INTEL = "Mercado",
-  ARQUITETO = "Arquiteto",
-  IMAGE_ADS = "Gerador de Imagens",
-  SKYWATCH = "SkyWatch",
-  GOAL_CALCULATOR = "Calculadora de Metas",
-  PRESENTATION_BUILDER = "Criador de Apresentações",
-  PGR_CALCULATOR = "Calculadora de PGR Individual",
-  BUSINESS_ANALYZER = "Analisador de Negócios",
-  TRAINING_COACH = "Coach de Treinamento",
-  CUSTOMER_DOSSIER = "Gerador de Dossiê",
-  BLOG_POST = "Criador de Blog Post",
+  INTEGRATOR = 'INTEGRATOR',
+  ARQUITETO = 'ARQUITETO',
+  INSTRUCTOR = 'INSTRUCTOR',
+  SKYWATCH = 'SKYWATCH',
+  MARKET_INTEL = 'MARKET_INTEL',
+  SALES_ASSISTANT = 'SALES_ASSISTANT',
+  PAGE = 'PAGE',
+  AUDIT = 'AUDIT',
+  CAMPAIGN = 'CAMPAIGN',
+  COMPLIANCE = 'COMPLIANCE',
+  IMAGE_ADS = 'IMAGE_ADS',
+  BLOG_POST = 'BLOG_POST',
+  GOAL_CALCULATOR = 'GOAL_CALCULATOR',
+  PRESENTATION_BUILDER = 'PRESENTATION_BUILDER',
+  PORTFOLIO_SEARCH = 'PORTFOLIO_SEARCH',
+  CONTENT_PLANNER = 'CONTENT_PLANNER',
+  CONTENT = 'CONTENT',
+  BUSINESS_ANALYZER = 'BUSINESS_ANALYZER',
+  TRAINING_COACH = 'TRAINING_COACH',
+  CUSTOMER_DOSSIER = 'CUSTOMER_DOSSIER',
+  LEAD_HUNTER = 'LEAD_HUNTER',
+  STRATEGIC_PLANNER = 'STRATEGIC_PLANNER',
 }
 
-export type Role = 'user' | 'agent';
-
-export interface QuizQuestion {
-  question: string;
-  options: string[];
-  correct_answer: string;
-  explanation: string;
-}
-
-export interface TrainingKitReport {
-  product_name: string;
-  key_selling_points: string[];
-  technical_faq: { q: string; a: string; }[];
-  knowledge_quiz: QuizQuestion[];
-}
+export type SlideType = 'title_slide' | 'agenda' | 'section_header' | 'content_bullet_points' | 'key_metrics' | 'three_column_cards' | 'table_slide' | 'numbered_list' | 'bento_grid' | 'two_column_text' | 'closing_slide';
 
 export interface Attachment {
   name: string;
   type: string;
   size: number;
-  data: string; // base64 encoded string
+  content: string | ArrayBuffer; 
 }
 
 export interface Feedback {
-  type: 'good' | 'bad';
-  reason?: string;
+    type: 'good' | 'bad';
+    reason?: string;
 }
 
-export interface AdCopy {
-  headline: string;
-  description: string;
-  highlights: string[];
-  cta: string;
+export interface Message {
+  role: 'user' | 'agent';
+  content: string | any;
+  attachments?: Attachment[];
+  feedback?: Feedback;
 }
-
-export interface ImageAdPackage {
-  imageUrl: string;
-  generatedPrompt: string;
-  originalPrompt: string;
-  adCopy?: AdCopy;
-  partnerLogoUrl?: string;
-  isUpscaling?: boolean;
-  isUpscaled?: boolean;
-  isRegenerating?: boolean;
-  referenceImage?: Attachment;
-  aspectRatio?: string;
-}
-
-export interface ContentPackage {
-  content_type: string;
-  title_suggestions: string[];
-  body: string;
-  hashtags: string[];
-  image_prompt_suggestion: string;
-  cta_suggestion: string;
-}
-
-export interface BlogPostPackage {
-    title: string;
-    introduction: string;
-    sections: { heading: string; content: string; }[];
-    related_products: { name: string; code?: string; }[];
-    conclusion: string;
-    seo_title: string;
-    seo_meta_description: string;
-    seo_tags: string[];
-    cta_html: string;
-}
-
-export type SlideType = 
-  | 'title_slide' 
-  | 'agenda' 
-  | 'section_header' 
-  | 'content_bullet_points' 
-  | 'closing_slide'
-  // New visual layouts
-  | 'key_metrics'
-  | 'three_column_cards'
-  | 'table_slide'
-  | 'numbered_list'
-  | 'bento_grid'
-  | 'two_column_text';
 
 export interface PresentationSlide {
-  id: string;
-  slide_type: SlideType;
-  title: string;
-  content: any; // Can be string[] for bullets, or a structured object for visual layouts
-  summary?: string; // Optional summary text below the main content
-  speaker_notes: string;
-  warning?: string;
-  // FIX: Add optional properties for generated and user-uploaded images to align with store logic.
-  imageUrl?: string;
-  userImage?: string;
+    id: string;
+    slide_type: SlideType;
+    title: string;
+    content: any;
+    summary?: string;
+    speaker_notes?: string;
+    left_column?: string[];
+    right_column?: string[];
 }
 
 export type PresentationTheme = 'light' | 'dark' | 'classic';
 
 export interface PresentationPackage {
-  presentation_title: string;
-  target_audience: string;
-  theme: PresentationTheme;
-  slides: PresentationSlide[];
+    presentation_title: string;
+    target_audience: string;
+    theme: PresentationTheme;
+    slides: PresentationSlide[];
 }
 
 export interface GoalCalculatorState {
-  salesGoal: string;
-  salesSoFar: string;
-  totalProposals: string;
-  wonProposals: string;
+    salesGoal: string;
+    salesSoFar: string;
+    totalProposals: string;
+    wonProposals: string;
+    workingDays: string;
 }
 
 export interface GoalComparisonState {
-  previousMonth: GoalCalculatorState;
-  currentMonth: GoalCalculatorState;
+    previousMonth: GoalCalculatorState;
+    currentMonth: GoalCalculatorState;
 }
 
-export type PgrMetricValues = {
-  meta: string;
-  realizado: string;
-};
-
-export interface PgrCalculatorState {
-  selectedSellerId: string;
-  sellerName: string;
-  metrics: Record<string, PgrMetricValues>;
+export interface PortfolioSearchResultItem {
+    name: string;
+    code?: string;
+    details: string;
+    justification: string;
+    use_cases?: string[];
+    recommendations?: string;
+    demand_profile?: string;
 }
 
-export interface PgrSeller {
-  id: string;
-  name: string;
-  password?: string;
-  metas: Record<string, string>;
+export interface ContentPlan {
+    month: string;
+    strategy_summary: string;
+    items: PlannedContentItem[];
 }
 
-// FIX: Added missing KnowledgeBaseProduct interface.
-export interface KnowledgeBaseProduct {
-  name: string;
-  keywords: string[];
-  details: string;
-  code?: string;
+export interface PlannedContentItem {
+    id: string;
+    day: number;
+    platform: 'Blog' | 'LinkedIn';
+    title: string;
+    format: string;
+    funnel_stage: string;
+    keyword_focus: string;
+    product_focus: string;
+    briefing: string;
+    isCompleted?: boolean;
 }
 
-export interface CustomerDossier {
-    company_name: string;
-    markdown_content: string;
-    sources?: GroundingSource[];
+export interface OutboundContact {
+    name: string;
+    company: string;
+    reason: string;
+    suggested_action: string;
 }
 
+export interface OutboundDailyPlan {
+    day: string;
+    calls_goal: number;
+    key_actions: string[];
+}
 
-export interface Message {
-  role: Role;
-  content: string | PageOptimizationPackage | MarketIntelReport | TrainingKitReport | ImageAdPackage | ContentPackage | BlogPostPackage | PresentationPackage | VigiaReport | CustomerDossier;
-  attachments?: Attachment[];
-  feedback?: Feedback | null;
+export interface OutboundReport {
+    salesperson_name: string;
+    action_report: {
+        weekly_planning: OutboundDailyPlan[];
+        performance_analysis: string;
+    };
+    abc_curve: {
+        weekly_contacts: OutboundContact[];
+        biweekly_contacts: OutboundContact[];
+        monthly_contacts: OutboundContact[];
+    };
+    management_report: {
+        approach_strategy: string;
+        coaching_tips: string[];
+        contingency_plan: string;
+    };
+}
+
+export interface OutboundGoalInputs {
+    goal: number;
+    days: number;
+    avgTicket: number;
+    conversionRate: number;
 }
 
 export interface Conversation {
@@ -188,83 +154,71 @@ export interface Conversation {
   skywatchDeclined?: boolean;
   presentationPackage?: PresentationPackage | null;
   goalCalculatorState?: GoalCalculatorState;
+  individualGoalCalculatorState?: GoalCalculatorState;
   goalComparisonState?: GoalComparisonState;
   comparisonAnalysis?: string | null;
-  pgrCalculatorState?: PgrCalculatorState;
-  pgrAuthenticatedSellerId?: string | null;
+  portfolioSearchQuery?: string;
+  portfolioSearchResults?: PortfolioSearchResultItem[] | null;
+  contentPlan?: ContentPlan | null;
+  outboundReport?: OutboundReport[];
+  outboundGoals?: Record<string, OutboundGoalInputs>;
 }
 
-export interface FaqItem {
-  q: string;
-  a: string;
+export interface Notification {
+    id: number;
+    title: string;
+    description: string;
+    timestamp: string;
+    read: boolean;
 }
 
-export interface InternalLink {
-  anchor: string;
-  target: string;
-}
+export type Service = 'ga4' | 'gsc' | 'lighthouse';
 
-export interface MetaVariant {
-  variant: string;
-  title: string;
-  description: string;
-}
-
-export interface PageOptimizationPackage {
-  url: string;
-  title: string;
-  meta_description: string;
-  h1: string;
-  h2: string[];
-  faqs: FaqItem[];
-  internal_links: InternalLink[];
-  schema_jsonld: string; 
-  ab_test_meta: MetaVariant[];
-  tech_checklist: string[];
-}
-
-export interface TrainingAnalysisReport {
-    score: number;
-    summary: string;
-    strengths: string[];
-    areas_for_improvement: string[];
-    suggested_arguments: { title: string; explanation: string; }[];
-    objection_handling: { objection: string; suggestion: string; }[];
-}
-
-
-export function isPageOptimizationPackage(response: any): response is PageOptimizationPackage {
-  return response && typeof response === 'object' && 'url' in response && 'tech_checklist' in response && 'schema_jsonld' in response;
-}
-
-export function isAdCopy(response: any): response is AdCopy {
-    return response && typeof response === 'object' && 'headline' in response && 'cta' in response;
-}
-
-export function isImageAdPackage(response: any): response is ImageAdPackage {
-  return response && typeof response === 'object' && 'imageUrl' in response && 'generatedPrompt' in response;
-}
-
-export function isContentPackage(response: any): response is ContentPackage {
-    return response && typeof response === 'object' && 'content_type' in response && 'image_prompt_suggestion' in response;
-}
-
-export function isBlogPostPackage(response: any): response is BlogPostPackage {
-    return response && typeof response === 'object' && 'seo_title' in response && Array.isArray(response.sections) && 'cta_html' in response && 'seo_tags' in response && Array.isArray(response.seo_tags);
-}
-
-export function isPresentationPackage(response: any): response is PresentationPackage {
-    return response && typeof response === 'object' && 'presentation_title' in response && Array.isArray(response.slides);
-}
-
-export function isCustomerDossier(response: any): response is CustomerDossier {
-    return response && typeof response === 'object' && 'company_name' in response && 'markdown_content' in response;
+export interface KnowledgeBaseProduct {
+    name: string;
+    keywords: string[];
+    details: string;
 }
 
 export interface ComparisonPoint {
-  feature: string;
-  greatek: string;
-  competitor: string;
+    feature: string;
+    greatek: string;
+    competitor: string;
+}
+
+export interface MarketIntelReport {
+    greatek_product_name: string;
+    competitor_product_name: string;
+    sales_pitch_summary: string;
+    comparison_points: ComparisonPoint[];
+    competitive_advantages: string[];
+    commercial_arguments: string[];
+    competitor_data_sources?: { uri: string; title?: string }[];
+}
+
+export interface AdCopy {
+    headline: string;
+    description: string;
+    highlights: string[];
+    cta: string;
+}
+
+export interface ImageAdPackage {
+    imageUrl: string;
+    generatedPrompt: string;
+    originalPrompt: string;
+    adCopy?: AdCopy;
+    aspectRatio?: string;
+    partnerLogoUrl?: string;
+    isUpscaling?: boolean;
+    isRegenerating?: boolean;
+    isUpscaled?: boolean;
+}
+
+export interface CustomerDossier {
+    company_name: string;
+    markdown_content: string;
+    sources?: GroundingSource[];
 }
 
 export interface GroundingSource {
@@ -272,52 +226,156 @@ export interface GroundingSource {
     title: string;
 }
 
-export interface MarketIntelReport {
-  sales_pitch_summary: string;
-  greatek_product_name: string;
-  competitor_product_name: string;
-  comparison_points: ComparisonPoint[];
-  competitive_advantages: string[];
-  commercial_arguments: string[];
-  competitor_data_sources?: GroundingSource[];
+export interface TrainingAnalysisReport {
+    score: number;
+    summary: string;
+    strengths: string[];
+    areas_for_improvement: string[];
+    suggested_arguments: { title: string; explanation: string }[];
+    objection_handling: { objection: string; suggestion: string }[];
 }
 
-// FIX: Added missing VigiaReport interface based on its usage.
-export interface VigiaReport {
-  monitoring_topic: string;
-  executive_summary: string[];
-  opportunities: string[];
-  threats: string[];
-  actionable_insight: string;
-  sources?: GroundingSource[];
+export interface QuizQuestion {
+    question: string;
+    options: string[];
+    correct_answer: string;
+    explanation: string;
 }
 
-export interface Notification {
-  id: number;
-  title: string;
-  description: string;
-  timestamp: string;
-  read: boolean;
+export interface TrainingKitReport {
+    product_name: string;
+    key_selling_points: string[];
+    technical_faq: { q: string; a: string }[];
+    knowledge_quiz: QuizQuestion[];
 }
 
-export type Service = 'ga4' | 'gsc' | 'lighthouse';
+export interface PageOptimizationPackage {
+    url: string;
+    seo_score: number;
+    title_tag: string;
+    meta_description: string;
+    h1: string;
+    content_suggestions: string[];
+}
 
-export interface KPIData {
-  title: string;
-  value: string;
-  icon: string;
-  description?: string;
+export interface ContentPackage {
+    content_type: string;
+    title_suggestions: string[];
+    body: string;
+    hashtags: string[];
+    cta_suggestion: string;
+    image_prompt_suggestion: string;
+}
+
+export interface BlogPostSection {
+    heading: string;
+    content: string;
+}
+
+export interface BlogPostPackage {
+    title: string;
+    introduction: string;
+    sections: BlogPostSection[];
+    related_products?: { name: string; code?: string }[];
+    conclusion: string;
+    seo_title: string;
+    seo_meta_description: string;
+    seo_tags: string[];
+    cta_html: string;
+}
+
+export interface LeadData {
+    name?: string;
+    legal_name?: string;
+    cnpj?: string;
+    responsible_name?: string;
+    website?: string;
+    contact_info?: string;
+    whatsapp?: string;
+    city?: string;
+    uf?: string;
+    relevance_score: 'Alta' | 'Média' | 'Baixa';
+    reason?: string;
+    potential_products?: string[];
+    anatel_verified?: boolean;
+    official_size?: string;
+    official_tech?: string;
 }
 
 export interface ChartData {
-  label: string;
-  value: number | string;
-  percentage: number;
+    label: string;
+    value: number;
+    percentage: number;
+}
+
+export interface KPIData {
+    title: string;
+    value: string;
+    icon: string;
+    description?: string;
 }
 
 export interface BusinessAnalysisResult {
-  kpis: KPIData[];
-  winReasons: ChartData[];
-  lossReasons: ChartData[];
-  aiInsights: string;
+    kpis: KPIData[];
+    winReasons: ChartData[];
+    lossReasons: ChartData[];
+    aiInsights: string;
+}
+
+export interface VigiaReport {
+    monitoring_topic: string;
+    executive_summary: string[];
+    opportunities: string[];
+    threats: string[];
+    actionable_insight: string;
+    sources?: GroundingSource[];
+}
+
+// Type Guards
+export function isAdCopy(obj: any): obj is AdCopy {
+    return obj && typeof obj.headline === 'string';
+}
+
+export function isImageAdPackage(obj: any): obj is ImageAdPackage {
+    return obj && typeof obj.imageUrl === 'string' && typeof obj.generatedPrompt === 'string';
+}
+
+export function isPresentationPackage(obj: any): obj is PresentationPackage {
+    return obj && Array.isArray(obj.slides) && typeof obj.presentation_title === 'string';
+}
+
+export function isMarketIntelReport(obj: any): obj is MarketIntelReport {
+    return obj && Array.isArray(obj.comparison_points);
+}
+
+export function isTrainingKitReport(obj: any): obj is TrainingKitReport {
+    return obj && Array.isArray(obj.knowledge_quiz);
+}
+
+export function isPageOptimizationPackage(obj: any): obj is PageOptimizationPackage {
+    return obj && typeof obj.url === 'string' && typeof obj.seo_score === 'number';
+}
+
+export function isContentPackage(obj: any): obj is ContentPackage {
+    return obj && typeof obj.content_type === 'string' && typeof obj.body === 'string';
+}
+
+export function isBlogPostPackage(obj: any): obj is BlogPostPackage {
+    return obj && typeof obj.cta_html === 'string' && Array.isArray(obj.sections);
+}
+
+export function isCustomerDossier(obj: any): obj is CustomerDossier {
+    return obj && typeof obj.company_name === 'string' && typeof obj.markdown_content === 'string';
+}
+
+export function isPortfolioSearchResult(obj: any): obj is PortfolioSearchResultItem[] {
+    return Array.isArray(obj) && obj.length > 0 && typeof obj[0].justification === 'string';
+}
+
+export function isContentPlan(obj: any): obj is ContentPlan {
+    return obj && Array.isArray(obj.items) && typeof obj.month === 'string';
+}
+
+export function isLeadDataArray(obj: any): obj is LeadData[] {
+    return Array.isArray(obj) && (obj.length === 0 || typeof obj[0].relevance_score === 'string');
 }

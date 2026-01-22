@@ -1,5 +1,4 @@
 
-
 import React, { useState, useRef } from 'react';
 import { useAppStore } from '../store/useAppStore';
 
@@ -109,7 +108,7 @@ const AdminPanel: React.FC<{ onClose: () => void; }> = ({ onClose }) => {
           ) : (
              <>
                 <div 
-                  className={`p-6 text-center border-2 border-dashed rounded-lg cursor-pointer transition-colors ${isDragOver ? 'border-greatek-blue bg-greatek-blue/10' : 'border-gray-300 hover:border-greatek-blue'}`}
+                  className={`p-6 text-center border-2 border-dashed rounded-lg cursor-pointer transition-colors ${isDragOver ? 'border-greatek-blue bg-[#e9e9e9]' : 'border-gray-300 hover:border-greatek-blue bg-[#e9e9e9]'}`}
                   onDragOver={(e) => handleDragEvents(e, true)}
                   onDragLeave={(e) => handleDragEvents(e, false)}
                   onDragEnter={(e) => handleDragEvents(e, true)}
@@ -124,7 +123,7 @@ const AdminPanel: React.FC<{ onClose: () => void; }> = ({ onClose }) => {
                       onChange={(e) => handleFileChange(e.target.files?.[0])} 
                   />
                   <i className="bi bi-cloud-arrow-up-fill text-4xl text-greatek-blue/50"></i>
-                  <p className="mt-2 text-sm font-semibold text-text-primary">Arraste e solte o arquivo</p>
+                  <p className="mt-2 text-sm font-semibold text-black">Arraste e solte o arquivo</p>
                   <p className="text-xs text-text-secondary">ou clique para selecionar</p>
                 </div>
 

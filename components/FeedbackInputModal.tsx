@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import Modal from './ui/Modal';
 import { useAppStore } from '../store/useAppStore';
@@ -40,7 +41,7 @@ const FeedbackInputModal: React.FC = () => {
                     rows={5}
                     value={reason}
                     onChange={(e) => setReason(e.target.value)}
-                    className="mt-1 block w-full rounded-md border-transparent shadow-sm focus:border-greatek-blue focus:ring-greatek-blue sm:text-sm p-2 bg-greatek-border text-text-primary placeholder:text-text-secondary"
+                    className="mt-1 block w-full rounded-md border-transparent shadow-sm focus:border-greatek-blue focus:ring-greatek-blue sm:text-sm p-2 bg-[#e9e9e9] text-black placeholder:text-text-secondary"
                     placeholder="Ex: A resposta estava incorreta, incompleta, não seguiu as instruções, etc."
                 />
             </div>

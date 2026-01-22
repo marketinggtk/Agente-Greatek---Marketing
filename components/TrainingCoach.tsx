@@ -1,5 +1,4 @@
 
-
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { GoogleGenAI, LiveServerMessage, Modality, Blob } from "@google/genai";
 import { getTrainingAnalysis } from '../services/geminiService';
@@ -27,7 +26,6 @@ function decode(base64: string) {
     return bytes;
 }
 
-// FIX: Make decodeAudioData async and return a Promise<AudioBuffer> to align with modern Web Audio API practices and the library's examples. This prevents potential blocking and handles audio processing correctly.
 async function decodeAudioData(
     data: Uint8Array,
     ctx: AudioContext,
@@ -159,17 +157,15 @@ const TrainingCoach: React.FC = () => {
         }
 
         if (audioContextRef.current) {
-            // FIX: The `disconnect` method on this AudioNode requires an argument in this environment. Passing 0 for the output index.
-            audioContextRef.current.processor.disconnect(0);
-            // FIX: The `disconnect` method on this AudioNode requires an argument in this environment. Passing 0 for the output index.
-            audioContextRef.current.source.disconnect(0);
-            audioContextRef.current.userAnalyser.disconnect(0);
-            micGainNodeRef.current?.disconnect(0);
+            audioContextRef.current.processor.disconnect();
+            audioContextRef.current.source.disconnect();
+            audioContextRef.current.userAnalyser.disconnect();
+            micGainNodeRef.current?.disconnect();
             if (audioContextRef.current.input.state !== 'closed') {
-                audioContextRef.current.input.close();
+                (audioContextRef.current.input as any).close();
             }
             if (audioContextRef.current.output.state !== 'closed') {
-                audioContextRef.current.output.close();
+                (audioContextRef.current.output as any).close();
             }
             audioContextRef.current = null;
         }
@@ -213,8 +209,9 @@ const TrainingCoach: React.FC = () => {
             mediaStreamRef.current = stream;
             const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
 
-            const inputAudioContext = new (window.AudioContext || (window as any).webkitAudioContext)({ sampleRate: 16000 });
-            const outputAudioContext = new (window.AudioContext || (window as any).webkitAudioContext)({ sampleRate: 24000 });
+            const AudioCtx = window.AudioContext || (window as any).webkitAudioContext;
+            const inputAudioContext = new AudioCtx({ sampleRate: 16000 });
+            const outputAudioContext = new AudioCtx({ sampleRate: 24000 });
             
             const userAnalyser = inputAudioContext.createAnalyser();
             userAnalyser.fftSize = 256;
@@ -271,7 +268,6 @@ const TrainingCoach: React.FC = () => {
                         userAnalyser.connect(scriptProcessor);
                         scriptProcessor.connect(inputAudioContext.destination);
                     },
-                    // FIX: The onmessage callback must be async to correctly handle the awaited audio decoding.
                     onmessage: async (message: LiveServerMessage) => {
                         if (message.serverContent?.inputTranscription) {
                             currentUserTranscriptionRef.current += message.serverContent.inputTranscription.text;
@@ -300,7 +296,6 @@ const TrainingCoach: React.FC = () => {
                            try {
                                 const oCtx = audioContextRef.current!.output;
                                 let nextStart = Math.max(nextStartTimeRef.current, oCtx.currentTime);
-                                // FIX: Awaiting the decodeAudioData function is necessary as it now returns a Promise.
                                 const audioBuffer = await decodeAudioData(decode(base64Audio), oCtx, 24000, 1);
                                 const bufferSource = oCtx.createBufferSource();
                                 bufferSource.buffer = audioBuffer;
@@ -403,7 +398,7 @@ const TrainingCoach: React.FC = () => {
                         value={product}
                         onChange={(e) => setProduct(e.target.value)}
                         placeholder="Ex: OLT Chassi X2, Máquina de Fusão X6, Deco X50..."
-                        className="w-full p-3 rounded-md border border-greatek-border focus:border-greatek-blue focus:ring-greatek-blue sm:text-sm bg-white text-greatek-dark-blue placeholder:text-text-secondary/70"
+                        className="w-full p-3 rounded-md border border-greatek-border focus:border-greatek-blue focus:ring-greatek-blue sm:text-sm bg-[#e9e9e9] text-black placeholder:text-text-secondary/70"
                     />
                 </div>
 

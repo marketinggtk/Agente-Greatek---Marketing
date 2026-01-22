@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { AppMode } from '../types';
 import { generateIntegratorPdf } from '../services/pdfGenerator';
@@ -35,6 +36,8 @@ const parseInlineMarkdown = (text: string): React.ReactNode[] => {
         return part;
     });
 };
+
+// --- Helper Parsing Functions for Special Cards ---
 
 const parseSalesCardContent = (content: string) => {
     const titleMatch = content.match(/### 🏅 Produto Recomendado:(.*)/);
@@ -96,6 +99,41 @@ const parseComponentCardContent = (content: string) => {
     return { title, product, why, specs };
 };
 
+const parseSocialPost = (content: string, attributes: string) => {
+    const platformMatch = attributes.match(/platform="(.*?)"/);
+    return {
+        platform: platformMatch ? platformMatch[1] : 'Conteúdo Sugerido',
+        body: content.trim()
+    };
+};
+
+const parseVisualBrief = (content: string) => {
+    return content.trim();
+};
+
+const parseSeoMetrics = (content: string) => {
+    return content.trim().split('\n').filter(line => line.trim().length > 0);
+};
+
+const parseTechDiagram = (content: string, attributes: string) => {
+    const titleMatch = attributes.match(/title="(.*?)"/);
+    return {
+        title: titleMatch ? titleMatch[1] : 'Diagrama Técnico',
+        body: content.trim()
+    };
+};
+
+const parseTrainingCard = (content: string, attributes: string) => {
+    const titleMatch = attributes.match(/title="(.*?)"/);
+    const iconMatch = attributes.match(/icon="(.*?)"/);
+    
+    return {
+        title: titleMatch ? titleMatch[1] : 'Destaque',
+        icon: iconMatch ? iconMatch[1] : 'bi-lightbulb-fill',
+        body: content.trim()
+    };
+};
+
 
 const MarkdownViewer: React.FC<MarkdownViewerProps> = ({ content, mode, isLastMessage }) => {
   const [copied, setCopied] = useState(false);
@@ -133,15 +171,22 @@ const MarkdownViewer: React.FC<MarkdownViewerProps> = ({ content, mode, isLastMe
     let inCodeBlock = false;
     let codeBlockContent = '';
     let listItems: string[] = [];
-    let inSalesCard = false;
-    let salesCardContent = '';
-    let inDiagnosisCard = false;
-    let diagnosisCardContent = '';
     let blockquoteItems: string[] = [];
-    let inPillarCard = false;
-    let pillarCardContent = '';
-    let inComponentCard = false;
-    let componentCardContent = '';
+    
+    // State variables for multi-line card parsing
+    let inSalesCard = false; let salesCardContent = '';
+    let inDiagnosisCard = false; let diagnosisCardContent = '';
+    let inPillarCard = false; let pillarCardContent = '';
+    let inComponentCard = false; let componentCardContent = '';
+    
+    // New Marketing Visuals State
+    let inSocialPost = false; let socialPostContent = ''; let socialPostAttrs = '';
+    let inVisualBrief = false; let visualBriefContent = '';
+    let inSeoMetrics = false; let seoMetricsContent = '';
+    let inTechDiagram = false; let techDiagramContent = ''; let techDiagramAttrs = '';
+    
+    // Instructor Training Cards
+    let inTrainingCard = false; let trainingCardContent = ''; let trainingCardAttrs = '';
 
 
     const flushList = () => {
@@ -170,36 +215,48 @@ const MarkdownViewer: React.FC<MarkdownViewerProps> = ({ content, mode, isLastMe
         }
     };
 
+    const flushAll = () => {
+        flushList();
+        flushBlockquote();
+    };
+
     for (let i = 0; i < lines.length; i++) {
       let line = lines[i];
-
-      if (line.trim() === '[RECOMENDACAO_PRINCIPAL_START]') {
-          flushList();
-          flushBlockquote();
-          inSalesCard = true;
-          continue;
-      }
-
-      if (line.trim() === '[DIAGNOSTICO_START]') {
-          flushList();
-          flushBlockquote();
-          inDiagnosisCard = true;
-          continue;
-      }
       
-      if (line.trim() === '[DESIGN_PILLAR_START]') {
-          flushList(); flushBlockquote();
-          inPillarCard = true;
+      // Cleaning potentially formatted tags (e.g., `[TAG]`)
+      const cleanTagLine = line.trim().replace(/^`+|`+$/g, '');
+
+      // --- Start Tag Checks ---
+      if (cleanTagLine === '[RECOMENDACAO_PRINCIPAL_START]') { flushAll(); inSalesCard = true; continue; }
+      if (cleanTagLine === '[DIAGNOSTICO_START]') { flushAll(); inDiagnosisCard = true; continue; }
+      if (cleanTagLine === '[DESIGN_PILLAR_START]') { flushAll(); inPillarCard = true; continue; }
+      if (cleanTagLine === '[COMPONENT_CARD_START]') { flushAll(); inComponentCard = true; continue; }
+      
+      // New Marketing Tags
+      if (cleanTagLine.startsWith('[SOCIAL_POST_START')) { 
+          flushAll(); 
+          inSocialPost = true; 
+          socialPostAttrs = cleanTagLine.substring(18, cleanTagLine.length - 1); // Extract attributes
+          continue; 
+      }
+      if (cleanTagLine === '[VISUAL_BRIEF_START]') { flushAll(); inVisualBrief = true; continue; }
+      if (cleanTagLine === '[SEO_METRICS_START]') { flushAll(); inSeoMetrics = true; continue; }
+      if (cleanTagLine.startsWith('[TECH_DIAGRAM_START')) {
+          flushAll();
+          inTechDiagram = true;
+          techDiagramAttrs = cleanTagLine.substring(19, cleanTagLine.length - 1);
           continue;
       }
-      
-      if (line.trim() === '[COMPONENT_CARD_START]') {
-          flushList(); flushBlockquote();
-          inComponentCard = true;
+      if (cleanTagLine.startsWith('[TRAINING_CARD_START')) {
+          flushAll();
+          inTrainingCard = true;
+          trainingCardAttrs = cleanTagLine.substring(20, cleanTagLine.length - 1);
           continue;
       }
 
-      if (line.trim() === '[RECOMENDACAO_PRINCIPAL_END]') {
+
+      // --- End Tag Checks ---
+      if (cleanTagLine === '[RECOMENDACAO_PRINCIPAL_END]') {
           if (inSalesCard) {
               const cardData = parseSalesCardContent(salesCardContent);
               elements.push(
@@ -230,13 +287,12 @@ const MarkdownViewer: React.FC<MarkdownViewerProps> = ({ content, mode, isLastMe
                       )}
                   </div>
               );
-              salesCardContent = '';
-              inSalesCard = false;
+              salesCardContent = ''; inSalesCard = false;
           }
           continue;
       }
 
-      if (line.trim() === '[DIAGNOSTICO_END]') {
+      if (cleanTagLine === '[DIAGNOSTICO_END]') {
           if (inDiagnosisCard) {
               const cardData = parseDiagnosisContent(diagnosisCardContent);
               elements.push(
@@ -250,13 +306,12 @@ const MarkdownViewer: React.FC<MarkdownViewerProps> = ({ content, mode, isLastMe
                     </div>
                   </div>
               );
-              diagnosisCardContent = '';
-              inDiagnosisCard = false;
+              diagnosisCardContent = ''; inDiagnosisCard = false;
           }
           continue;
       }
       
-      if (line.trim() === '[DESIGN_PILLAR_END]') {
+      if (cleanTagLine === '[DESIGN_PILLAR_END]') {
           if (inPillarCard) {
               const cardData = parsePillarCardContent(pillarCardContent);
               elements.push(
@@ -270,13 +325,12 @@ const MarkdownViewer: React.FC<MarkdownViewerProps> = ({ content, mode, isLastMe
                         </div>
                     </div>
               );
-              pillarCardContent = '';
-              inPillarCard = false;
+              pillarCardContent = ''; inPillarCard = false;
           }
           continue;
       }
       
-      if (line.trim() === '[COMPONENT_CARD_END]') {
+      if (cleanTagLine === '[COMPONENT_CARD_END]') {
           if (inComponentCard) {
               const cardData = parseComponentCardContent(componentCardContent);
               elements.push(
@@ -304,24 +358,153 @@ const MarkdownViewer: React.FC<MarkdownViewerProps> = ({ content, mode, isLastMe
                     )}
                 </div>
               );
-              componentCardContent = '';
-              inComponentCard = false;
+              componentCardContent = ''; inComponentCard = false;
+          }
+          continue;
+      }
+
+      if (cleanTagLine === '[SOCIAL_POST_END]') {
+          if (inSocialPost) {
+              const postData = parseSocialPost(socialPostContent, socialPostAttrs);
+              elements.push(
+                  <div key={`social-post-${i}`} className="not-prose my-6 border border-gray-200 rounded-lg overflow-hidden shadow-sm bg-white animate-fade-in">
+                      <div className="bg-gray-50 px-4 py-2 border-b border-gray-200 flex items-center justify-between">
+                          <div className="flex items-center gap-2">
+                              <i className="bi bi-file-earmark-text text-greatek-blue"></i>
+                              <span className="text-xs font-bold text-gray-600 uppercase tracking-wider">Sugestão de Texto ({postData.platform})</span>
+                          </div>
+                          <div className="flex gap-2">
+                              <div className="w-3 h-3 rounded-full bg-gray-300"></div>
+                              <div className="w-3 h-3 rounded-full bg-gray-300"></div>
+                          </div>
+                      </div>
+                      <div className="p-6 bg-white">
+                          <div className="prose prose-sm max-w-none text-gray-800 whitespace-pre-wrap leading-relaxed font-sans">
+                              {postData.body.split('\n').map((l, idx) => (
+                                  <p key={idx} className="mb-3 last:mb-0">{parseInlineMarkdown(l)}</p>
+                              ))}
+                          </div>
+                      </div>
+                  </div>
+              );
+              socialPostContent = ''; inSocialPost = false;
+          }
+          continue;
+      }
+
+      if (cleanTagLine === '[VISUAL_BRIEF_END]') {
+          if (inVisualBrief) {
+              const briefText = parseVisualBrief(visualBriefContent);
+              elements.push(
+                  <div key={`visual-brief-${i}`} className="not-prose my-6 p-5 bg-purple-50 border border-purple-200 rounded-lg shadow-sm animate-fade-in">
+                      <div className="flex items-center gap-2 mb-3 border-b border-purple-200 pb-2">
+                          <i className="bi bi-palette-fill text-purple-600"></i>
+                          <h3 className="text-sm font-bold text-purple-900 uppercase tracking-wide">Briefing Visual</h3>
+                      </div>
+                      <div className="text-sm text-purple-900/80 space-y-2">
+                          {briefText.split('\n').map((l, idx) => (
+                              <div key={idx} dangerouslySetInnerHTML={{ __html: l.replace(/\*\*(.*?)\*\*/g, '<strong class="text-purple-950">$1</strong>') }} />
+                          ))}
+                      </div>
+                  </div>
+              );
+              visualBriefContent = ''; inVisualBrief = false;
+          }
+          continue;
+      }
+
+      if (cleanTagLine === '[SEO_METRICS_END]') {
+          if (inSeoMetrics) {
+              const metrics = parseSeoMetrics(seoMetricsContent);
+              elements.push(
+                  <div key={`seo-metrics-${i}`} className="not-prose my-6 grid grid-cols-2 sm:grid-cols-3 gap-3 animate-fade-in">
+                      {metrics.map((metric, idx) => {
+                          const parts = metric.split(':');
+                          const label = parts[0]?.replace(/\*|-/g, '').trim();
+                          const value = parts[1]?.trim();
+                          if (!label || !value) return null;
+                          return (
+                              <div key={idx} className="bg-slate-800 text-white p-3 rounded-lg text-center shadow-md">
+                                  <p className="text-[10px] text-slate-400 uppercase tracking-wider font-bold">{label}</p>
+                                  <p className="font-medium text-sm mt-1">{value}</p>
+                              </div>
+                          );
+                      })}
+                  </div>
+              );
+              seoMetricsContent = ''; inSeoMetrics = false;
+          }
+          continue;
+      }
+
+      if (cleanTagLine === '[TECH_DIAGRAM_END]') {
+          if (inTechDiagram) {
+              const diagramData = parseTechDiagram(techDiagramContent, techDiagramAttrs);
+              elements.push(
+                  <div key={`tech-diagram-${i}`} className="not-prose my-6 p-6 bg-white border border-gray-200 rounded-xl shadow-sm animate-fade-in">
+                      <h3 className="text-center font-bold text-greatek-dark-blue mb-4">{diagramData.title}</h3>
+                      <div className="flex flex-wrap justify-center items-center gap-2 text-sm">
+                          {diagramData.body.split('->').map((step, idx, arr) => (
+                              <React.Fragment key={idx}>
+                                  <div className="bg-greatek-bg-light border border-greatek-blue text-greatek-dark-blue px-3 py-2 rounded-md font-medium">
+                                      {step.trim()}
+                                  </div>
+                                  {idx < arr.length - 1 && (
+                                      <i className="bi bi-arrow-right text-gray-400"></i>
+                                  )}
+                              </React.Fragment>
+                          ))}
+                      </div>
+                  </div>
+              );
+              techDiagramContent = ''; inTechDiagram = false;
+          }
+          continue;
+      }
+
+      if (cleanTagLine === '[TRAINING_CARD_END]') {
+          if (inTrainingCard) {
+              const cardData = parseTrainingCard(trainingCardContent, trainingCardAttrs);
+              elements.push(
+                  <div key={`training-card-${i}`} className="not-prose my-6 p-5 bg-white border border-greatek-border rounded-xl shadow-sm border-l-4 border-l-greatek-blue animate-fade-in hover:shadow-md transition-shadow">
+                      <div className="flex items-start gap-4">
+                          <div className="w-10 h-10 rounded-full bg-greatek-blue/10 flex items-center justify-center flex-shrink-0">
+                              <i className={`bi ${cardData.icon} text-xl text-greatek-blue`}></i>
+                          </div>
+                          <div className="flex-1">
+                              <h4 className="text-lg font-bold text-greatek-dark-blue mb-2">{cardData.title}</h4>
+                              <div className="text-text-secondary text-sm leading-relaxed">
+                                  {cardData.body.split('\n').map((l, idx) => (
+                                      <p key={idx} className="mb-2 last:mb-0">{parseInlineMarkdown(l)}</p>
+                                  ))}
+                              </div>
+                          </div>
+                      </div>
+                  </div>
+              );
+              trainingCardContent = ''; inTrainingCard = false;
           }
           continue;
       }
 
 
+      // --- Content Accumulation ---
       if (inSalesCard) { salesCardContent += line + '\n'; continue; }
       if (inDiagnosisCard) { diagnosisCardContent += line + '\n'; continue; }
       if (inPillarCard) { pillarCardContent += line + '\n'; continue; }
       if (inComponentCard) { componentCardContent += line + '\n'; continue; }
+      if (inSocialPost) { socialPostContent += line + '\n'; continue; }
+      if (inVisualBrief) { visualBriefContent += line + '\n'; continue; }
+      if (inSeoMetrics) { seoMetricsContent += line + '\n'; continue; }
+      if (inTechDiagram) { techDiagramContent += line + '\n'; continue; }
+      if (inTrainingCard) { trainingCardContent += line + '\n'; continue; }
       
+      // --- Standard Markdown Parsing ---
       const isTableSeparator = (l: string) => l.trim().startsWith('|') && l.includes('---') && l.trim().endsWith('|');
       const isTableRow = (l: string) => l.trim().startsWith('|') && l.trim().endsWith('|');
       
       if (!inCodeBlock && isTableRow(line) && i + 1 < lines.length && isTableSeparator(lines[i + 1])) {
-          flushList();
-          flushBlockquote();
+          flushAll();
 
           const headerLine = lines[i];
           const headers = headerLine.split('|').slice(1, -1).map(cell => cell.trim());
@@ -346,8 +529,7 @@ const MarkdownViewer: React.FC<MarkdownViewerProps> = ({ content, mode, isLastMe
       }
 
       if (line.startsWith('```')) {
-        flushList();
-        flushBlockquote();
+        flushAll();
         if (inCodeBlock) {
           elements.push(
             <pre key={`code-${i}`} className="bg-greatek-dark-blue text-white p-4 rounded-md my-4 text-sm font-mono whitespace-pre-wrap break-words">
@@ -366,20 +548,16 @@ const MarkdownViewer: React.FC<MarkdownViewerProps> = ({ content, mode, isLastMe
       }
       
       if (line.startsWith('# ')) {
-        flushList();
-        flushBlockquote();
+        flushAll();
         elements.push(<h1 key={i} className="text-3xl font-bold mt-6 mb-3 border-b border-greatek-border pb-2 text-greatek-dark-blue">{parseInlineMarkdown(line.substring(2))}</h1>);
       } else if (line.startsWith('## ')) {
-        flushList();
-        flushBlockquote();
+        flushAll();
         elements.push(<h2 key={i} className="text-2xl font-semibold mt-5 mb-2 text-greatek-dark-blue">{parseInlineMarkdown(line.substring(3))}</h2>);
       } else if (line.startsWith('### ')) {
-        flushList();
-        flushBlockquote();
+        flushAll();
         elements.push(<h3 key={i} className="text-xl font-semibold mt-4 mb-2 text-text-primary">{parseInlineMarkdown(line.substring(4))}</h3>);
        } else if (line.startsWith('#### ')) {
-        flushList();
-        flushBlockquote();
+        flushAll();
         elements.push(<h4 key={i} className="text-lg font-semibold mt-4 mb-2 text-text-primary">{parseInlineMarkdown(line.substring(5))}</h4>);
       } else if (line.startsWith('> ')) {
         flushList();
@@ -388,18 +566,15 @@ const MarkdownViewer: React.FC<MarkdownViewerProps> = ({ content, mode, isLastMe
         flushBlockquote();
         listItems.push(line.substring(2));
       } else if (line.trim() === '') {
-        flushList();
-        flushBlockquote();
+        flushAll();
         elements.push(<div key={i} className="h-4" />);
       } else if (line.trim() !== ''){
-        flushList();
-        flushBlockquote();
+        flushAll();
         elements.push(<p key={i} className="my-2 leading-relaxed text-text-secondary">{parseInlineMarkdown(line)}</p>);
       }
     }
     
-    flushList();
-    flushBlockquote();
+    flushAll();
     
     if (inCodeBlock && codeBlockContent) {
         elements.push(

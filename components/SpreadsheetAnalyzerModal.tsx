@@ -1,3 +1,4 @@
+
 import React, { useState, useRef } from 'react';
 import Modal from './ui/Modal';
 import { useAppStore } from '../store/useAppStore';
@@ -140,7 +141,7 @@ const SpreadsheetAnalyzerModal: React.FC = () => {
                 rows={8}
                 value={instructions}
                 onChange={(e) => setInstructions(e.target.value)}
-                className="w-full rounded-md focus:border-greatek-blue focus:ring-greatek-blue sm:text-sm p-2 text-text-primary placeholder:text-text-secondary/70 bg-greatek-border custom-scrollbar"
+                className="w-full rounded-md focus:border-greatek-blue focus:ring-greatek-blue sm:text-sm p-2 text-black placeholder:text-text-secondary/70 bg-[#e9e9e9] custom-scrollbar"
                 placeholder="Exemplo: Analisar a licitação da 'Prefeitura de São Paulo' para fornecimento de equipamentos de rede. Apresente os produtos Greatek correspondentes em uma tabela."
                 disabled={!file}
               />

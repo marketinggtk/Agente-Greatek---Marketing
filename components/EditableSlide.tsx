@@ -61,7 +61,7 @@ const EditableField: React.FC<{ value: string; onChange: (newValue: string) => v
                 onChange={(e) => setCurrentValue(e.target.value)}
                 onBlur={handleBlur}
                 onKeyDown={handleKeyDown}
-                className={`w-full bg-white border-2 border-greatek-blue rounded-md focus:outline-none resize-none overflow-hidden ${className}`}
+                className={`w-full bg-[#e9e9e9] text-black border-2 border-greatek-blue rounded-md focus:outline-none resize-none overflow-hidden ${className}`}
                 placeholder={placeholder}
             />
         }
@@ -72,7 +72,7 @@ const EditableField: React.FC<{ value: string; onChange: (newValue: string) => v
             onChange={(e) => setCurrentValue(e.target.value)}
             onBlur={handleBlur}
             onKeyDown={handleKeyDown}
-            className={`w-full bg-white border-2 border-greatek-blue rounded-md focus:outline-none ${className}`}
+            className={`w-full bg-[#e9e9e9] text-black border-2 border-greatek-blue rounded-md focus:outline-none ${className}`}
             placeholder={placeholder}
         />
     }

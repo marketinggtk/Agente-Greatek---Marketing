@@ -1,5 +1,4 @@
 
-
 import React, { useState, useRef, useEffect } from 'react';
 import { useAppStore } from '../store/useAppStore';
 import { AppMode } from '../types';
@@ -133,7 +132,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
                     onKeyDown={handleTitleKeyDown}
                     onBlur={handleTitleSave}
                     onClick={(e) => e.stopPropagation()}
-                    className="w-full bg-white border border-greatek-blue rounded text-sm p-0.5 -m-0.5 focus:outline-none text-text-primary"
+                    className="w-full bg-[#e9e9e9] border border-greatek-blue rounded text-sm p-0.5 -m-0.5 focus:outline-none text-black"
                   />
                 ) : (
                    <span className="truncate flex-1">{conv.title}</span>
@@ -167,18 +166,32 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
       <div className="mt-auto pt-4 border-t border-greatek-border">
           <h2 className="text-xs font-bold text-text-secondary/60 uppercase tracking-wider mb-2">Ferramentas</h2>
           <button
+            onClick={() => handleOpenTool(AppMode.CONTENT_PLANNER)}
+            className="flex items-center w-full text-left px-3 py-2 text-sm font-medium rounded-md text-text-secondary hover:bg-greatek-bg-light transition-colors"
+          >
+            <i className="bi bi-calendar-week-fill w-5 h-5 mr-3 flex-shrink-0"></i>
+            <span className="truncate flex-1">Planejador de Conteúdo</span>
+          </button>
+          <button
+            onClick={() => handleOpenTool(AppMode.CONTENT)}
+            className="flex items-center w-full text-left px-3 py-2 text-sm font-medium rounded-md text-text-secondary hover:bg-greatek-bg-light transition-colors"
+          >
+            <i className="bi bi-pencil-square w-5 h-5 mr-3 flex-shrink-0"></i>
+            <span className="truncate flex-1">Gerador de Conteúdo</span>
+          </button>
+          <button
+            onClick={() => handleOpenTool(AppMode.PORTFOLIO_SEARCH)}
+            className="flex items-center w-full text-left px-3 py-2 text-sm font-medium rounded-md text-text-secondary hover:bg-greatek-bg-light transition-colors"
+          >
+            <i className="bi bi-lightbulb-fill w-5 h-5 mr-3 flex-shrink-0"></i>
+            <span className="truncate flex-1">Pesquisa de Portfólio</span>
+          </button>
+          <button
             onClick={() => handleOpenTool(AppMode.GOAL_CALCULATOR)}
             className="flex items-center w-full text-left px-3 py-2 text-sm font-medium rounded-md text-text-secondary hover:bg-greatek-bg-light transition-colors"
           >
             <i className="bi bi-calculator-fill w-5 h-5 mr-3 flex-shrink-0"></i>
             <span className="truncate flex-1">Calculadora de Metas</span>
-          </button>
-          <button
-            onClick={() => handleOpenTool(AppMode.PGR_CALCULATOR)}
-            className="flex items-center w-full text-left px-3 py-2 text-sm font-medium rounded-md text-text-secondary hover:bg-greatek-bg-light transition-colors"
-          >
-            <i className="bi bi-award-fill w-5 h-5 mr-3 flex-shrink-0"></i>
-            <span className="truncate flex-1">Calculadora de PGR</span>
           </button>
           <button
             onClick={() => handleOpenTool(AppMode.PRESENTATION_BUILDER)}

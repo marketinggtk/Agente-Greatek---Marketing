@@ -3,9 +3,9 @@ import React, { useMemo, useState } from 'react';
 import { useAppStore } from '../store/useAppStore';
 import DynamicLoader from './DynamicLoader';
 import MarkdownViewer from './MarkdownViewer';
-import { AppMode } from '../types';
+import { AppMode, GoalCalculatorState } from '../types';
 
-const NUMBER_OF_SELLERS = 7;
+const TEAM_SELLERS_COUNT = 4; // Constante para a aba de equipe
 
 const parseNumericInput = (value: string): number => {
     if (!value) return 0;
@@ -40,7 +40,7 @@ const InputField: React.FC<{
         id={id}
         value={value}
         onChange={onChange}
-        className={`w-full p-2.5 rounded-lg border-greatek-border focus:border-greatek-blue focus:ring-greatek-blue sm:text-sm bg-greatek-bg-light/80 text-greatek-dark-blue font-semibold ${prefix ? 'pl-8' : ''}`}
+        className={`w-full p-2.5 rounded-lg border-greatek-border focus:border-greatek-blue focus:ring-greatek-blue sm:text-sm bg-[#e9e9e9] text-black font-semibold ${prefix ? 'pl-8' : ''}`}
         placeholder={placeholder}
       />
     </div>
@@ -135,7 +135,7 @@ const ComparisonRow: React.FC<{
 };
 
 // Helper to calculate metrics for a given period
-const calculateMetrics = (state: any) => {
+const calculateMetrics = (state: GoalCalculatorState | undefined) => {
     const goal = parseNumericInput(state?.salesGoal || '');
     const sold = parseNumericInput(state?.salesSoFar || '');
     const total = parseNumericInput(state?.totalProposals || '');
@@ -147,12 +147,52 @@ const calculateMetrics = (state: any) => {
     return { goal, sold, conversionRate, avgTicket };
 };
 
+// Reusable hook-like function for calculations
+const useGoalCalculations = (state: GoalCalculatorState | undefined, sellersCount: number) => {
+    const { goal, sold, conversionRate, avgTicket } = calculateMetrics(state);
+
+    const remaining = goal - sold;
+    const deals = remaining > 0 && avgTicket > 0 ? Math.ceil(remaining / avgTicket) : 0;
+    
+    const totalProposals = parseNumericInput(state?.totalProposals || '');
+    const avgProposalValue = totalProposals > 0 ? (sold / totalProposals) : 0;
+    const needed = remaining > 0 && avgProposalValue > 0 ? Math.ceil(remaining / avgProposalValue) : 0;
+
+    let overGoal = 0;
+    const surplus = sold > goal ? sold - goal : 0;
+    if (surplus > 0 && goal > 0) {
+        overGoal = (surplus / goal) * 100;
+    }
+
+    const progress = goal > 0 ? (sold / goal) * 100 : 0;
+    
+    const workingDays = parseNumericInput(state?.workingDays || '');
+    
+    const proposalsPerSellerPerDay = needed > 0 && workingDays > 0 && sellersCount > 0
+        ? (needed / sellersCount / workingDays)
+        : 0;
+
+    return {
+        goal,
+        conversionRate,
+        remainingGoal: remaining,
+        avgTicket,
+        dealsToWin: deals,
+        proposalsNeeded: needed,
+        percentageOverGoal: overGoal,
+        goalProgress: progress,
+        proposalsPerSellerPerDay: proposalsPerSellerPerDay,
+        surplusAmount: surplus,
+    };
+};
+
 const GoalCalculator: React.FC = () => {
-    const [activeTab, setActiveTab] = useState<'monthly' | 'comparison'>('monthly');
+    const [activeTab, setActiveTab] = useState<'monthly' | 'individual' | 'comparison'>('monthly');
     const { 
         conversations, 
         activeConversationId, 
-        updateGoalCalculatorState, 
+        updateGoalCalculatorState,
+        updateIndividualGoalCalculatorState, 
         resetGoalCalculator,
         updateGoalComparisonState,
         runGoalComparisonAnalysis,
@@ -164,7 +204,9 @@ const GoalCalculator: React.FC = () => {
         conversations.find(c => c.id === activeConversationId),
         [conversations, activeConversationId]
     );
+    
     const calculatorState = activeConversation?.goalCalculatorState;
+    const individualState = activeConversation?.individualGoalCalculatorState;
     const comparisonState = activeConversation?.goalComparisonState;
     const analysisResult = activeConversation?.comparisonAnalysis;
 
@@ -173,71 +215,19 @@ const GoalCalculator: React.FC = () => {
         return num.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
     };
 
-    // --- Single Month Calculation ---
-    const {
-        remainingGoal,
-        avgTicket,
-        dealsToWin,
-        proposalsNeeded,
-        percentageOverGoal,
-        goalProgress,
-        workingDaysLeft,
-        currentMonthName,
-        proposalsPerSellerPerDay,
-        surplusAmount,
-        conversionRate,
-    } = useMemo(() => {
-        const { goal, sold, conversionRate, avgTicket } = calculateMetrics(calculatorState);
+    // Calculations for Team (Monthly) Tab
+    const teamMetrics = useMemo(() => 
+        // eslint-disable-next-line react-hooks/rules-of-hooks
+        useGoalCalculations(calculatorState, TEAM_SELLERS_COUNT), 
+    [calculatorState]);
 
-        const remaining = goal - sold;
-        const deals = remaining > 0 && avgTicket > 0 ? Math.ceil(remaining / avgTicket) : 0;
-        
-        const totalProposals = parseNumericInput(calculatorState?.totalProposals || '');
-        const avgProposalValue = totalProposals > 0 ? (sold / totalProposals) : 0;
-        const needed = remaining > 0 && avgProposalValue > 0 ? Math.ceil(remaining / avgProposalValue) : 0;
+    // Calculations for Individual Tab
+    const individualMetrics = useMemo(() => 
+        // eslint-disable-next-line react-hooks/rules-of-hooks
+        useGoalCalculations(individualState, 1), 
+    [individualState]);
 
-        let overGoal = 0;
-        const surplus = sold > goal ? sold - goal : 0;
-        if (surplus > 0 && goal > 0) {
-            overGoal = (surplus / goal) * 100;
-        }
-
-        const progress = goal > 0 ? (sold / goal) * 100 : 0;
-        
-        const today = new Date();
-        const year = today.getFullYear();
-        const month = today.getMonth();
-        const daysInMonth = new Date(year, month + 1, 0).getDate();
-        let remainingWorkDays = 0;
-        for (let day = today.getDate(); day <= daysInMonth; day++) {
-            const currentDate = new Date(year, month, day);
-            const dayOfWeek = currentDate.getDay();
-            if (dayOfWeek !== 0 && dayOfWeek !== 6) { remainingWorkDays++; }
-        }
-        const monthName = new Date().toLocaleString('pt-BR', { month: 'long' });
-        
-        const proposalsPerSellerPerDay = needed > 0 && remainingWorkDays > 0 && NUMBER_OF_SELLERS > 0
-            ? (needed / NUMBER_OF_SELLERS / remainingWorkDays)
-            : 0;
-
-        return {
-            conversionRate,
-            remainingGoal: remaining,
-            avgTicket,
-            dealsToWin: deals,
-            proposalsNeeded: needed,
-            percentageOverGoal: overGoal,
-            goalProgress: progress,
-            workingDaysLeft: remainingWorkDays,
-            currentMonthName: monthName.charAt(0).toUpperCase() + monthName.slice(1),
-            proposalsPerSellerPerDay: proposalsPerSellerPerDay,
-            surplusAmount: surplus,
-        };
-    }, [calculatorState]);
-
-    const goalMet = remainingGoal <= 0 && parseNumericInput(calculatorState?.salesGoal || '') > 0;
-
-    // --- Comparison Calculation ---
+    // Comparison Logic
     const comparisonResults = useMemo(() => {
         const prev = calculateMetrics(comparisonState?.previousMonth);
         const curr = calculateMetrics(comparisonState?.currentMonth);
@@ -275,68 +265,84 @@ const GoalCalculator: React.FC = () => {
         runGoalComparisonAnalysis(data);
     };
 
-    const isComparisonReady = comparisonResults.prev.sold > 0 && comparisonResults.curr.sold > 0;
+    const renderGoalView = (
+        state: GoalCalculatorState | undefined, 
+        updateFn: (s: Partial<GoalCalculatorState>) => void,
+        metrics: ReturnType<typeof useGoalCalculations>,
+        isTeam: boolean
+    ) => {
+        const goalMet = metrics.remainingGoal <= 0 && metrics.goal > 0;
 
-    const renderMonthlyGoalTab = () => (
-        <>
-            <div className="p-4 border border-greatek-border rounded-lg bg-greatek-bg-light/30">
-                <h2 className="text-base font-semibold text-greatek-dark-blue mb-3">Suas Métricas Atuais</h2>
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                    <InputField id="salesGoal" label="Meta de Vendas" value={calculatorState?.salesGoal || ''} onChange={(e) => updateGoalCalculatorState({ salesGoal: e.target.value })} prefix="R$" placeholder="750.000,00" />
-                    <InputField id="salesSoFar" label="Vendas Realizadas" value={calculatorState?.salesSoFar || ''} onChange={(e) => updateGoalCalculatorState({ salesSoFar: e.target.value })} prefix="R$" placeholder="450.000,00" />
-                    <InputField id="totalProposals" label="Propostas Enviadas" value={calculatorState?.totalProposals || ''} onChange={(e) => updateGoalCalculatorState({ totalProposals: e.target.value })} placeholder="172" />
-                    <InputField id="wonProposals" label="Propostas Ganhas" value={calculatorState?.wonProposals || ''} onChange={(e) => updateGoalCalculatorState({ wonProposals: e.target.value })} placeholder="28" />
+        return (
+            <>
+                <div className="p-4 border border-greatek-border rounded-lg bg-greatek-bg-light/30">
+                    <h2 className="text-base font-semibold text-greatek-dark-blue mb-3">
+                        {isTeam ? "Métricas da Equipe" : "Suas Métricas Individuais"}
+                    </h2>
+                    <div className="grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-5 gap-4">
+                        <InputField id="salesGoal" label="Meta de Vendas" value={state?.salesGoal || ''} onChange={(e) => updateFn({ salesGoal: e.target.value })} prefix="R$" placeholder="50.000,00" />
+                        <InputField id="salesSoFar" label="Vendas Realizadas" value={state?.salesSoFar || ''} onChange={(e) => updateFn({ salesSoFar: e.target.value })} prefix="R$" placeholder="25.000,00" />
+                        <InputField id="totalProposals" label="Propostas Enviadas" value={state?.totalProposals || ''} onChange={(e) => updateFn({ totalProposals: e.target.value })} placeholder="40" />
+                        <InputField id="wonProposals" label="Propostas Ganhas" value={state?.wonProposals || ''} onChange={(e) => updateFn({ wonProposals: e.target.value })} placeholder="8" />
+                        <InputField id="workingDays" label="Dias Úteis no Mês" value={state?.workingDays || ''} onChange={(e) => updateFn({ workingDays: e.target.value })} placeholder="22" />
+                    </div>
                 </div>
-            </div>
-             <div className="mt-6 flex-grow">
-                <h2 className="text-lg font-semibold text-greatek-dark-blue border-b border-greatek-border pb-2 mb-4">Seu Caminho para a Meta</h2>
-                {goalMet ? (
-                     <div className="mt-4 animate-fade-in space-y-4">
-                        <div className="p-6 text-center bg-green-50 border-l-4 border-green-500 rounded-lg">
-                            <i className="bi bi-award-fill text-5xl text-green-500"></i>
-                            <h3 className="mt-4 text-lg sm:text-xl font-bold text-green-800">Parabéns, meta batida!</h3>
-                            <p className="text-green-700 mt-1">Você superou seu objetivo. Continue com o ótimo trabalho!</p>
-                        </div>
-                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                            <ResultCard title="Meta Superada" value={formatCurrency(surplusAmount)} description={`Isso representa ${percentageOverGoal.toLocaleString('pt-BR', { minimumFractionDigits: 1, maximumFractionDigits: 1 })}% acima do objetivo.`} iconClass="bi-trophy-fill" />
-                            <ResultCard title="Taxa de Conversão" value={`${(conversionRate * 100).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}%`} iconClass="bi-graph-up-arrow" />
-                            <ResultCard title="Ticket Médio" value={formatCurrency(avgTicket)} iconClass="bi-tags-fill" />
-                        </div>
-                    </div>
-                ) : (
-                    <div className="mt-4 space-y-4 lg:space-y-6">
-                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-6">
-                            <div className="p-4 rounded-lg shadow-sm bg-greatek-blue/10 border-2 border-greatek-blue flex flex-col sm:flex-row items-center gap-4 text-center sm:text-left">
-                                <div className="flex-shrink-0"><ProgressRing progress={goalProgress} /></div>
-                                <div className="flex-grow">
-                                    <p className="text-sm font-semibold text-greatek-dark-blue uppercase tracking-wider flex items-center justify-center sm:justify-start gap-1.5">Plano de Ação Diário<i className="bi bi-info-circle text-gray-400 cursor-help" title="Calculado com base no valor restante da meta e no valor médio efetivo de cada proposta."></i></p>
-                                    <p className="text-text-secondary mt-1">Faltam <strong className="text-greatek-dark-blue">{workingDaysLeft} dias úteis</strong> em {currentMonthName}. Cada vendedor precisa enviar ~<strong className="text-greatek-dark-blue text-2xl">{proposalsPerSellerPerDay.toLocaleString('pt-BR', { maximumFractionDigits: 1 })}</strong> propostas por dia.</p>
-                                </div>
+                 <div className="mt-6 flex-grow">
+                    <h2 className="text-lg font-semibold text-greatek-dark-blue border-b border-greatek-border pb-2 mb-4">Caminho para a Meta</h2>
+                    {goalMet ? (
+                         <div className="mt-4 animate-fade-in space-y-4">
+                            <div className="p-6 text-center bg-green-50 border-l-4 border-green-500 rounded-lg">
+                                <i className="bi bi-award-fill text-5xl text-green-500"></i>
+                                <h3 className="mt-4 text-lg sm:text-xl font-bold text-green-800">Parabéns, meta batida!</h3>
+                                <p className="text-green-700 mt-1">Você superou o objetivo. Continue com o ótimo trabalho!</p>
                             </div>
-                            <div className="p-4 rounded-lg shadow-sm bg-yellow-50 border-2 border-yellow-500 flex flex-col sm:flex-row items-center gap-4 text-center sm:text-left">
-                                <div className="flex-shrink-0 text-yellow-600"><i className="bi bi-file-earmark-text-fill text-5xl"></i></div>
-                                <div className="flex-grow">
-                                    <p className="text-sm font-semibold text-yellow-800 uppercase tracking-wider">Total de Propostas Faltantes</p>
-                                    <p className="font-bold text-yellow-900 text-4xl mt-1">{proposalsNeeded.toLocaleString('pt-BR')}</p>
-                                    <p className="text-xs text-yellow-800/80">para atingir a meta de negócios</p>
-                                </div>
-                            </div>
-                        </div>
-                        <div className="space-y-4">
-                            <div className="p-6 rounded-lg shadow-lg bg-greatek-dark-blue text-white flex flex-col items-center justify-center text-center"><i className="bi bi-trophy-fill text-4xl text-yellow-300"></i><p className="mt-2 text-sm font-semibold uppercase tracking-wider text-white/80">Negócios a Ganhar</p><p className="font-bold text-white text-5xl">{dealsToWin.toLocaleString('pt-BR')}</p></div>
                             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                                <ResultCard title="Falta para a Meta" value={formatCurrency(remainingGoal)} iconClass="bi-bullseye" />
-                                <ResultCard title="Taxa de Conversão" value={`${(conversionRate * 100).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}%`} iconClass="bi-graph-up-arrow" />
-                                <ResultCard title="Ticket Médio" value={formatCurrency(avgTicket)} iconClass="bi-tags-fill" />
+                                <ResultCard title="Meta Superada" value={formatCurrency(metrics.surplusAmount)} description={`Isso representa ${metrics.percentageOverGoal.toLocaleString('pt-BR', { minimumFractionDigits: 1, maximumFractionDigits: 1 })}% acima do objetivo.`} iconClass="bi-trophy-fill" />
+                                <ResultCard title="Taxa de Conversão" value={`${(metrics.conversionRate * 100).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}%`} iconClass="bi-graph-up-arrow" />
+                                <ResultCard title="Ticket Médio" value={formatCurrency(metrics.avgTicket)} iconClass="bi-tags-fill" />
                             </div>
                         </div>
-                    </div>
-                )}
-            </div>
-        </>
-    );
+                    ) : (
+                        <div className="mt-4 space-y-4 lg:space-y-6">
+                            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-6">
+                                <div className="p-4 rounded-lg shadow-sm bg-greatek-blue/10 border-2 border-greatek-blue flex flex-col sm:flex-row items-center gap-4 text-center sm:text-left">
+                                    <div className="flex-shrink-0"><ProgressRing progress={metrics.goalProgress} /></div>
+                                    <div className="flex-grow">
+                                        <p className="text-sm font-semibold text-greatek-dark-blue uppercase tracking-wider flex items-center justify-center sm:justify-start gap-1.5">Plano de Ação Diário<i className="bi bi-info-circle text-gray-400 cursor-help" title="Calculado com base no valor restante da meta, no valor médio efetivo de cada proposta e nos dias úteis informados."></i></p>
+                                        <p className="text-text-secondary mt-1">
+                                            {isTeam ? "Cada vendedor precisa enviar ~" : "Você precisa enviar ~"}
+                                            <strong className="text-greatek-dark-blue text-2xl mx-1">{metrics.proposalsPerSellerPerDay.toLocaleString('pt-BR', { maximumFractionDigits: 1 })}</strong> 
+                                            propostas por dia.
+                                        </p>
+                                    </div>
+                                </div>
+                                <div className="p-4 rounded-lg shadow-sm bg-yellow-50 border-2 border-yellow-500 flex flex-col sm:flex-row items-center gap-4 text-center sm:text-left">
+                                    <div className="flex-shrink-0 text-yellow-600"><i className="bi bi-file-earmark-text-fill text-5xl"></i></div>
+                                    <div className="flex-grow">
+                                        <p className="text-sm font-semibold text-yellow-800 uppercase tracking-wider">Total de Propostas Faltantes</p>
+                                        <p className="font-bold text-yellow-900 text-4xl mt-1">{metrics.proposalsNeeded.toLocaleString('pt-BR')}</p>
+                                        <p className="text-xs text-yellow-800/80">para atingir a meta de negócios</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div className="space-y-4">
+                                <div className="p-6 rounded-lg shadow-lg bg-greatek-dark-blue text-white flex flex-col items-center justify-center text-center"><i className="bi bi-trophy-fill text-4xl text-yellow-300"></i><p className="mt-2 text-sm font-semibold uppercase tracking-wider text-white/80">Negócios a Ganhar</p><p className="font-bold text-white text-5xl">{metrics.dealsToWin.toLocaleString('pt-BR')}</p></div>
+                                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                                    <ResultCard title="Falta para a Meta" value={formatCurrency(metrics.remainingGoal)} iconClass="bi-bullseye" />
+                                    <ResultCard title="Taxa de Conversão" value={`${(metrics.conversionRate * 100).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}%`} iconClass="bi-graph-up-arrow" />
+                                    <ResultCard title="Ticket Médio" value={formatCurrency(metrics.avgTicket)} iconClass="bi-tags-fill" />
+                                </div>
+                            </div>
+                        </div>
+                    )}
+                </div>
+            </>
+        );
+    }
 
-    const renderComparisonTab = () => (
+    const renderComparisonTab = () => {
+        const isComparisonReady = comparisonResults.prev.sold > 0 && comparisonResults.curr.sold > 0;
+        return (
          <div className="space-y-6">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 <div className="p-4 border border-greatek-border rounded-lg bg-greatek-bg-light/30">
@@ -346,6 +352,7 @@ const GoalCalculator: React.FC = () => {
                         <InputField id="prev_salesSoFar" label="Vendas Realizadas" value={comparisonState?.previousMonth.salesSoFar || ''} onChange={(e) => updateGoalComparisonState({ period: 'previousMonth', newState: { salesSoFar: e.target.value }})} prefix="R$" />
                         <InputField id="prev_totalProposals" label="Propostas Enviadas" value={comparisonState?.previousMonth.totalProposals || ''} onChange={(e) => updateGoalComparisonState({ period: 'previousMonth', newState: { totalProposals: e.target.value }})} />
                         <InputField id="prev_wonProposals" label="Propostas Ganhas" value={comparisonState?.previousMonth.wonProposals || ''} onChange={(e) => updateGoalComparisonState({ period: 'previousMonth', newState: { wonProposals: e.target.value }})} />
+                        <InputField id="prev_workingDays" label="Dias Úteis" value={comparisonState?.previousMonth.workingDays || ''} onChange={(e) => updateGoalComparisonState({ period: 'previousMonth', newState: { workingDays: e.target.value }})} />
                     </div>
                 </div>
                 <div className="p-4 border border-greatek-border rounded-lg bg-greatek-bg-light/30">
@@ -355,6 +362,7 @@ const GoalCalculator: React.FC = () => {
                         <InputField id="curr_salesSoFar" label="Vendas Realizadas" value={comparisonState?.currentMonth.salesSoFar || ''} onChange={(e) => updateGoalComparisonState({ period: 'currentMonth', newState: { salesSoFar: e.target.value }})} prefix="R$" />
                         <InputField id="curr_totalProposals" label="Propostas Enviadas" value={comparisonState?.currentMonth.totalProposals || ''} onChange={(e) => updateGoalComparisonState({ period: 'currentMonth', newState: { totalProposals: e.target.value }})} />
                         <InputField id="curr_wonProposals" label="Propostas Ganhas" value={comparisonState?.currentMonth.wonProposals || ''} onChange={(e) => updateGoalComparisonState({ period: 'currentMonth', newState: { wonProposals: e.target.value }})} />
+                        <InputField id="curr_workingDays" label="Dias Úteis" value={comparisonState?.currentMonth.workingDays || ''} onChange={(e) => updateGoalComparisonState({ period: 'currentMonth', newState: { workingDays: e.target.value }})} />
                     </div>
                 </div>
             </div>
@@ -399,7 +407,7 @@ const GoalCalculator: React.FC = () => {
                 </div>
             )}
         </div>
-    );
+    )};
 
     return (
         <div className="h-full flex flex-col p-4 sm:p-6 overflow-y-auto custom-scrollbar bg-white animate-fade-in">
@@ -411,12 +419,15 @@ const GoalCalculator: React.FC = () => {
                 <button onClick={resetGoalCalculator} className="mt-2 sm:mt-0 flex items-center space-x-1.5 text-xs bg-white hover:bg-greatek-bg-light text-text-secondary font-medium py-1.5 px-3 rounded-md transition-colors border border-gray-300"><i className="bi bi-arrow-counterclockwise"></i><span className='ml-1.5'>Limpar</span></button>
             </div>
             
-            <div className="mb-6 border-b border-greatek-border flex space-x-4">
-                <button onClick={() => setActiveTab('monthly')} className={`py-2 px-1 text-sm font-semibold transition-colors ${activeTab === 'monthly' ? 'text-greatek-blue border-b-2 border-greatek-blue' : 'text-text-secondary hover:text-text-primary'}`}>Meta do Mês</button>
-                <button onClick={() => setActiveTab('comparison')} className={`py-2 px-1 text-sm font-semibold transition-colors ${activeTab === 'comparison' ? 'text-greatek-blue border-b-2 border-greatek-blue' : 'text-text-secondary hover:text-text-primary'}`}>Comparar Meses</button>
+            <div className="mb-6 border-b border-greatek-border flex space-x-4 overflow-x-auto">
+                <button onClick={() => setActiveTab('monthly')} className={`py-2 px-1 text-sm font-semibold transition-colors whitespace-nowrap ${activeTab === 'monthly' ? 'text-greatek-blue border-b-2 border-greatek-blue' : 'text-text-secondary hover:text-text-primary'}`}>Meta da Equipe</button>
+                <button onClick={() => setActiveTab('individual')} className={`py-2 px-1 text-sm font-semibold transition-colors whitespace-nowrap ${activeTab === 'individual' ? 'text-greatek-blue border-b-2 border-greatek-blue' : 'text-text-secondary hover:text-text-primary'}`}>Meta Individual</button>
+                <button onClick={() => setActiveTab('comparison')} className={`py-2 px-1 text-sm font-semibold transition-colors whitespace-nowrap ${activeTab === 'comparison' ? 'text-greatek-blue border-b-2 border-greatek-blue' : 'text-text-secondary hover:text-text-primary'}`}>Comparar Meses</button>
             </div>
             
-            {activeTab === 'monthly' ? renderMonthlyGoalTab() : renderComparisonTab()}
+            {activeTab === 'monthly' && renderGoalView(calculatorState, updateGoalCalculatorState, teamMetrics, true)}
+            {activeTab === 'individual' && renderGoalView(individualState, updateIndividualGoalCalculatorState, individualMetrics, false)}
+            {activeTab === 'comparison' && renderComparisonTab()}
     
             <div className="mt-auto pt-4 text-xs text-text-secondary/80 text-center">
                 <p>* O número de propostas é arredondado para cima para garantir que a meta seja atingida.</p>

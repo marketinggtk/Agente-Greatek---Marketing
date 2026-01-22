@@ -1,67 +1,77 @@
 
-
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useAppStore } from '../store/useAppStore';
 import { AppMode } from '../types';
 
 const GENERAL_MESSAGES = [
-    "Analisando sua solicitação...",
-    "Consultando a base de conhecimento...",
-    "Processando as informações...",
+    "Consultando base de conhecimento...",
     "Estruturando a resposta...",
-    "Quase pronto...",
+    "Refinando o conteúdo...",
+    "Finalizando..."
 ];
 
 const SEARCH_MESSAGES = [
-    "Analisando seu pedido de busca...",
-    "Pesquisando informações na web...",
-    "Compilando os dados mais recentes...",
-    "Gerando o relatório de inteligência...",
+    "Analisando concorrentes na web...",
+    "Comparando especificações técnicas...",
+    "Identificando diferenciais competitivos...",
+    "Compilando relatório de mercado..."
 ];
 
 const JSON_MESSAGES = [
-    "Interpretando os requisitos...",
-    "Construindo a estrutura de dados...",
-    "Validando o formato do relatório...",
-    "Gerando o pacote de otimização...",
+    "Analisando estrutura da página...",
+    "Verificando tags SEO...",
+    "Gerando sugestões de otimização...",
+    "Formatando pacote JSON..."
+];
+
+const IMAGEN_MESSAGES = [
+    "Interpretando prompt visual...",
+    "Configurando parâmetros de difusão...",
+    "Gerando imagem de alta resolução...",
+    "Aplicando filtros finais..."
 ];
 
 const DynamicLoader: React.FC = () => {
-    const { conversations, activeConversationId } = useAppStore();
+    const { activeConversationId, conversations } = useAppStore();
     const [message, setMessage] = useState(GENERAL_MESSAGES[0]);
     
-    const activeConversation = conversations.find(c => c.id === activeConversationId);
+    const activeConversation = useMemo(() => 
+        conversations.find(c => c.id === activeConversationId), 
+    [conversations, activeConversationId]);
+
     const currentMode = activeConversation?.mode;
 
     useEffect(() => {
         let messagesToShow = GENERAL_MESSAGES;
-        if (currentMode === AppMode.MARKET_INTEL) {
+        if (currentMode === AppMode.MARKET_INTEL || currentMode === AppMode.LEAD_HUNTER || currentMode === AppMode.CUSTOMER_DOSSIER) {
             messagesToShow = SEARCH_MESSAGES;
-        } else if (currentMode && [AppMode.PAGE, AppMode.INSTRUCTOR].includes(currentMode)) {
+        } else if (currentMode === AppMode.PAGE) {
             messagesToShow = JSON_MESSAGES;
+        } else if (currentMode === AppMode.IMAGE_ADS) {
+            messagesToShow = IMAGEN_MESSAGES;
         }
 
         setMessage(messagesToShow[0]);
-        let messageIndex = 0;
-        
-        const intervalId = setInterval(() => {
-            messageIndex = (messageIndex + 1) % messagesToShow.length;
-            setMessage(messagesToShow[messageIndex]);
-        }, 2500); // Change message every 2.5 seconds
 
-        return () => clearInterval(intervalId);
+        const interval = setInterval(() => {
+            setMessage(prev => {
+                const currentIndex = messagesToShow.indexOf(prev);
+                const nextIndex = (currentIndex + 1) % messagesToShow.length;
+                return messagesToShow[nextIndex];
+            });
+        }, 2000);
+
+        return () => clearInterval(interval);
     }, [currentMode]);
 
     return (
-        <div className="flex flex-col items-start p-3 bg-white border border-greatek-border rounded-xl rounded-bl-none shadow-sm">
-            <div className="flex items-center space-x-1.5">
-                <div className="w-2.5 h-2.5 bg-gray-400 rounded-full animate-bounce [animation-delay:-0.3s]"></div>
-                <div className="w-2.5 h-2.5 bg-gray-400 rounded-full animate-bounce [animation-delay:-0.15s]"></div>
-                <div className="w-2.5 h-2.5 bg-gray-400 rounded-full animate-bounce"></div>
+        <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg border border-gray-100 w-fit animate-fade-in">
+            <div className="flex space-x-1">
+                <div className="w-2 h-2 bg-greatek-blue rounded-full animate-bounce [animation-delay:-0.3s]"></div>
+                <div className="w-2 h-2 bg-greatek-blue rounded-full animate-bounce [animation-delay:-0.15s]"></div>
+                <div className="w-2 h-2 bg-greatek-blue rounded-full animate-bounce"></div>
             </div>
-            <p className="mt-2 text-sm font-medium text-text-secondary transition-opacity duration-500">
-                {message}
-            </p>
+            <span className="text-sm font-medium text-text-secondary">{message}</span>
         </div>
     );
 };

@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useMemo } from 'react';
 import { AppMode } from './types';
 import Header from './components/Header';
@@ -13,8 +14,10 @@ import FeedbackInputModal from './components/FeedbackInputModal';
 import { AGENTS } from './constants';
 import GoalCalculator from './components/GoalCalculator';
 import PresentationBuilder from './components/PresentationBuilder';
-import PgrTool from './components/PgrTool';
 import TrainingCoach from './components/TrainingCoach';
+import PortfolioSearch from './components/PortfolioSearch';
+import ContentPlanner from './components/ContentPlanner';
+import { ChatWidgetSimulator } from './components/ChatWidgetSimulator';
 
 const App: React.FC = () => {
   const {
@@ -23,6 +26,8 @@ const App: React.FC = () => {
     toastInfo,
     hideToast,
     feedbackModalState,
+    isWidgetSimulatorOpen,
+    setWidgetSimulatorOpen
   } = useAppStore();
   const conversations = useAppStore((state) => state.conversations);
 
@@ -64,7 +69,12 @@ const App: React.FC = () => {
     }
 
     const currentMode = activeConversation?.mode;
-    const isToolMode = [AppMode.GOAL_CALCULATOR, AppMode.PRESENTATION_BUILDER, AppMode.PGR_CALCULATOR].includes(currentMode as AppMode);
+    const isToolMode = [
+        AppMode.GOAL_CALCULATOR, 
+        AppMode.PRESENTATION_BUILDER, 
+        AppMode.PORTFOLIO_SEARCH,
+        AppMode.CONTENT_PLANNER,
+    ].includes(currentMode as AppMode);
 
     const renderTool = () => {
         switch(currentMode) {
@@ -72,8 +82,10 @@ const App: React.FC = () => {
                 return <GoalCalculator />;
             case AppMode.PRESENTATION_BUILDER:
                 return <PresentationBuilder />;
-            case AppMode.PGR_CALCULATOR:
-                return <PgrTool />;
+            case AppMode.PORTFOLIO_SEARCH:
+                return <PortfolioSearch />;
+            case AppMode.CONTENT_PLANNER:
+                return <ContentPlanner />;
             default:
                 return null;
         }
@@ -113,6 +125,10 @@ const App: React.FC = () => {
       {feedbackModalState.isOpen && <FeedbackInputModal />}
       {isAdminPanelOpen && <AdminPanel onClose={() => setIsAdminPanelOpen(false)} />}
       
+      {isWidgetSimulatorOpen && (
+        <ChatWidgetSimulator onClose={() => setWidgetSimulatorOpen(false)} />
+      )}
+
       {renderContent()}
     </>
   );

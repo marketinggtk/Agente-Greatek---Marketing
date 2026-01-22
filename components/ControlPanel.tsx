@@ -1,14 +1,18 @@
+
+
 import React, { useState } from 'react';
 import Modal from './ui/Modal';
-import SalesCoach from './SalesCoach';
+import { SalesCoach } from './SalesCoach';
 import TrainingCoach from './TrainingCoach';
+import LeadHunter from './LeadHunter';
 import { useAppStore } from '../store/useAppStore';
 import { AppMode } from '../types';
 
 const ControlPanel: React.FC<{ onClose: () => void; }> = ({ onClose }) => {
-    const { createNewConversation } = useAppStore();
+    const { createNewConversation, setWidgetSimulatorOpen } = useAppStore();
     const [isSalesCoachOpen, setIsSalesCoachOpen] = useState(false);
     const [isTrainingCoachOpen, setIsTrainingCoachOpen] = useState(false);
+    const [isLeadHunterOpen, setIsLeadHunterOpen] = useState(false);
 
     const handleOpenDossierGenerator = () => {
         createNewConversation(AppMode.CUSTOMER_DOSSIER);
@@ -27,6 +31,21 @@ const ControlPanel: React.FC<{ onClose: () => void; }> = ({ onClose }) => {
                     </div>
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <button
+                            onClick={() => setIsLeadHunterOpen(true)}
+                            className="group p-4 border border-greatek-border rounded-lg text-left hover:bg-greatek-bg-light hover:border-greatek-blue transition-all bg-greatek-blue/5"
+                        >
+                            <div className="flex items-center">
+                                <div className="w-10 h-10 rounded-lg bg-greatek-blue text-white flex items-center justify-center shadow-md">
+                                    <i className="bi bi-crosshair text-xl"></i>
+                                </div>
+                                <h5 className="ml-3 font-bold text-greatek-dark-blue">Caçador de Leads</h5>
+                            </div>
+                            <p className="text-xs text-text-secondary mt-2">
+                                Encontre e qualifique novos clientes (ISPs, Integradores) usando inteligência de busca na web.
+                            </p>
+                        </button>
+
                         <button
                             onClick={() => setIsSalesCoachOpen(true)}
                             className="group p-4 border border-greatek-border rounded-lg text-left hover:bg-greatek-bg-light hover:border-greatek-blue transition-all"
@@ -71,6 +90,21 @@ const ControlPanel: React.FC<{ onClose: () => void; }> = ({ onClose }) => {
                                 Pesquise uma empresa e crie um dossiê com notícias, insights e ganchos de conversa.
                             </p>
                         </button>
+
+                        <button
+                            onClick={() => { setWidgetSimulatorOpen(true); onClose(); }}
+                            className="group p-4 border border-greatek-border rounded-lg text-left hover:bg-greatek-bg-light hover:border-greatek-blue transition-all bg-green-50/50"
+                        >
+                            <div className="flex items-center">
+                                <div className="w-10 h-10 rounded-lg bg-green-600 text-white flex items-center justify-center shadow-md">
+                                    <i className="bi bi-chat-dots-fill text-xl"></i>
+                                </div>
+                                <h5 className="ml-3 font-bold text-greatek-dark-blue">Simular Widget do Site</h5>
+                            </div>
+                            <p className="text-xs text-text-secondary mt-2">
+                                Teste como o agente se comportaria respondendo a clientes reais no site oficial da Greatek.
+                            </p>
+                        </button>
                         
                     </div>
                 </div>
@@ -97,7 +131,17 @@ const ControlPanel: React.FC<{ onClose: () => void; }> = ({ onClose }) => {
                     <TrainingCoach />
                 </Modal>
             )}
-            
+
+            {isLeadHunterOpen && (
+                <Modal 
+                    isOpen={isLeadHunterOpen}
+                    onClose={() => setIsLeadHunterOpen(false)}
+                    title="Caçador de Leads & Inteligência de Mercado"
+                    size="large"
+                >
+                    <LeadHunter />
+                </Modal>
+            )}
         </>
     );
 };

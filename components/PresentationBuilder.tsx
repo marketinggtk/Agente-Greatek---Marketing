@@ -202,7 +202,7 @@ const PresentationBuilder: React.FC = () => {
                                 id="slide-count" 
                                 value={slideCount} 
                                 onChange={(e) => setSlideCount(Number(e.target.value))}
-                                className="w-full p-2.5 rounded-lg border-greatek-border focus:border-greatek-blue focus:ring-greatek-blue sm:text-sm bg-greatek-bg-light/80 text-greatek-dark-blue font-semibold"
+                                className="w-full p-2.5 rounded-lg border-greatek-border focus:border-greatek-blue focus:ring-greatek-blue sm:text-sm bg-[#e9e9e9] text-black font-semibold"
                             >
                                 {[...Array(13).keys()].map(i => i + 3).map(num => (
                                     <option key={num} value={num}>{num} Slides</option>
@@ -213,7 +213,7 @@ const PresentationBuilder: React.FC = () => {
                             rows={3}
                             value={prompt}
                             onChange={(e) => setPrompt(e.target.value)}
-                            className="w-full p-3 rounded-lg border border-greatek-border focus:border-greatek-blue focus:ring-greatek-blue sm:text-sm bg-greatek-bg-light/80 text-greatek-dark-blue placeholder:text-text-secondary/70 custom-scrollbar"
+                            className="w-full p-3 rounded-lg border border-greatek-border focus:border-greatek-blue focus:ring-greatek-blue sm:text-sm bg-[#e9e9e9] text-black placeholder:text-text-secondary/70 custom-scrollbar"
                             placeholder="Ex: Uma apresentação comercial sobre as vantagens das soluções de energia da Greatek para ISPs, comparando com concorrentes."
                         />
                          <button

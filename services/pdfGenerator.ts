@@ -1,6 +1,7 @@
+
 import jsPDF from 'jspdf';
 import 'jspdf-autotable';
-import { QuizQuestion, PgrCalculatorState, TrainingAnalysisReport } from '../types';
+import { QuizQuestion, TrainingAnalysisReport, OutboundReport } from '../types';
 
 // The module augmentation for 'jspdf' was causing a "module not found" error during compilation.
 // To resolve the build error, it has been removed and we now use a type assertion `(doc as any)`
@@ -307,7 +308,7 @@ export const generateQuizResultPdf = (
         // User Answer Box
         doc.setFontSize(10);
         doc.setFont('helvetica', 'normal');
-        doc.setFillColor(isCorrect ? colors.correctGreenBg[0] : colors.incorrectRedBg[0], isCorrect ? colors.correctGreenBg[1] : colors.incorrectRedBg[2], isCorrect ? colors.correctGreenBg[2] : colors.incorrectRedBg[2]);
+        doc.setFillColor(isCorrect ? colors.correctGreenBg[0] : colors.correctGreenBg[1], isCorrect ? colors.correctGreenBg[2] : colors.incorrectRedBg[2], isCorrect ? colors.correctGreenBg[2] : colors.incorrectRedBg[2]);
         doc.roundedRect(margin + 10, cardY - 4, pageW - margin * 2 - 20, (userAnswerLines.length * 5) + 8, 2, 2, 'F');
         doc.setTextColor(isCorrect ? colors.correctGreen[0] : colors.incorrectRed[0], isCorrect ? colors.correctGreen[1] : colors.incorrectRed[1], isCorrect ? colors.correctGreen[2] : colors.incorrectRed[2]);
         doc.setFont('helvetica', 'bold');
@@ -344,93 +345,6 @@ export const generateQuizResultPdf = (
     });
 
     const sanitizedTitle = `Resultado_Quiz_${(productName || 'Produto').replace(/[^a-zA-Z0-9]/g, '_')}`;
-    doc.save(`${sanitizedTitle}.pdf`);
-};
-
-export const generatePgrPdf = (
-    state: PgrCalculatorState,
-    calculations: any,
-    pgrModel: any[]
-) => {
-    const doc = new jsPDF();
-    const margin = 14;
-    const pageW = doc.internal.pageSize.getWidth();
-    let finalY = 20;
-
-    const formatCurrency = (num: number) => num.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
-    const formatPercentage = (num: number) => `${(num * 100).toLocaleString('pt-BR', { minimumFractionDigits: 0, maximumFractionDigits: 1 })}%`;
-
-    // --- Header ---
-    doc.setFont('helvetica', 'bold');
-    doc.setFontSize(18);
-    doc.setTextColor(8, 63, 98);
-    doc.text('Relatório de PGR Individual', margin, finalY);
-    finalY += 8;
-    doc.setFont('helvetica', 'normal');
-    doc.setFontSize(11);
-    doc.setTextColor(74, 74, 74);
-    doc.text(`Vendedor: ${state.sellerName || 'Não informado'}`, margin, finalY);
-    doc.text(new Date().toLocaleDateString('pt-BR'), pageW - margin, finalY, { align: 'right' });
-    finalY += 15;
-
-    // --- Summary ---
-    (doc as any).autoTable({
-        startY: finalY,
-        body: [
-            ['Premiação', formatCurrency(calculations.premiacaoTotal)],
-            ['Bônus', formatCurrency(calculations.bonusProjetos)],
-            [{ content: 'Total', styles: { fontStyle: 'bold' } }, { content: formatCurrency(calculations.totalGeral), styles: { fontStyle: 'bold' } }],
-            [{ content: 'NOTA PGR', styles: { fontStyle: 'bold', fillColor: [230, 230, 230] } }, { content: calculations.notaPGR.toFixed(1), styles: { fontStyle: 'bold', fillColor: [230, 230, 230] } }]
-        ],
-        theme: 'grid',
-        headStyles: { fillColor: [8, 63, 98] },
-        columnStyles: { 0: { fontStyle: 'bold' } },
-        didDrawPage: (data: any) => {
-            finalY = data.cursor?.y ?? finalY;
-        }
-    });
-    finalY = (doc as any).lastAutoTable.finalY + 10;
-
-    // --- Details ---
-    for (const group of pgrModel) {
-        doc.setFontSize(12);
-        doc.setFont('helvetica', 'bold');
-        doc.setTextColor(8, 63, 98);
-        doc.text(group.title, margin, finalY);
-        finalY += 5;
-
-        const body = group.metrics.map((metric: any) => {
-            const metricState = state.metrics[metric.id] || { meta: '', realizado: '' };
-            const result = calculations.results.get(metric.id) || { atingimento: 0, valor: 0 };
-            const isEligible = result.atingimento >= metric.eligibilityThreshold;
-            
-            return [
-                metric.indicator,
-                metricState.meta,
-                metricState.realizado,
-                { content: formatPercentage(result.atingimento), styles: { textColor: isEligible ? [0, 128, 0] : [255, 0, 0] } },
-                formatCurrency(result.valor)
-            ];
-        });
-
-        const subtotal = calculations.groupSubtotals[group.id] || 0;
-
-        (doc as any).autoTable({
-            startY: finalY,
-            head: [['Indicador', 'Meta', 'Realizado', 'Atingimento', 'Valor']],
-            body: body,
-            foot: [[{ content: `Subtotal ${group.title}`, colSpan: 4, styles: { halign: 'right', fontStyle: 'bold' } }, { content: formatCurrency(subtotal), styles: { fontStyle: 'bold' } }]],
-            theme: 'striped',
-            headStyles: { fillColor: [200, 200, 200], textColor: [40, 40, 40] },
-            footStyles: { fillColor: [230, 230, 230] },
-            didDrawPage: (data: any) => {
-                finalY = data.cursor.y;
-            }
-        });
-        finalY = (doc as any).lastAutoTable.finalY + 10;
-    }
-
-    const sanitizedTitle = `PGR_${state.sellerName || 'Relatorio'}`.replace(/[^a-zA-Z0-9]/g, '_');
     doc.save(`${sanitizedTitle}.pdf`);
 };
 
@@ -592,4 +506,109 @@ export const generateTrainingReportPdf = (report: TrainingAnalysisReport, produc
 
     const sanitizedTitle = `Relatorio_Performance_${(product || 'Produto').replace(/[^a-zA-Z0-9]/g, '_')}`;
     doc.save(`${sanitizedTitle}.pdf`);
+};
+
+export const generateOutboundManagerialPdf = (
+    report: OutboundReport,
+    targets: { vendas_diarias: string; ligacoes_diarias: number; propostas_diarias: number } | null
+) => {
+    const doc = new jsPDF();
+    const margin = 15;
+    const pageW = doc.internal.pageSize.getWidth();
+    let finalY = 20;
+
+    const colors = {
+        greatekDarkBlue: [8, 63, 98],
+        greatekBlue: [0, 129, 204],
+        textSecondary: [74, 74, 74],
+        bgLight: [245, 245, 245],
+    };
+
+    // Header
+    doc.setFontSize(18);
+    doc.setTextColor(colors.greatekDarkBlue[0], colors.greatekDarkBlue[1], colors.greatekDarkBlue[2]);
+    doc.setFont('helvetica', 'bold');
+    doc.text(`Relatório Gerencial: ${report.salesperson_name}`, margin, finalY);
+    finalY += 8;
+    
+    doc.setFontSize(10);
+    doc.setFont('helvetica', 'normal');
+    doc.setTextColor(colors.textSecondary[0], colors.textSecondary[1], colors.textSecondary[2]);
+    doc.text(`Gerado pelo Agente Greatek`, margin, finalY);
+    finalY += 15;
+
+    // Targets Section
+    if (targets) {
+        doc.setFillColor(colors.bgLight[0], colors.bgLight[1], colors.bgLight[2]);
+        doc.roundedRect(margin, finalY, pageW - margin * 2, 25, 3, 3, 'F');
+        
+        let targetX = margin + 10;
+        const targetWidth = (pageW - margin * 2) / 3;
+        
+        const drawMetric = (label: string, value: string | number) => {
+            doc.setFontSize(8);
+            doc.setFont('helvetica', 'bold');
+            doc.setTextColor(colors.textSecondary[0], colors.textSecondary[1], colors.textSecondary[2]);
+            doc.text(label.toUpperCase(), targetX, finalY + 8);
+            doc.setFontSize(12);
+            doc.setTextColor(colors.greatekDarkBlue[0], colors.greatekDarkBlue[1], colors.greatekDarkBlue[2]);
+            doc.text(String(value), targetX, finalY + 18);
+            targetX += targetWidth;
+        };
+
+        drawMetric('Meta Venda/Dia', targets.vendas_diarias);
+        drawMetric('Ligações/Dia', targets.ligacoes_diarias);
+        drawMetric('Propostas/Dia', targets.propostas_diarias);
+        
+        finalY += 35;
+    }
+
+    // Performance Analysis
+    doc.setFontSize(14);
+    doc.setFont('helvetica', 'bold');
+    doc.setTextColor(colors.greatekDarkBlue[0], colors.greatekDarkBlue[1], colors.greatekDarkBlue[2]);
+    doc.text('Análise de Performance', margin, finalY);
+    finalY += 8;
+    
+    doc.setFontSize(10);
+    doc.setFont('helvetica', 'normal');
+    doc.setTextColor(colors.textSecondary[0], colors.textSecondary[1], colors.textSecondary[2]);
+    const perfLines = doc.splitTextToSize(report.action_report.performance_analysis, pageW - margin * 2);
+    doc.text(perfLines, margin, finalY);
+    finalY += (perfLines.length * 5) + 10;
+
+    // Strategy
+    doc.setFontSize(14);
+    doc.setFont('helvetica', 'bold');
+    doc.setTextColor(colors.greatekDarkBlue[0], colors.greatekDarkBlue[1], colors.greatekDarkBlue[2]);
+    doc.text('Estratégia de Abordagem', margin, finalY);
+    finalY += 8;
+    
+    doc.setFontSize(10);
+    doc.setFont('helvetica', 'normal');
+    doc.setTextColor(colors.textSecondary[0], colors.textSecondary[1], colors.textSecondary[2]);
+    const stratLines = doc.splitTextToSize(report.management_report.approach_strategy, pageW - margin * 2);
+    doc.text(stratLines, margin, finalY);
+    finalY += (stratLines.length * 5) + 10;
+
+    // Coaching Tips
+    if (finalY > 250) { doc.addPage(); finalY = 20; }
+    
+    doc.setFontSize(14);
+    doc.setFont('helvetica', 'bold');
+    doc.setTextColor(colors.greatekDarkBlue[0], colors.greatekDarkBlue[1], colors.greatekDarkBlue[2]);
+    doc.text('Dicas de Coaching', margin, finalY);
+    finalY += 8;
+    
+    doc.setFontSize(10);
+    doc.setFont('helvetica', 'normal');
+    doc.setTextColor(colors.textSecondary[0], colors.textSecondary[1], colors.textSecondary[2]);
+    report.management_report.coaching_tips.forEach(tip => {
+        const tipLines = doc.splitTextToSize(`• ${tip}`, pageW - margin * 2);
+        doc.text(tipLines, margin, finalY);
+        finalY += (tipLines.length * 5) + 2;
+    });
+
+    const sanitizedName = report.salesperson_name.replace(/[^a-zA-Z0-9]/g, '_');
+    doc.save(`Relatorio_Gerencial_${sanitizedName}.pdf`);
 };

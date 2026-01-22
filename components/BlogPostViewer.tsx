@@ -1,3 +1,4 @@
+
 import React, { useState, useMemo } from 'react';
 import { BlogPostPackage } from '../types';
 import { useAppStore } from '../store/useAppStore';
@@ -27,112 +28,28 @@ const CopyButton: React.FC<{ text: string, label?: string }> = ({ text, label = 
     );
 };
 
-// Helper function to parse inline markdown elements like **bold** and *italic*.
-const parseInlineMarkdown = (text: string): React.ReactNode[] => {
-    const regex = /(\*\*.*?\*\*|\*.*?\*)/g;
-    const parts = text.split(regex);
-
-    return parts.filter(part => part).map((part, index) => {
-        if (!part) return null;
-        if (part.startsWith('**') && part.endsWith('**')) {
-            return <strong key={index}>{part.slice(2, -2)}</strong>;
-        }
-        if (part.startsWith('*') && part.endsWith('*')) {
-            return <em key={index}>{part.slice(1, -1)}</em>;
-        }
-        return part;
-    });
-};
-
-const SimpleMarkdownRenderer: React.FC<{ content: string }> = ({ content }) => {
-    const elements = useMemo(() => {
-        if (!content) return [];
-        const lines = content.split('\n');
-        const elements: React.ReactElement[] = [];
-        let listItems: string[] = [];
-
-        const flushList = () => {
-            if (listItems.length > 0) {
-                elements.push(
-                    <ul key={`list-${elements.length}`}>
-                        {listItems.map((item, idx) => (
-                            <li key={idx}>{parseInlineMarkdown(item)}</li>
-                        ))}
-                    </ul>
-                );
-                listItems = [];
-            }
-        };
-
-        lines.forEach((line, i) => {
-            if (line.trim().match(/^(\*|-)\s/)) {
-                listItems.push(line.trim().substring(2));
-            } else {
-                flushList();
-                if (line.trim()) {
-                    elements.push(<p key={`p-${i}`}>{parseInlineMarkdown(line)}</p>);
-                }
-            }
-        });
-
-        flushList();
-        return elements;
-    }, [content]);
-
-    return <>{elements}</>;
-};
-
-
 const BlogPostViewer: React.FC<{ data: BlogPostPackage }> = ({ data }) => {
     const { showToast } = useAppStore();
 
-    // Function to convert simple markdown from agent to HTML for WordPress
-    const markdownToHtml = (text: string) => {
-        if (!text) return '';
-        let html = text
-            .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-            .replace(/\*(.*?)\*/g, '<em>$1</em>');
-
-        const blocks = html.split('\n').map(line => line.trim()).filter(line => line);
-        let inList = false;
-        let finalHtml = '';
-
-        blocks.forEach(block => {
-            if (block.startsWith('- ')) {
-                if (!inList) {
-                    finalHtml += '<ul>\n';
-                    inList = true;
-                }
-                finalHtml += `  <li>${block.substring(2)}</li>\n`;
-            } else {
-                if (inList) {
-                    finalHtml += '</ul>\n';
-                    inList = false;
-                }
-                finalHtml += `<p>${block}</p>\n`;
-            }
-        });
-
-        if (inList) {
-            finalHtml += '</ul>\n';
-        }
-        return finalHtml;
-    };
-
+    // We no longer convert Markdown. The agent is now instructed to return valid HTML.
+    // We construct the full HTML string for the copy button.
     const fullPostHtml = useMemo(() => {
         const sectionsHtml = data.sections.map(sec => 
-            `<h2>${sec.heading}</h2>\n${markdownToHtml(sec.content)}`
-        ).join('\n');
+            `<h2>${sec.heading}</h2>\n${sec.content}`
+        ).join('\n\n');
 
         return `
 <h1>${data.title}</h1>
-${markdownToHtml(data.introduction)}
+${data.introduction}
+
 ${sectionsHtml}
+
 <h2>Conclusão</h2>
-${markdownToHtml(data.conclusion)}
+${data.conclusion}
+
 <p>&nbsp;</p>
 ${data.cta_html}
-        `.trim().replace(/^\s*\n/gm, "");
+        `.trim();
     }, [data]);
 
     const [htmlCopied, setHtmlCopied] = useState(false);
@@ -143,6 +60,14 @@ ${data.cta_html}
             showToast('Código HTML copiado para a área de transferência!', 'success');
             setTimeout(() => setHtmlCopied(false), 3000);
         });
+    };
+
+    // Style object for the prose content to ensure lists look correct
+    const proseStyles = {
+        ul: "list-disc pl-6 my-4 space-y-2",
+        li: "text-gray-700 leading-relaxed",
+        p: "mb-4 text-gray-700 leading-relaxed",
+        strong: "font-bold text-gray-900"
     };
 
     return (
@@ -159,21 +84,22 @@ ${data.cta_html}
                         </header>
 
                         {/* Introduction */}
-                        <p className="text-lg lg:text-xl italic text-gray-600 my-8 border-l-4 border-greatek-blue pl-4">
-                            {data.introduction}
-                        </p>
+                        <div className="text-lg lg:text-xl italic text-gray-600 my-8 border-l-4 border-greatek-blue pl-4">
+                             <div dangerouslySetInnerHTML={{ __html: data.introduction }} />
+                        </div>
 
-                        {/* Post Body with Prose styling */}
-                        <div className="prose prose-lg max-w-none prose-p:text-gray-700 prose-p:leading-relaxed prose-li:text-gray-700 prose-headings:font-bold prose-headings:text-gray-900 prose-strong:text-gray-900">
+                        {/* Post Body */}
+                        <div className="prose prose-lg max-w-none prose-p:text-gray-700 prose-p:leading-relaxed prose-li:text-gray-700 prose-headings:font-bold prose-headings:text-gray-900 prose-strong:text-gray-900 prose-ul:list-disc prose-ul:pl-5">
                             {data.sections.map((section, index) => (
                                 <React.Fragment key={index}>
                                     <h2 className="!text-2xl !mt-12 !mb-4">{section.heading}</h2>
-                                    <SimpleMarkdownRenderer content={section.content} />
+                                    {/* Render HTML content directly for list support */}
+                                    <div dangerouslySetInnerHTML={{ __html: section.content }} />
                                 </React.Fragment>
                             ))}
 
                             <h2 className="!text-2xl !mt-12 !mb-4">Conclusão</h2>
-                            <SimpleMarkdownRenderer content={data.conclusion} />
+                            <div dangerouslySetInnerHTML={{ __html: data.conclusion }} />
                         </div>
                         
                         {/* CTA Button */}

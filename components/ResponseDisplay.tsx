@@ -1,8 +1,7 @@
 
 
-
 import React from 'react';
-import { PageOptimizationPackage, MarketIntelReport, Message, TrainingKitReport, AppMode, isPageOptimizationPackage, isImageAdPackage, ImageAdPackage, isContentPackage, isPresentationPackage, isCustomerDossier, CustomerDossier, isBlogPostPackage } from '../types';
+import { PageOptimizationPackage, MarketIntelReport, Message, TrainingKitReport, AppMode, isPageOptimizationPackage, isImageAdPackage, ImageAdPackage, isContentPackage, isPresentationPackage, isCustomerDossier, CustomerDossier, isBlogPostPackage, isPortfolioSearchResult, isContentPlan } from '../types';
 import JsonViewer from './JsonViewer';
 import MarkdownViewer from './MarkdownViewer';
 import MarketIntelViewer from './MarketIntelViewer';
@@ -13,6 +12,8 @@ import ContentPackageViewer from './ContentPackageViewer';
 import BlogPostViewer from './BlogPostViewer';
 import PresentationViewer from './PresentationViewer';
 import CustomerDossierViewer from './CustomerDossierViewer';
+import PortfolioSearch from './PortfolioSearch';
+import ContentCalendar from './ContentCalendar';
 
 
 interface ResponseDisplayProps {
@@ -58,6 +59,8 @@ const ResponseDisplay: React.FC<ResponseDisplayProps> = ({ message, mode, isLast
         return <TrainingKitViewer data={content} />;
     }
     
+    // Note: AppMode.CONTENT used to use ContentPackageViewer but now uses MarkdownViewer via string return.
+    // We keep this check for backward compatibility with old history messages.
     if (isContentPackage(content)) {
         return <ContentPackageViewer data={content} />;
     }
@@ -68,6 +71,15 @@ const ResponseDisplay: React.FC<ResponseDisplayProps> = ({ message, mode, isLast
 
     if (isPageOptimizationPackage(content)) {
         return <ComplexResponseViewer data={content} mode={mode} />;
+    }
+    
+    // Portfolio Search and Content Planner are handled by their own components usually, but as a fallback:
+    if (isPortfolioSearchResult(content)) {
+       return <JsonViewer data={content} />; 
+    }
+
+    if (isContentPlan(content)) {
+       return <ContentCalendar plan={content} />;
     }
     
     if (typeof content === 'object' && content !== null) {

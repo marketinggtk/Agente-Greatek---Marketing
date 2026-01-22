@@ -1,6 +1,4 @@
 
-
-
 import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { useAppStore } from '../store/useAppStore';
 import { SubmitButton } from './ui/SubmitButton';
@@ -169,7 +167,7 @@ const InteractionPanel: React.FC = () => {
           </div>
         </div>
       )}
-      <div className="flex items-end w-full rounded-lg bg-white border border-gray-300 focus-within:ring-2 focus-within:ring-greatek-blue focus-within:border-transparent transition-shadow duration-200">
+      <div className="flex items-end w-full rounded-lg bg-[#e9e9e9] border border-gray-300 focus-within:ring-2 focus-within:ring-greatek-blue focus-within:border-transparent transition-shadow duration-200">
         <button
           onClick={handleFileSelect}
           disabled={isInteractionDisabled}
@@ -209,13 +207,13 @@ const InteractionPanel: React.FC = () => {
           onKeyDown={handleKeyDown}
           placeholder={isListening ? "Ouvindo..." : isInteractionDisabled ? "Aguarde..." : `Enviar uma mensagem para ${currentMode}...`}
           disabled={isInteractionDisabled}
-          className="flex-grow py-3 pl-2 pr-2 bg-white text-text-primary placeholder-text-secondary/70 focus:outline-none resize-none overflow-y-auto"
+          className="flex-grow py-3 pl-2 pr-2 bg-[#e9e9e9] text-black placeholder-text-secondary/70 focus:outline-none resize-none overflow-y-auto rounded-lg"
           aria-label="Comando para o agente"
         />
         <SubmitButton
           onClick={handleSendMessage}
           disabled={isInteractionDisabled || (!prompt.trim() && attachments.length === 0)}
-          className="h-12 w-16"
+          className="h-12 w-16 rounded-r-lg"
           aria-label="Enviar comando"
         >
           <i className="bi bi-send-fill text-white text-lg"></i>

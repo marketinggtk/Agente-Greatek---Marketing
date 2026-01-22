@@ -26,7 +26,11 @@ export const AGENTS: AgentDefinition[] = [
     { mode: AppMode.BLOG_POST, title: "Criador de Blog Post", category: 'Marketing', iconClass: "bi-file-post-fill" },
     { mode: AppMode.GOAL_CALCULATOR, title: "Calculadora de Metas", category: 'Ferramentas', iconClass: "bi-calculator-fill" },
     { mode: AppMode.PRESENTATION_BUILDER, title: "Criador de Apresentações", category: 'Ferramentas', iconClass: "bi-file-slides-fill" },
-    { mode: AppMode.PGR_CALCULATOR, title: "Calculadora de PGR", category: 'Ferramentas', iconClass: "bi-award-fill" },
+    { mode: AppMode.PORTFOLIO_SEARCH, title: "Pesquisa de Portfólio", category: 'Ferramentas', iconClass: "bi-lightbulb-fill" },
+    { mode: AppMode.CONTENT_PLANNER, title: "Planejador de Conteúdo", category: 'Ferramentas', iconClass: "bi-calendar-week-fill" },
+    { mode: AppMode.CONTENT, title: "Gerador de Conteúdo", category: 'Ferramentas', iconClass: "bi-pencil-square" },
+    { mode: AppMode.LEAD_HUNTER, title: "Caçador de Leads", category: 'Ferramentas', iconClass: "bi-crosshair" },
+    { mode: AppMode.STRATEGIC_PLANNER, title: "Planejador Estratégico", category: 'Ferramentas', iconClass: "bi-database-fill-gear" },
 ];
 
 // FIX: Added and exported a record of descriptions for each agent mode.
@@ -66,7 +70,6 @@ export const MODE_DESCRIPTIONS: Record<AppMode, { title: string; description: st
         description: 'Cria comunicados internos, campanhas e materiais para engajamento dos colaboradores.',
         example: 'Crie um comunicado sobre a nova política de home office.'
     },
-    // FIX: Added missing description for the Content agent mode.
     [AppMode.CONTENT]: {
         title: 'Gerador de Conteúdo',
         description: 'Atua como um Diretor de Criação para desenvolver pacotes de conteúdo (posts, legendas, hashtags) para redes sociais e blogs.',
@@ -107,11 +110,6 @@ export const MODE_DESCRIPTIONS: Record<AppMode, { title: string; description: st
         description: 'Cria roteiros completos de apresentações institucionais ou comerciais, slide a slide.',
         example: 'Crie uma apresentação sobre as soluções de energia da Greatek para ISPs.'
     },
-    [AppMode.PGR_CALCULATOR]: {
-        title: 'Calculadora de PGR Individual',
-        description: 'Calcula o valor da premiação (PGR) com base nas metas e resultados do vendedor.',
-        example: 'Preencha as metas e os valores realizados para ver o cálculo do PGR.'
-    },
     [AppMode.BUSINESS_ANALYZER]: {
         title: 'Analisador de Negócios',
         description: 'Analisa dados de planilhas de vendas (ganhos/perdas) para extrair KPIs e insights estratégicos.',
@@ -125,6 +123,26 @@ export const MODE_DESCRIPTIONS: Record<AppMode, { title: string; description: st
     [AppMode.CUSTOMER_DOSSIER]: {
         title: 'Gerador de Dossiê',
         description: 'Pesquisa uma empresa e cria um dossiê com notícias, insights e ganchos de conversa para preparar vendedores.',
-        example: 'Gere um dossiê para a empresa "Provedor de Internet XYZ Ltda".'
+        example: 'Gere um dossiê para la empresa "Provedor de Internet XYZ Ltda".'
+    },
+    [AppMode.PORTFOLIO_SEARCH]: {
+        title: 'Pesquisa de Portfólio',
+        description: 'Busca o produto ideal no portfólio Greatek a partir de uma necessidade descrita em linguagem natural.',
+        example: 'Preciso de uma fonte nobreak para rack que tenha gerenciamento SNMP.'
+    },
+    [AppMode.CONTENT_PLANNER]: {
+        title: 'Planejador de Conteúdo',
+        description: 'Organiza um calendário editorial mensal com foco em SEO, produtos e estratégia, integrando Blog e LinkedIn.',
+        example: 'Planeje o mês de Outubro focado em soluções de Energia e ISPs.'
+    },
+    [AppMode.LEAD_HUNTER]: {
+        title: 'Caçador de Leads',
+        description: 'Busca e qualifica empresas (Leads) na internet baseada em região e segmento, gerando uma lista pronta para prospecção.',
+        example: 'Encontre Provedores de Internet na região de Campinas.'
+    },
+    [AppMode.STRATEGIC_PLANNER]: {
+        title: 'Planejador Estratégico',
+        description: 'Cruza dados internos de vendas com informações de mercado para definir metas e estratégias regionais.',
+        example: 'Analise a performance da Região Sul e sugira metas para o próximo trimestre.'
     },
 };

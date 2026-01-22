@@ -1,176 +1,135 @@
 import React, { useEffect, useRef } from "react";
 import * as THREE from "three";
 
+// The shaders are constants and don't need to be inside the component
+const vertexShader = `
+  void main() {
+    gl_Position = vec4( position, 1.0 );
+  }
+`;
+
+const fragmentShader = `
+  #define TWO_PI 6.2831853072
+  #define PI 3.14159265359
+
+  precision highp float;
+  uniform vec2 resolution;
+  uniform float time;
+
+  // Greatek brand colors
+  vec3 color1 = vec3(0.0, 0.506, 0.8);      // #0081cc greatek-blue
+  vec3 color2 = vec3(0.031, 0.247, 0.384);  // #083f62 greatek-dark-blue
+  vec3 color3 = vec3(0.388, 0.722, 0.906);  // #63B8E7 greatek-light-blue
+
+  void main(void) {
+    vec2 uv = (gl_FragCoord.xy * 2.0 - resolution.xy) / min(resolution.x, resolution.y);
+    float t = time * 0.05;
+    float lineWidth = 0.003;
+
+    vec3 finalColor = vec3(0.0);
+    
+    float intensity1 = 0.0;
+    for(int i=0; i < 5; i++){
+      intensity1 += lineWidth*float(i*i) / abs(fract(t + float(i)*0.01)*5.0 - length(uv) + mod(uv.x+uv.y, 0.2));
+    }
+    finalColor += intensity1 * color1;
+
+    float intensity2 = 0.0;
+    for(int i=0; i < 5; i++){
+      intensity2 += lineWidth*float(i*i) / abs(fract(t*0.9 + float(i)*0.015)*5.0 - length(uv) + mod(uv.x+uv.y, 0.2));
+    }
+    finalColor += intensity2 * color2;
+
+    float intensity3 = 0.0;
+    for(int i=0; i < 5; i++){
+        intensity3 += lineWidth*float(i*i) / abs(fract(t*1.1 + float(i)*0.02)*5.0 - length(uv) + mod(uv.x+uv.y, 0.2));
+    }
+    finalColor += intensity3 * color3;
+    
+    gl_FragColor = vec4(finalColor, 1.0);
+  }
+`;
+
 export function ShaderAnimation() {
-  const containerRef = useRef<HTMLDivElement>(null)
-  const sceneRef = useRef<{
-    camera: THREE.Camera
-    scene: THREE.Scene
-    renderer: THREE.WebGLRenderer
-    uniforms: any
-    animationId: number
-  } | null>(null)
+  const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (!containerRef.current) return
+    // This effect runs on mount. In React.StrictMode, it runs, cleans up, and runs again.
+    // A robust cleanup is essential to handle this without losing the WebGL context.
+    const container = containerRef.current;
+    if (!container) return;
 
-    const container = containerRef.current
+    let animationId: number;
 
-    // Vertex shader
-    const vertexShader = `
-      void main() {
-        gl_Position = vec4( position, 1.0 );
-      }
-    `
-
-    // Fragment shader
-    const fragmentShader = `
-      #define TWO_PI 6.2831853072
-      #define PI 3.14159265359
-
-      precision highp float;
-      uniform vec2 resolution;
-      uniform float time;
-
-      // Greatek brand colors
-      vec3 color1 = vec3(0.0, 0.506, 0.8);      // #0081cc greatek-blue
-      vec3 color2 = vec3(0.031, 0.247, 0.384);  // #083f62 greatek-dark-blue
-      vec3 color3 = vec3(0.388, 0.722, 0.906);  // #63B8E7 greatek-light-blue
-
-      void main(void) {
-        vec2 uv = (gl_FragCoord.xy * 2.0 - resolution.xy) / min(resolution.x, resolution.y);
-        float t = time * 0.05;
-        float lineWidth = 0.003;
-
-        vec3 finalColor = vec3(0.0);
-        
-        // Calculate 3 separate color layers with different timings
-        float intensity1 = 0.0;
-        for(int i=0; i < 5; i++){
-          intensity1 += lineWidth*float(i*i) / abs(fract(t + float(i)*0.01)*5.0 - length(uv) + mod(uv.x+uv.y, 0.2));
-        }
-        finalColor += intensity1 * color1;
-
-        float intensity2 = 0.0;
-        for(int i=0; i < 5; i++){
-          intensity2 += lineWidth*float(i*i) / abs(fract(t*0.9 + float(i)*0.015)*5.0 - length(uv) + mod(uv.x+uv.y, 0.2));
-        }
-        finalColor += intensity2 * color2;
-
-        float intensity3 = 0.0;
-        for(int i=0; i < 5; i++){
-            intensity3 += lineWidth*float(i*i) / abs(fract(t*1.1 + float(i)*0.02)*5.0 - length(uv) + mod(uv.x+uv.y, 0.2));
-        }
-        finalColor += intensity3 * color3;
-        
-        gl_FragColor = vec4(finalColor, 1.0);
-      }
-    `
-
-    // Initialize Three.js scene
-    const camera = new THREE.Camera()
-    camera.position.z = 1
-
-    const scene = new THREE.Scene()
-    const geometry = new THREE.PlaneGeometry(2, 2)
+    // --- Scene Setup ---
+    const camera = new THREE.Camera();
+    camera.position.z = 1;
+    const scene = new THREE.Scene();
+    const geometry = new THREE.PlaneGeometry(2, 2);
 
     const uniforms = {
       time: { type: "f", value: 1.0 },
       resolution: { type: "v2", value: new THREE.Vector2() },
-    }
+    };
 
     const material = new THREE.ShaderMaterial({
-      uniforms: uniforms,
-      vertexShader: vertexShader,
-      fragmentShader: fragmentShader,
-    })
-
-    const mesh = new THREE.Mesh(geometry, material)
-    scene.add(mesh)
-
-    const renderer = new THREE.WebGLRenderer({ antialias: true })
-    renderer.setPixelRatio(window.devicePixelRatio)
-
-    container.appendChild(renderer.domElement)
-
-    // Handle window resize
-    const onWindowResize = () => {
-      const width = container.clientWidth
-      const height = container.clientHeight
-      renderer.setSize(width, height)
-      uniforms.resolution.value.x = renderer.domElement.width
-      uniforms.resolution.value.y = renderer.domElement.height
-    }
-
-    // Initial resize
-    onWindowResize()
-    window.addEventListener("resize", onWindowResize, false)
-
-    // Animation loop
-    const animate = () => {
-      const animationId = requestAnimationFrame(animate)
-      uniforms.time.value += 0.05
-      renderer.render(scene, camera)
-
-      if (sceneRef.current) {
-        sceneRef.current.animationId = animationId
-      }
-    }
-
-    // Store scene references for cleanup
-    sceneRef.current = {
-      camera,
-      scene,
-      renderer,
       uniforms,
-      animationId: 0,
-    }
+      vertexShader,
+      fragmentShader,
+    });
 
-    // Start animation
-    animate()
+    const mesh = new THREE.Mesh(geometry, material);
+    scene.add(mesh);
 
-    // Cleanup function
+    // --- Renderer Setup ---
+    const renderer = new THREE.WebGLRenderer({ antialias: true });
+    renderer.setPixelRatio(window.devicePixelRatio);
+    container.appendChild(renderer.domElement);
+
+    // --- Event Listeners & Animation Loop ---
+    const onWindowResize = () => {
+      if (!container) return;
+      const { clientWidth, clientHeight } = container;
+      renderer.setSize(clientWidth, clientHeight);
+      uniforms.resolution.value.x = renderer.domElement.width;
+      uniforms.resolution.value.y = renderer.domElement.height;
+    };
+    onWindowResize();
+    window.addEventListener("resize", onWindowResize, false);
+
+    const animate = () => {
+      animationId = requestAnimationFrame(animate);
+      uniforms.time.value += 0.05;
+      renderer.render(scene, camera);
+    };
+    animate();
+
+    // The cleanup function is critical for preventing resource leaks.
     return () => {
+      cancelAnimationFrame(animationId);
       window.removeEventListener("resize", onWindowResize);
-
-      if (sceneRef.current) {
-        cancelAnimationFrame(sceneRef.current.animationId);
-
-        // Forcefully release the WebGL context to prevent leaks
-        try {
-          const context = sceneRef.current.renderer.getContext();
-          const loseContextExtension = context.getExtension('WEBGL_lose_context');
-          if (loseContextExtension) {
-            loseContextExtension.loseContext();
-          }
-        } catch (e) {
-          console.warn("Could not lose WebGL context:", e);
-        }
-
-        // Use the ref directly in cleanup to ensure we have the correct element
-        if (containerRef.current && sceneRef.current.renderer.domElement) {
-          containerRef.current.removeChild(sceneRef.current.renderer.domElement);
-        }
-
-        // Dispose of Three.js objects
-        geometry.dispose();
-        material.dispose();
-        sceneRef.current.renderer.dispose();
-        
-        // Clear the ref to prevent stale references
-        sceneRef.current = null;
+      
+      // Dispose of Three.js resources to free GPU memory.
+      scene.remove(mesh);
+      geometry.dispose();
+      material.dispose();
+      renderer.dispose();
+      
+      // Cleanly remove the now-defunct canvas from the DOM.
+      if (container.contains(renderer.domElement)) {
+        container.removeChild(renderer.domElement);
       }
     };
-  }, [])
+  }, []); // Empty dependency array ensures this runs only on mount and unmount.
 
   return (
     <div
       ref={containerRef}
       className="w-full h-screen"
       style={{
-        background: "#083f62",
+        background: "#083f62", // Fallback color if WebGL fails
         overflow: "hidden",
       }}
     />
-  )
+  );
 }

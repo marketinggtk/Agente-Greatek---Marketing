@@ -1,5 +1,4 @@
 
-
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { GoogleGenAI, LiveServerMessage, Modality, Blob } from "@google/genai";
 import { FULL_KNOWLEDGE_BASE_TEXT } from '../services/knowledgeBase';
@@ -24,7 +23,6 @@ function decode(base64: string) {
     return bytes;
 }
 
-// FIX: Make decodeAudioData async and return a Promise<AudioBuffer> to align with modern Web Audio API practices and the library's examples. This prevents potential blocking and handles audio processing correctly.
 async function decodeAudioData(
     data: Uint8Array,
     ctx: AudioContext,
@@ -147,7 +145,8 @@ interface Transcription {
     text: string;
 }
 
-const SalesCoach: React.FC = () => {
+// FIX: Changed to a named export to resolve an import error in ControlPanel.tsx.
+export const SalesCoach: React.FC = () => {
     const [status, setStatus] = useState<'idle' | 'connecting' | 'active' | 'results' | 'error'>('idle');
     const [selectedScenario, setSelectedScenario] = useState('price_skeptic');
     const [product, setProduct] = useState('');
@@ -191,17 +190,15 @@ const SalesCoach: React.FC = () => {
         }
 
         if (audioContextRef.current) {
-            // FIX: The `disconnect` method on this AudioNode requires an argument in this environment. Passing 0 for the output index.
-            audioContextRef.current.processor.disconnect(0);
-            // FIX: The `disconnect` method on this AudioNode requires an argument in this environment. Passing 0 for the output index.
-            audioContextRef.current.source.disconnect(0);
-            audioContextRef.current.userAnalyser.disconnect(0);
-            micGainNodeRef.current?.disconnect(0);
+            audioContextRef.current.processor.disconnect();
+            audioContextRef.current.source.disconnect();
+            audioContextRef.current.userAnalyser.disconnect();
+            micGainNodeRef.current?.disconnect();
             if (audioContextRef.current.input.state !== 'closed') {
-                audioContextRef.current.input.close();
+                (audioContextRef.current.input as any).close();
             }
             if (audioContextRef.current.output.state !== 'closed') {
-                audioContextRef.current.output.close();
+                (audioContextRef.current.output as any).close();
             }
             audioContextRef.current = null;
         }
@@ -254,8 +251,9 @@ const SalesCoach: React.FC = () => {
             mediaStreamRef.current = stream;
             const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
 
-            const inputAudioContext = new (window.AudioContext || (window as any).webkitAudioContext)({ sampleRate: 16000 });
-            const outputAudioContext = new (window.AudioContext || (window as any).webkitAudioContext)({ sampleRate: 24000 });
+            const AudioCtx = window.AudioContext || (window as any).webkitAudioContext;
+            const inputAudioContext = new AudioCtx({ sampleRate: 16000 });
+            const outputAudioContext = new AudioCtx({ sampleRate: 24000 });
             
             const userAnalyser = inputAudioContext.createAnalyser();
             userAnalyser.fftSize = 256;
@@ -310,7 +308,6 @@ const SalesCoach: React.FC = () => {
                         userAnalyser.connect(scriptProcessor);
                         scriptProcessor.connect(inputAudioContext.destination);
                     },
-                    // FIX: The onmessage callback must be async to correctly handle the awaited audio decoding.
                     onmessage: async (message: LiveServerMessage) => {
                         if (message.serverContent?.inputTranscription) {
                              currentUserTranscriptionRef.current += message.serverContent.inputTranscription.text;
@@ -340,7 +337,6 @@ const SalesCoach: React.FC = () => {
                                 const oCtx = audioContextRef.current!.output;
                                 let nextStart = Math.max(nextStartTimeRef.current, oCtx.currentTime);
                                 
-                                // FIX: Awaiting the decodeAudioData function is necessary as it now returns a Promise.
                                 const audioBuffer = await decodeAudioData(decode(base64Audio), oCtx, 24000, 1);
                                 
                                 const bufferSource = oCtx.createBufferSource();
@@ -429,7 +425,7 @@ const SalesCoach: React.FC = () => {
                         value={product}
                         onChange={(e) => setProduct(e.target.value)}
                         placeholder="Ex: OLT Chassi X2, Máquina de Fusão X6, Deco X50..."
-                        className="w-full p-3 rounded-md border border-greatek-border focus:border-greatek-blue focus:ring-greatek-blue sm:text-sm bg-white text-greatek-dark-blue placeholder:text-text-secondary/70"
+                        className="w-full p-3 rounded-md border border-greatek-border focus:border-greatek-blue focus:ring-greatek-blue sm:text-sm bg-[#e9e9e9] text-black placeholder:text-text-secondary/70"
                     />
                 </div>
 
@@ -489,7 +485,7 @@ const SalesCoach: React.FC = () => {
                             {item.speaker === 'user' && <div className="w-10 h-10 rounded-full bg-gray-200 text-gray-600 flex items-center justify-center flex-shrink-0 shadow-md"><i className="bi bi-person-fill text-xl"></i></div>}
                         </div>
                     ))}
-                    {isAgentSpeaking && status === 'active' && (
+                    {isAgentSpeaking && (
                          <div className="flex items-start gap-3 animate-fade-in-up">
                             <div className="w-10 h-10 rounded-full bg-greatek-dark-blue text-white flex items-center justify-center flex-shrink-0 shadow-md"><i className="bi bi-headset text-xl"></i></div>
                             <div className="p-3 rounded-lg max-w-lg shadow-md bg-white border flex items-center">
@@ -502,7 +498,7 @@ const SalesCoach: React.FC = () => {
                 </main>
 
                 <footer className="flex items-center justify-center gap-4 mt-4">
-                     <div className={`text-center transition-opacity duration-300 ${isUserSpeaking ? 'opacity-100' : 'opacity-50'}`}>
+                    <div className={`text-center transition-opacity duration-300 ${isUserSpeaking ? 'opacity-100' : 'opacity-50'}`}>
                         <i className="bi bi-person-fill text-3xl text-greatek-blue"></i>
                         <p className="text-xs font-semibold">Você</p>
                     </div>
@@ -510,46 +506,13 @@ const SalesCoach: React.FC = () => {
                         <i className={`bi ${isMicMuted ? 'bi-mic-mute-fill' : 'bi-mic-fill'}`}></i>
                     </button>
                     <button onClick={() => stopSession(true)} className="w-20 h-20 bg-red-600 rounded-full text-white text-4xl flex items-center justify-center hover:bg-red-700 transition-transform transform hover:scale-105 shadow-lg">
-                        <i className="bi bi-telephone-fill"></i>
+                        <i className="bi bi-stop-circle-fill"></i>
                     </button>
                 </footer>
             </div>
         );
     }
     
-    if (status === 'results') {
-        return (
-            <div className="h-[70vh] flex flex-col p-6 bg-greatek-bg-light animate-fade-in">
-                <div className="text-center mb-4">
-                    <h1 className="text-2xl font-bold text-greatek-dark-blue">Simulação Finalizada</h1>
-                    <p className="text-text-secondary">Veja abaixo a transcrição completa da sua conversa.</p>
-                </div>
-
-                <div ref={scrollRef} className="flex-grow p-4 bg-white rounded-lg shadow-inner border border-greatek-border overflow-y-auto custom-scrollbar">
-                    <div className="space-y-4">
-                        {transcriptionHistory.map(item => (
-                            <div key={item.id} className={`flex items-start gap-3 ${item.speaker === 'user' ? 'justify-end' : ''}`}>
-                                {item.speaker === 'agent' && <div className="w-8 h-8 rounded-full bg-greatek-dark-blue text-white flex items-center justify-center flex-shrink-0"><i className="bi bi-headset text-lg"></i></div>}
-                                <div className={`p-3 rounded-lg max-w-xl shadow-sm ${item.speaker === 'user' ? 'bg-greatek-blue text-white' : 'bg-white border'}`}>
-                                    <p className="text-sm text-text-primary">{item.text}</p>
-                                </div>
-                                {item.speaker === 'user' && <div className="w-8 h-8 rounded-full bg-gray-200 text-gray-600 flex items-center justify-center flex-shrink-0"><i className="bi bi-person-fill text-lg"></i></div>}
-                            </div>
-                        ))}
-                    </div>
-                </div>
-
-                <div className="mt-6 text-center">
-                    <button onClick={handleRestart} className="inline-flex items-center justify-center rounded-md border border-transparent bg-greatek-blue px-6 py-2.5 text-base font-medium text-white shadow-sm hover:bg-greatek-dark-blue">
-                        <i className="bi bi-arrow-repeat mr-2"></i>
-                        Iniciar Nova Simulação
-                    </button>
-                </div>
-            </div>
-        );
-    }
-    
+    // Fallback for unexpected states
     return null;
 };
-
-export default SalesCoach;
