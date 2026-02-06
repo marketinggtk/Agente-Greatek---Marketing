@@ -1,3 +1,4 @@
+
 import React, { useState, useRef } from 'react';
 import { ImageAdPackage, isAdCopy } from '../types';
 import Modal from './ui/Modal';
@@ -21,20 +22,37 @@ const LoadingOverlay: React.FC<{ text: string }> = ({ text }) => (
  * Utilitário para converter URL em DataURL (Base64)
  * Essencial para evitar "Canvas Tainting" e permitir download de imagens externas
  */
-const toDataURL = async (url: string): Promise<string> => {
-    try {
-        const response = await fetch(url, { mode: 'cors' });
-        if (!response.ok) throw new Error(`Status ${response.status}`);
-        const blob = await response.blob();
+const toDataURL = async (url: string): Promise<string | null> => {
+    // Helper to read blob to base64
+    const blobToBase64 = (blob: Blob): Promise<string> => {
         return new Promise((resolve, reject) => {
             const reader = new FileReader();
             reader.onloadend = () => resolve(reader.result as string);
             reader.onerror = reject;
             reader.readAsDataURL(blob);
         });
+    };
+
+    try {
+        // Tentativa 1: Fetch direto (funciona se o servidor suportar CORS)
+        const response = await fetch(url, { mode: 'cors' });
+        if (!response.ok) throw new Error(`Status ${response.status}`);
+        const blob = await response.blob();
+        return await blobToBase64(blob);
     } catch (e) {
-        console.error(`Falha ao converter imagem: ${url}`, e);
-        return url; // Fallback para a URL original (pode falhar no canvas)
+        console.warn(`Fetch direto falhou para ${url}, tentando proxy...`);
+        try {
+            // Tentativa 2: Usar um Proxy CORS
+            // Nota: Em produção, o ideal é ter um proxy próprio no backend.
+            const proxyUrl = `https://corsproxy.io/?${encodeURIComponent(url)}`;
+            const response = await fetch(proxyUrl);
+            if (!response.ok) throw new Error(`Proxy Status ${response.status}`);
+            const blob = await response.blob();
+            return await blobToBase64(blob);
+        } catch (proxyError) {
+            console.error(`Falha crítica ao converter imagem: ${url}`, proxyError);
+            return null; // Retorna null para indicar falha
+        }
     }
 };
 
@@ -137,9 +155,18 @@ const ImageAdViewer: React.FC<ImageAdViewerProps> = ({ data, onUpscale, onRegene
             const images = Array.from(clonedNode.querySelectorAll('img'));
             await Promise.all(images.map(async (img) => {
                 const src = img.getAttribute('src');
+                // Apenas tenta converter se for uma URL externa (http/https)
                 if (src && src.startsWith('http')) {
                     const dataUrl = await toDataURL(src);
-                    img.setAttribute('src', dataUrl);
+                    if (dataUrl) {
+                        img.setAttribute('src', dataUrl);
+                        // Remover crossorigin para evitar conflitos com base64
+                        img.removeAttribute('crossorigin'); 
+                    } else {
+                        // Se falhar a conversão, removemos a imagem para evitar "Tainted Canvas"
+                        console.warn(`Removendo imagem insegura do download: ${src}`);
+                        img.remove();
+                    }
                 }
             }));
 
@@ -203,7 +230,7 @@ const ImageAdViewer: React.FC<ImageAdViewerProps> = ({ data, onUpscale, onRegene
                     showToast('Download concluído com sucesso!', 'success');
                 } catch (err) {
                     console.error("Erro na exportação final:", err);
-                    showToast('Erro ao exportar imagem. Tente usar "Baixar Imagem" simples.', 'error');
+                    showToast('Erro de segurança ao exportar imagem. Tente baixar apenas a imagem de fundo.', 'error');
                 } finally {
                     URL.revokeObjectURL(url);
                     setIsDownloading(false);

@@ -99,6 +99,30 @@ const parseComponentCardContent = (content: string) => {
     return { title, product, why, specs };
 };
 
+const parseStrategyCardContent = (content: string) => {
+    const sellerMatch = content.match(/\*\*Vendedor:\*\*\s*(.*)/);
+    const productMatch = content.match(/\*\*Produto Foco.*:\*\*\s*(.*)/);
+    const gapMatch = content.match(/\*\*Gap.*:\*\*\s*(.*)/);
+    const iconMatch = content.match(/\*\*Ícone:\*\*\s*(.*)/);
+    
+    // Split the rest of content for body parsing (Diagnosis, Agenda, Action)
+    // We remove the header lines we just parsed
+    let body = content
+        .replace(/\*\*Vendedor:\*\*.*\n?/, '')
+        .replace(/\*\*Produto Foco.*:\*\*.*\n?/, '')
+        .replace(/\*\*Gap.*:\*\*.*\n?/, '')
+        .replace(/\*\*Ícone:\*\*.*\n?/, '')
+        .trim();
+
+    return {
+        seller: sellerMatch ? sellerMatch[1].trim() : 'Vendedor',
+        productFocus: productMatch ? productMatch[1].trim() : 'Mix Geral',
+        gap: gapMatch ? gapMatch[1].trim() : '-',
+        icon: iconMatch ? iconMatch[1].trim() : 'bi-graph-up',
+        body: body
+    };
+};
+
 const parseSocialPost = (content: string, attributes: string) => {
     const platformMatch = attributes.match(/platform="(.*?)"/);
     return {
@@ -185,8 +209,9 @@ const MarkdownViewer: React.FC<MarkdownViewerProps> = ({ content, mode, isLastMe
     let inSeoMetrics = false; let seoMetricsContent = '';
     let inTechDiagram = false; let techDiagramContent = ''; let techDiagramAttrs = '';
     
-    // Instructor Training Cards
+    // Instructor & Strategy Cards
     let inTrainingCard = false; let trainingCardContent = ''; let trainingCardAttrs = '';
+    let inStrategyCard = false; let strategyCardContent = '';
 
 
     const flushList = () => {
@@ -231,6 +256,7 @@ const MarkdownViewer: React.FC<MarkdownViewerProps> = ({ content, mode, isLastMe
       if (cleanTagLine === '[DIAGNOSTICO_START]') { flushAll(); inDiagnosisCard = true; continue; }
       if (cleanTagLine === '[DESIGN_PILLAR_START]') { flushAll(); inPillarCard = true; continue; }
       if (cleanTagLine === '[COMPONENT_CARD_START]') { flushAll(); inComponentCard = true; continue; }
+      if (cleanTagLine === '[STRATEGY_CARD_START]') { flushAll(); inStrategyCard = true; continue; }
       
       // New Marketing Tags
       if (cleanTagLine.startsWith('[SOCIAL_POST_START')) { 
@@ -487,6 +513,75 @@ const MarkdownViewer: React.FC<MarkdownViewerProps> = ({ content, mode, isLastMe
           continue;
       }
 
+      if (cleanTagLine === '[STRATEGY_CARD_END]') {
+          if (inStrategyCard) {
+              const cardData = parseStrategyCardContent(strategyCardContent);
+              
+              // Helper to parse internal markdown sections of the card body (like Tables inside)
+              // We create a mini-instance of the rendering logic
+              const renderBody = (bodyText: string) => {
+                  const bodyLines = bodyText.split('\n');
+                  const bodyElements = [];
+                  for (let j = 0; j < bodyLines.length; j++) {
+                      const l = bodyLines[j];
+                      // Table Parsing Logic reuse
+                      const isTableSeparator = (line: string) => line.trim().startsWith('|') && line.includes('---') && line.trim().endsWith('|');
+                      const isTableRow = (line: string) => line.trim().startsWith('|') && line.trim().endsWith('|');
+
+                      if (isTableRow(l) && j + 1 < bodyLines.length && isTableSeparator(bodyLines[j + 1])) {
+                          const headerLine = l;
+                          const headers = headerLine.split('|').slice(1, -1).map(cell => cell.trim());
+                          const rows: string[][] = [];
+                          let k = j + 2;
+                          while(k < bodyLines.length && isTableRow(bodyLines[k])) {
+                              const rowCells = bodyLines[k].trim().split('|').slice(1, -1).map(cell => cell.trim());
+                              rows.push(rowCells);
+                              k++;
+                          }
+                          bodyElements.push(<DataTableView key={`internal-table-${j}`} headers={headers} rows={rows} />);
+                          j = k - 1;
+                      } else if (l.startsWith('### ')) {
+                          bodyElements.push(<h4 key={`h4-${j}`} className="text-base font-bold text-greatek-dark-blue mt-4 mb-2">{l.substring(4)}</h4>);
+                      } else if (l.trim()) {
+                          bodyElements.push(<p key={`p-${j}`} className="text-sm text-text-secondary mb-1">{parseInlineMarkdown(l)}</p>);
+                      }
+                  }
+                  return bodyElements;
+              };
+
+              elements.push(
+                  <div key={`strategy-card-${i}`} className="not-prose my-8 p-6 bg-white border border-greatek-border rounded-xl shadow-lg border-t-4 border-t-greatek-blue animate-fade-in relative overflow-hidden">
+                      <div className="absolute top-0 right-0 p-4 opacity-5">
+                          <i className={`bi ${cardData.icon} text-8xl`}></i>
+                      </div>
+                      
+                      <div className="relative z-10">
+                          <div className="flex justify-between items-start border-b border-gray-100 pb-4 mb-4">
+                              <div>
+                                  <span className="text-xs uppercase font-bold text-greatek-blue tracking-wider bg-greatek-blue/10 px-2 py-1 rounded">Estratégia Individual</span>
+                                  <h3 className="text-2xl font-bold text-greatek-dark-blue mt-2">{cardData.seller}</h3>
+                              </div>
+                              <div className="text-right">
+                                  <p className="text-xs text-text-secondary">Foco Principal</p>
+                                  <p className="text-lg font-bold text-greatek-dark-blue">{cardData.productFocus}</p>
+                              </div>
+                          </div>
+                          
+                          <div className="bg-yellow-50 p-3 rounded-lg border border-yellow-200 mb-4 inline-block w-full">
+                              <span className="font-bold text-yellow-800 text-sm"><i className="bi bi-exclamation-triangle-fill mr-1"></i> GAP: {cardData.gap}</span>
+                          </div>
+
+                          <div className="space-y-2">
+                              {renderBody(cardData.body)}
+                          </div>
+                      </div>
+                  </div>
+              );
+              strategyCardContent = ''; inStrategyCard = false;
+          }
+          continue;
+      }
+
 
       // --- Content Accumulation ---
       if (inSalesCard) { salesCardContent += line + '\n'; continue; }
@@ -498,6 +593,7 @@ const MarkdownViewer: React.FC<MarkdownViewerProps> = ({ content, mode, isLastMe
       if (inSeoMetrics) { seoMetricsContent += line + '\n'; continue; }
       if (inTechDiagram) { techDiagramContent += line + '\n'; continue; }
       if (inTrainingCard) { trainingCardContent += line + '\n'; continue; }
+      if (inStrategyCard) { strategyCardContent += line + '\n'; continue; }
       
       // --- Standard Markdown Parsing ---
       const isTableSeparator = (l: string) => l.trim().startsWith('|') && l.includes('---') && l.trim().endsWith('|');

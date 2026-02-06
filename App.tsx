@@ -17,6 +17,7 @@ import PresentationBuilder from './components/PresentationBuilder';
 import TrainingCoach from './components/TrainingCoach';
 import PortfolioSearch from './components/PortfolioSearch';
 import ContentPlanner from './components/ContentPlanner';
+import BlogPostGenerator from './components/BlogPostGenerator'; // Importado
 import { ChatWidgetSimulator } from './components/ChatWidgetSimulator';
 
 const App: React.FC = () => {
@@ -74,6 +75,7 @@ const App: React.FC = () => {
         AppMode.PRESENTATION_BUILDER, 
         AppMode.PORTFOLIO_SEARCH,
         AppMode.CONTENT_PLANNER,
+        AppMode.BLOG_POST, // Adicionado aqui
     ].includes(currentMode as AppMode);
 
     const renderTool = () => {
@@ -86,6 +88,8 @@ const App: React.FC = () => {
                 return <PortfolioSearch />;
             case AppMode.CONTENT_PLANNER:
                 return <ContentPlanner />;
+            case AppMode.BLOG_POST:
+                return <BlogPostGenerator />;
             default:
                 return null;
         }

@@ -73,6 +73,16 @@ export interface GoalCalculatorState {
     workingDays: string;
 }
 
+export interface SalesTeamMember {
+    id: string;
+    name: string;
+    region: string;
+    individualGoal: string; // Meta Individual R$
+    realizedSales: string;  // Vendas Realizadas R$
+    proposalsSent: string;  // Propostas Enviadas (Qtd)
+    proposalsWon: string;   // Propostas Ganhas (Qtd)
+}
+
 export interface GoalComparisonState {
     previousMonth: GoalCalculatorState;
     currentMonth: GoalCalculatorState;
@@ -156,6 +166,12 @@ export interface Conversation {
   goalCalculatorState?: GoalCalculatorState;
   individualGoalCalculatorState?: GoalCalculatorState;
   goalComparisonState?: GoalComparisonState;
+  
+  // Team Planner State
+  teamMembers?: SalesTeamMember[];
+  teamGlobalGoal?: string;
+  teamStrategyAnalysis?: string | null;
+
   comparisonAnalysis?: string | null;
   portfolioSearchQuery?: string;
   portfolioSearchResults?: PortfolioSearchResultItem[] | null;

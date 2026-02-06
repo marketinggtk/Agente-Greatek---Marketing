@@ -1,6 +1,6 @@
 
 import { GoogleGenAI, Type, Schema, FunctionDeclaration } from "@google/genai";
-import { AppMode, Message, ImageAdPackage, TrainingAnalysisReport, CustomerDossier } from "../types";
+import { AppMode, Message, ImageAdPackage, TrainingAnalysisReport, CustomerDossier, SalesTeamMember } from "../types";
 import { FULL_KNOWLEDGE_BASE_TEXT, KNOWLEDGE_BASE_SKYWATCH } from "./knowledgeBase";
 import { SYSTEM_PROMPT } from "../constants";
 
@@ -49,6 +49,74 @@ const getSystemInstruction = (mode: AppMode, options: PromptOptions = {}) => {
 
         case AppMode.LEAD_HUNTER:
             return `${baseInstruction} Você é um especialista em prospecção B2B. Use a busca do Google para encontrar leads qualificados. Retorne APENAS um JSON array.`;
+
+        case AppMode.BLOG_POST:
+            return `${baseInstruction}
+            Você é um redator sênior de marketing da Greatek.
+            Sua missão é criar posts de blog altamente persuasivos, técnicos (mas acessíveis) e focados em SEO para ISPs e Integradores.
+
+            **BASE DE CONHECIMENTO (PRODUTOS):**
+            ${knowledgeBase}
+
+            **INSTRUÇÕES DE COMPORTAMENTO:**
+            1.  **Analise o Tema:** Com base no título/tema fornecido pelo usuário, identifique a **dor/problema** principal do público-alvo (ISP/Integrador).
+            2.  **Selecione Produtos:** Busque na Base de Conhecimento acima os produtos Greatek/TP-Link que solucionam essa dor.
+            3.  **Estrutura Rígida:** O post DEVE seguir a estrutura: Introdução -> Seções de Desenvolvimento (Desafio, Estratégias, Solução) -> Conclusão.
+            4.  **Tom de Voz:** Profissional, parceiro, autoridade técnica. A Greatek deve ser apresentada como a parceira que resolve o problema.
+            5.  **SEO:** Gere tags relevantes baseadas no conteúdo criado.
+
+            **MODELO DE FORMATAÇÃO (OBRIGATÓRIO SEGUIR ESTE ESTILO HTML):**
+            
+            Use tags HTML: <h2> para subtítulos, <ul> e <li> para listas, <strong> para destaque.
+            
+            *Exemplo de fluxo:*
+            [Introdução contextualizando o problema e mencionando que a Greatek tem a solução]
+            <h2>O Desafio [Contexto do Tema]</h2>
+            [Descrição do problema]
+            <ul>
+                <li><strong>Problema 1:</strong> Descrição...</li>
+                <li><strong>Problema 2:</strong> Descrição...</li>
+            </ul>
+            <h2>Estratégias Essenciais / Dicas Práticas</h2>
+            [Texto de transição]
+            <ul>
+                <li><strong>Dica 1:</strong> Explicação...</li>
+                <li><strong>Dica 2:</strong> Explicação...</li>
+            </ul>
+            <h2>A Solução Definitiva com Greatek: [Produtos Selecionados]</h2>
+            A Greatek oferece...
+            <ul>
+                <li><strong>[Nome do Produto 1]:</strong> Descrição focada no benefício...</li>
+                <li><strong>[Nome do Produto 2]:</strong> Descrição focada no benefício...</li>
+            </ul>
+            
+            **IMPORTANTE - NÃO DUPLICAR CONCLUSÃO:**
+            - O campo \`sections\` deve conter APENAS o desenvolvimento (Desafios, Dicas, Soluções).
+            - O texto final de fechamento deve ir EXCLUSIVAMENTE no campo \`conclusion\`.
+            - **NÃO adicione** uma seção com título "Conclusão" dentro do array \`sections\`, pois o sistema já renderiza a conclusão separadamente.
+
+            **CTA OBRIGATÓRIO (WHATSAPP):**
+            O campo \`cta_html\` do JSON DEVE conter EXATAMENTE este código HTML (não altere o estilo nem o link, apenas o texto pode variar levemente se necessário, mas mantenha a base):
+            <a style="display: inline-block; background-color: #25d366; color: white; padding: 15px 30px; text-align: center; text-decoration: none; border-radius: 5px; font-size: 18px; font-weight: bold;" href="https://wa.me/5512992218852?text=Ol%C3%A1%2C%20vim%20pelo%20blog%20da%20Greatek.%20Poderia%20me%20auxiliar%3F" target="_blank" rel="noopener">Chamar no WhatsApp</a>
+
+            **FORMATO DE SAÍDA (JSON):**
+            Retorne APENAS um JSON válido:
+            {
+              "title": "Título Otimizado (H1)",
+              "introduction": "Texto da introdução em HTML (sem a tag H1)",
+              "sections": [
+                { "heading": "Título do H2 (ex: O Desafio...)", "content": "Conteúdo HTML abaixo do H2 (p, ul, li...)" },
+                { "heading": "Título do H2 (ex: Solução Greatek...)", "content": "Conteúdo HTML com produtos..." }
+                // Crie quantas seções forem necessárias para seguir a estrutura, EXCETO a conclusão.
+              ],
+              "conclusion": "Texto da conclusão em HTML (sem tag H2)",
+              "seo_title": "Meta Title (max 60 chars)",
+              "seo_meta_description": "Meta Description (max 155 chars)",
+              "seo_tags": ["tag1", "tag2", "tag3"],
+              "cta_html": "O código HTML do botão do WhatsApp especificado acima",
+              "related_products": [{ "name": "Nome Produto", "code": "Código (se houver)" }]
+            }
+            `;
 
         default:
             return `${baseInstruction}\n\nBase de Conhecimento:\n${knowledgeBase}`;
@@ -247,6 +315,75 @@ export const streamGoalComparisonAnalysis = async function* (data: any, signal?:
 
     **TOM DE VOZ:**
     Profissional, analítico, motivador mas realista. Foque em métricas de melhoria.
+    `;
+
+    const responseStream = await ai.models.generateContentStream({
+        model: 'gemini-2.5-flash',
+        contents: prompt,
+    });
+
+    for await (const chunk of responseStream) {
+        if (signal?.aborted) break;
+        yield chunk.text || '';
+    }
+};
+
+export const streamTeamStrategy = async function* (globalGoal: string, members: SalesTeamMember[], signal?: AbortSignal) {
+    const prompt = `
+    Atue como um **Diretor Comercial Sênior de Alta Performance (CSO)** focado em distribuição de tecnologia (ISP e Infra).
+    
+    **OBJETIVO:** 
+    Criar um planejamento TÁTICO e VISUAL para que a equipe atinja a **Meta Global Mensal de: R$ ${globalGoal}**.
+    
+    **DADOS DA EQUIPE:**
+    ${JSON.stringify(members)}
+
+    **BASE DE CONHECIMENTO GREATEK (PRODUTOS):**
+    ${FULL_KNOWLEDGE_BASE_TEXT.substring(0, 15000)} (Use isso para sugerir produtos específicos!)
+
+    **REGRAS DE GERAÇÃO (RIGOROSO):**
+
+    1.  **NÃO USE TEXTO CORRIDO.** Use Cards e Listas. A resposta deve ser visual e dinâmica.
+    
+    2.  **Para CADA vendedor, gere um card de estratégia usando a tag especial:**
+        
+        \`[STRATEGY_CARD_START]\`
+        **Vendedor:** [Nome do Vendedor] - [Região]
+        **Meta Mensal Restante:** [Valor que falta]
+        **Meta da Semana (1/4):** [Divida o valor faltante por 4]
+        **Produto Foco da Região:** [Escolha um produto Greatek estratégico para a região dele: Ex: OLT para Norte/Nordeste, VIGI para Sul/Sudeste]
+        **Ícone:** [bi-currency-dollar OU bi-trophy OU bi-graph-up-arrow]
+        
+        ### Diagnóstico Rápido
+        [Uma frase direta sobre o desempenho dele. Ex: "Conversão alta, mas volume baixo. Precisa prospectar mais."]
+
+        ### 📅 Agenda da Semana (Obrigatório - Foco no Diário)
+        | Dia | Ação Focada | Meta Diária (R$) | Atividade (Calls/Msgs) |
+        | :--- | :--- | :--- | :--- |
+        | **Seg** | Prospecção Fria (Novos CNPJs) | R$ [Valor] | 25 Ligações / 10 Msgs |
+        | **Ter** | Follow-up Propostas Antigas | R$ [Valor] | 20 Ligações / 15 Msgs |
+        | **Qua** | Oferta de Mix (VIGI/Tapo) | R$ [Valor] | 15 Clientes da Base |
+        | **Qui** | Fechamento Agressivo | R$ [Valor] | Falar com 5 Decisores |
+        | **Sex** | Planejamento & Pós-venda | R$ [Valor] | Organizar CRM |
+
+        ### 🎯 Ação de Ouro (Greatek Intelligence)
+        [Dê uma dica específica de produto Greatek para ele usar baseada na região dele. Ex: "No Nordeste, a demanda por OLT Chassi X2 está alta. Use isso para abrir portas em grandes provedores."]
+        \`[STRATEGY_CARD_END]\`
+
+    3.  **Matemática da Meta:**
+        *   Calcule explicitamente a **Meta da Semana** dividindo o GAP mensal por 4.
+        *   Divida a Meta Semanal por 5 para sugerir a "Meta Diária" na tabela.
+
+    4.  **Personalização por Região:**
+        *   **Norte/Nordeste:** Foco em OLTs, Fibra, Redes Longas (Think/2Flex).
+        *   **Sul/Sudeste:** Foco em VIGI, Tapo, Casa Inteligente, Omada (Valor Agregado).
+        *   **Centro-Oeste:** Foco em Energia Solar (Baterias/Inversores) e Agro.
+
+    5.  **Resumo Global:**
+        No final, faça um breve resumo motivacional para o time todo.
+
+    **TOM DE VOZ:**
+    Diretivo, motivador, orientado a dados e produtos. Você é o chefe cobrando resultado, mas dando o caminho das pedras.
     `;
 
     const responseStream = await ai.models.generateContentStream({

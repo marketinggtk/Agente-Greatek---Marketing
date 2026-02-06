@@ -251,7 +251,7 @@ export const SalesCoach: React.FC = () => {
             mediaStreamRef.current = stream;
             const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
 
-            const AudioCtx = window.AudioContext || (window as any).webkitAudioContext;
+            const AudioCtx = (window.AudioContext || (window as any).webkitAudioContext) as any;
             const inputAudioContext = new AudioCtx({ sampleRate: 16000 });
             const outputAudioContext = new AudioCtx({ sampleRate: 24000 });
             

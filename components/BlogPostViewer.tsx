@@ -3,8 +3,12 @@ import React, { useState, useMemo } from 'react';
 import { BlogPostPackage } from '../types';
 import { useAppStore } from '../store/useAppStore';
 
-// Reusable CopyButton component for consistency
-const CopyButton: React.FC<{ text: string, label?: string }> = ({ text, label = 'Copiar' }) => {
+interface CopyButtonProps {
+    text: string;
+    label?: string;
+}
+
+const CopyButton: React.FC<CopyButtonProps> = ({ text, label = 'Copiar' }) => {
     const [copied, setCopied] = useState(false);
     const { showToast } = useAppStore();
 
@@ -30,11 +34,19 @@ const CopyButton: React.FC<{ text: string, label?: string }> = ({ text, label = 
 
 const BlogPostViewer: React.FC<{ data: BlogPostPackage }> = ({ data }) => {
     const { showToast } = useAppStore();
+    const [htmlCopied, setHtmlCopied] = useState(false);
 
-    // We no longer convert Markdown. The agent is now instructed to return valid HTML.
-    // We construct the full HTML string for the copy button.
+    const filteredSections = useMemo(() => {
+        if (!data?.sections || !Array.isArray(data.sections)) return [];
+        return data.sections.filter(section => {
+            const heading = section.heading?.toLowerCase().trim() || '';
+            return heading !== 'conclusão' && heading !== 'conclusao' && heading !== 'conclusion';
+        });
+    }, [data]);
+
     const fullPostHtml = useMemo(() => {
-        const sectionsHtml = data.sections.map(sec => 
+        if (!data) return '';
+        const sectionsHtml = filteredSections.map(sec => 
             `<h2>${sec.heading}</h2>\n${sec.content}`
         ).join('\n\n');
 
@@ -50,9 +62,7 @@ ${data.conclusion}
 <p>&nbsp;</p>
 ${data.cta_html}
         `.trim();
-    }, [data]);
-
-    const [htmlCopied, setHtmlCopied] = useState(false);
+    }, [data, filteredSections]);
 
     const handleCopyHtml = () => {
         navigator.clipboard.writeText(fullPostHtml).then(() => {
@@ -62,13 +72,7 @@ ${data.cta_html}
         });
     };
 
-    // Style object for the prose content to ensure lists look correct
-    const proseStyles = {
-        ul: "list-disc pl-6 my-4 space-y-2",
-        li: "text-gray-700 leading-relaxed",
-        p: "mb-4 text-gray-700 leading-relaxed",
-        strong: "font-bold text-gray-900"
-    };
+    if (!data) return null;
 
     return (
         <div className="bg-greatek-bg-light border border-greatek-border rounded-lg shadow-sm animate-fade-in p-4 lg:p-6">
@@ -90,7 +94,7 @@ ${data.cta_html}
 
                         {/* Post Body */}
                         <div className="prose prose-lg max-w-none prose-p:text-gray-700 prose-p:leading-relaxed prose-li:text-gray-700 prose-headings:font-bold prose-headings:text-gray-900 prose-strong:text-gray-900 prose-ul:list-disc prose-ul:pl-5">
-                            {data.sections.map((section, index) => (
+                            {filteredSections.map((section, index) => (
                                 <React.Fragment key={index}>
                                     <h2 className="!text-2xl !mt-12 !mb-4">{section.heading}</h2>
                                     {/* Render HTML content directly for list support */}
