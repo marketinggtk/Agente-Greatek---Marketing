@@ -2,15 +2,13 @@
 
 import React, { useState } from 'react';
 import Modal from './ui/Modal';
-import { SalesCoach } from './SalesCoach';
 import TrainingCoach from './TrainingCoach';
 import LeadHunter from './LeadHunter';
 import { useAppStore } from '../store/useAppStore';
 import { AppMode } from '../types';
 
 const ControlPanel: React.FC<{ onClose: () => void; }> = ({ onClose }) => {
-    const { createNewConversation, setWidgetSimulatorOpen } = useAppStore();
-    const [isSalesCoachOpen, setIsSalesCoachOpen] = useState(false);
+    const { createNewConversation } = useAppStore();
     const [isTrainingCoachOpen, setIsTrainingCoachOpen] = useState(false);
     const [isLeadHunterOpen, setIsLeadHunterOpen] = useState(false);
 
@@ -47,21 +45,6 @@ const ControlPanel: React.FC<{ onClose: () => void; }> = ({ onClose }) => {
                         </button>
 
                         <button
-                            onClick={() => setIsSalesCoachOpen(true)}
-                            className="group p-4 border border-greatek-border rounded-lg text-left hover:bg-greatek-bg-light hover:border-greatek-blue transition-all"
-                        >
-                            <div className="flex items-center">
-                                <div className="w-10 h-10 rounded-lg bg-greatek-blue/10 flex items-center justify-center">
-                                    <i className="bi bi-headset text-xl text-greatek-blue"></i>
-                                </div>
-                                <h5 className="ml-3 font-bold text-greatek-dark-blue">Simulador de Clientes</h5>
-                            </div>
-                            <p className="text-xs text-text-secondary mt-2">
-                                Pratique suas habilidades de vendas em uma simulação de áudio em tempo real com um cliente IA.
-                            </p>
-                        </button>
-
-                        <button
                             onClick={() => setIsTrainingCoachOpen(true)}
                             className="group p-4 border border-greatek-border rounded-lg text-left hover:bg-greatek-bg-light hover:border-greatek-blue transition-all"
                         >
@@ -90,37 +73,11 @@ const ControlPanel: React.FC<{ onClose: () => void; }> = ({ onClose }) => {
                                 Pesquise uma empresa e crie um dossiê com notícias, insights e ganchos de conversa.
                             </p>
                         </button>
-
-                        <button
-                            onClick={() => { setWidgetSimulatorOpen(true); onClose(); }}
-                            className="group p-4 border border-greatek-border rounded-lg text-left hover:bg-greatek-bg-light hover:border-greatek-blue transition-all bg-green-50/50"
-                        >
-                            <div className="flex items-center">
-                                <div className="w-10 h-10 rounded-lg bg-green-600 text-white flex items-center justify-center shadow-md">
-                                    <i className="bi bi-chat-dots-fill text-xl"></i>
-                                </div>
-                                <h5 className="ml-3 font-bold text-greatek-dark-blue">Simular Widget do Site</h5>
-                            </div>
-                            <p className="text-xs text-text-secondary mt-2">
-                                Teste como o agente se comportaria respondendo a clientes reais no site oficial da Greatek.
-                            </p>
-                        </button>
                         
                     </div>
                 </div>
             </Modal>
             
-            {isSalesCoachOpen && (
-                <Modal 
-                    isOpen={isSalesCoachOpen}
-                    onClose={() => setIsSalesCoachOpen(false)}
-                    title="Coach de Vendas - Simulador de Clientes"
-                    size="large"
-                >
-                    <SalesCoach />
-                </Modal>
-            )}
-
             {isTrainingCoachOpen && (
                 <Modal 
                     isOpen={isTrainingCoachOpen}

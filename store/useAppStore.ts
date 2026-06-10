@@ -4,13 +4,15 @@ import {
     AppMode, 
     Conversation, 
     Message, 
+    Attachment,
     PresentationPackage,
     GoalCalculatorState,
     PortfolioSearchResultItem,
     BusinessAnalysisResult,
     OutboundReport,
     OutboundGoalInputs,
-    SalesTeamMember
+    SalesTeamMember,
+    isPresentationPackage
 } from '../types';
 import { 
     runGeminiJsonQuery, 
@@ -22,6 +24,139 @@ import {
     streamTeamStrategy
 } from '../services/geminiService';
 import { sendFeedbackEmail } from '../services/emailService'; 
+import { AGENTS } from '../constants';
+
+const CONVERSATION_HISTORY_KEY = 'greatek-agent-conversation-history';
+
+const readFileAsBase64 = (file: File): Promise<string> => {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => {
+            const result = reader.result as string;
+            const base64 = result.split(',')[1] || '';
+            resolve(base64);
+        };
+        reader.onerror = (e) => reject(e);
+        reader.readAsDataURL(file);
+    });
+};
+
+function loadSessionsFromLocalStorage(): Conversation[] {
+    try {
+        const stored = localStorage.getItem(CONVERSATION_HISTORY_KEY);
+        if (stored) {
+            const sessions = JSON.parse(stored);
+            if (Array.isArray(sessions)) {
+                return sessions.map((session: any) => {
+                    let safeMessages = [];
+                    if (Array.isArray(session.messages)) {
+                        safeMessages = session.messages;
+                    } else if (session.messages && typeof session.messages === 'object') {
+                        // Attempt to extract values if it was inadvertently saved as an object
+                        safeMessages = Object.values(session.messages);
+                    }
+
+                    return {
+                        id: session.id || String(Date.now()),
+                        title: session.title || 'Conversa sem título',
+                        mode: session.agentId as AppMode,
+                        messages: safeMessages.map((m: any) => {
+                            let parsedContent = m.content;
+                            if (typeof m.content === 'string') {
+                                const trimmed = m.content.trim();
+                                if ((trimmed.startsWith('{') && trimmed.endsWith('}')) || (trimmed.startsWith('[') && trimmed.endsWith(']'))) {
+                                    try {
+                                        parsedContent = JSON.parse(m.content);
+                                    } catch (e) {
+                                        // Keep as string if parsing fails
+                                    }
+                                }
+                            }
+                            
+                            // Ensure role is mapped safely
+                            let safeRole = m.role;
+                            if (m.role === 'model') safeRole = 'agent';
+                            if (!safeRole) safeRole = 'user'; // fallback
+                            
+                            return {
+                                role: safeRole,
+                                content: parsedContent,
+                                attachments: m.attachments
+                            };
+                        }),
+                        createdAt: session.createdAt ? new Date(session.createdAt) : new Date(),
+                        updatedAt: session.updatedAt ? new Date(session.updatedAt) : (session.createdAt ? new Date(session.createdAt) : new Date()),
+                        ...(session.context || {})
+                    };
+                });
+            }
+        }
+    } catch (e) {
+        console.error("Failed to load persistent conversation history", e);
+    }
+    return [];
+}
+
+function saveToHistoryLocalStorage(conversations: Conversation[]) {
+    try {
+        const mapped = conversations
+            .map(conv => {
+                const agent = AGENTS.find(a => a.mode === conv.mode);
+                const agentName = agent ? agent.title : 'Nova Conversa';
+                const lastMsg = conv.messages[conv.messages.length - 1];
+                const preview = lastMsg ? (typeof lastMsg.content === 'string' ? lastMsg.content : '') : '';
+                
+                const messages = (conv.messages || []).map((m: any, index: number) => ({
+                    id: index.toString(),
+                    role: m.role === 'user' ? 'user' : 'model',
+                    content: typeof m.content === 'string' ? m.content : JSON.stringify(m.content),
+                    attachments: m.attachments,
+                    createdAt: conv.createdAt ? new Date(conv.createdAt).toISOString() : new Date().toISOString()
+                }));
+
+                const context = {
+                    selectedModule: conv.selectedModule || null,
+                    productName: conv.selectedModule ? (conv.selectedModule.displayTitle || conv.selectedModule.title) : undefined,
+                    skywatchDeclined: conv.skywatchDeclined,
+                    presentationPackage: conv.presentationPackage,
+                    goalCalculatorState: conv.goalCalculatorState,
+                    individualGoalCalculatorState: conv.individualGoalCalculatorState,
+                    goalComparisonState: conv.goalComparisonState,
+                    teamMembers: conv.teamMembers,
+                    teamGlobalGoal: conv.teamGlobalGoal,
+                    teamStrategyAnalysis: conv.teamStrategyAnalysis,
+                    comparisonAnalysis: conv.comparisonAnalysis,
+                    portfolioSearchQuery: conv.portfolioSearchQuery,
+                    portfolioSearchResults: conv.portfolioSearchResults,
+                    contentPlan: conv.contentPlan,
+                    outboundReport: conv.outboundReport,
+                    outboundGoals: conv.outboundGoals,
+                    contentPlannerDraft: conv.contentPlannerDraft,
+                    blogPostDraft: conv.blogPostDraft,
+                    presentationDraft: conv.presentationDraft,
+                };
+
+                return {
+                    id: conv.id,
+                    agentId: conv.mode,
+                    agentName,
+                    title: conv.title,
+                    preview,
+                    messages,
+                    context,
+                    createdAt: conv.createdAt ? new Date(conv.createdAt).toISOString() : new Date().toISOString(),
+                    updatedAt: conv.updatedAt ? new Date(conv.updatedAt).toISOString() : new Date().toISOString()
+                };
+            })
+            .filter(session => session.agentId && (session.messages.length > 0 || session.context?.selectedModule || session.context?.portfolioSearchQuery || session.context?.contentPlan))
+            .sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime())
+            .slice(0, 30);
+
+        localStorage.setItem(CONVERSATION_HISTORY_KEY, JSON.stringify(mapped));
+    } catch (e) {
+         console.error("LocalStorage save error:", e);
+    }
+}
 
 interface AppState {
     conversations: Conversation[];
@@ -31,8 +166,6 @@ interface AppState {
     toastInfo: { message: string; type: 'success' | 'info' | 'error'; duration?: number } | null;
     attachments: File[];
     feedbackModalState: { isOpen: boolean };
-    isWidgetSimulatorOpen: boolean;
-    userUploadedKnowledge: any[];
     isAnalyzerOpen: boolean;
     isAnalyzing: boolean;
     isAnalyzingComparison: boolean;
@@ -46,18 +179,26 @@ interface AppState {
     commercialDatabase: any[];
     dbLastUpdated: Date | null;
     
+    // Daily Usage Tracking
+    dailyRequestsCount: number;
+
     // Actions
-    setWidgetSimulatorOpen: (isOpen: boolean) => void;
     createNewConversation: (mode: AppMode) => void;
     setActiveConversationId: (id: string) => void;
     deleteConversation: (id: string) => void;
     updateConversationTitle: (id: string, title: string) => void;
+    setSelectedModuleForConversation: (id: string, selectedModule: any) => void;
+    updateContentPlannerDraft: (id: string, draft: Partial<{ month: string; focus: string }>) => void;
+    updateBlogPostDraft: (id: string, draft: Partial<{ topic: string; selectedCategory: string }>) => void;
+    updatePresentationDraft: (id: string, draft: Partial<{ prompt: string; slideCount: number }>) => void;
+    clearAllConversations: () => void;
     returnToAgentSelection: () => void;
     
     addAttachments: (files: File[]) => void;
     removeAttachment: (index: number) => void;
     
     submitQuery: (prompt: string) => Promise<void>;
+    incrementDailyRequests: () => void;
     stopGeneration: () => void;
     
     showToast: (message: string, type: 'success' | 'info' | 'error', duration?: number) => void;
@@ -66,9 +207,6 @@ interface AppState {
     setMessageFeedback: (conversationId: string, messageIndex: number, type: 'good' | 'bad') => void;
     closeFeedbackModal: () => void;
     submitNegativeFeedback: (reason: string) => void;
-    
-    updateKnowledgeBaseFromFile: (file: File) => Promise<void>;
-    resetKnowledgeBase: () => void;
     
     toggleAnalyzer: () => void;
     startAnalysisFromSpreadsheet: (file: File, instructions: string) => Promise<void>;
@@ -82,6 +220,8 @@ interface AppState {
     resetPresentation: () => void;
     updatePresentation: (pkg: PresentationPackage) => void;
     updateSlideUserImage: (slideId: string, base64: string | null) => void;
+    
+    validatePresentationQuality: (pkg: PresentationPackage) => void;
     
     updateGoalCalculatorState: (newState: Partial<GoalCalculatorState>) => void;
     updateIndividualGoalCalculatorState: (newState: Partial<GoalCalculatorState>) => void;
@@ -105,20 +245,20 @@ interface AppState {
     loadCommercialDatabase: (file: File) => Promise<void>;
     runStrategicAnalysisFromDB: (options: any) => Promise<void>;
 
+    handleNegativeSkywatchResponse: () => void;
+
     // Abort Controller
     abortController: AbortController | null;
 }
 
 export const useAppStore = create<AppState>((set, get) => ({
-    conversations: [],
+    conversations: loadSessionsFromLocalStorage(),
     activeConversationId: null,
     isLoading: false,
     error: null,
     toastInfo: null,
     attachments: [],
     feedbackModalState: { isOpen: false },
-    isWidgetSimulatorOpen: false,
-    userUploadedKnowledge: [],
     isAnalyzerOpen: false,
     isAnalyzing: false,
     isAnalyzingComparison: false,
@@ -131,9 +271,36 @@ export const useAppStore = create<AppState>((set, get) => ({
     isStrategicPlanning: false,
     commercialDatabase: [],
     dbLastUpdated: null,
-
-    setWidgetSimulatorOpen: (isOpen) => set({ isWidgetSimulatorOpen: isOpen }),
     
+    dailyRequestsCount: (() => {
+        try {
+            const today = new Date().toISOString().split('T')[0];
+            const stored = localStorage.getItem(`gemini_usage_${today}`);
+            return stored ? parseInt(stored, 10) : 0;
+        } catch {
+            return 0;
+        }
+    })(),
+
+    handleNegativeSkywatchResponse: () => {
+        const { activeConversationId, conversations } = get();
+        if (!activeConversationId) return;
+        set({
+            conversations: conversations.map(c => 
+                c.id === activeConversationId ? { ...c, skywatchDeclined: true } : c
+            )
+        });
+    },
+
+    incrementDailyRequests: () => {
+        const today = new Date().toISOString().split('T')[0];
+        set(state => {
+            const newCount = state.dailyRequestsCount + 1;
+            localStorage.setItem(`gemini_usage_${today}`, newCount.toString());
+            return { dailyRequestsCount: newCount };
+        });
+    },
+
     createNewConversation: (mode) => {
         // Initialize Team Members if mode is Goal Calculator
         let teamMembers: SalesTeamMember[] | undefined;
@@ -154,6 +321,7 @@ export const useAppStore = create<AppState>((set, get) => ({
             mode,
             messages: [],
             createdAt: new Date(),
+            updatedAt: new Date(),
             teamMembers,
             teamGlobalGoal: ''
         };
@@ -176,8 +344,41 @@ export const useAppStore = create<AppState>((set, get) => ({
     }),
 
     updateConversationTitle: (id, title) => set(state => ({
-        conversations: state.conversations.map(c => c.id === id ? { ...c, title } : c)
+        conversations: state.conversations.map(c => c.id === id ? { ...c, title, updatedAt: new Date() } : c)
     })),
+
+    setSelectedModuleForConversation: (id, selectedModule) => set(state => ({
+        conversations: state.conversations.map(c => c.id === id ? { ...c, selectedModule, updatedAt: new Date() } : c)
+    })),
+
+    updateContentPlannerDraft: (id, draft) => set(state => ({
+        conversations: state.conversations.map(c => c.id === id ? { 
+            ...c, 
+            contentPlannerDraft: { ...(c.contentPlannerDraft || { month: '', focus: '' }), ...draft },
+            updatedAt: new Date() 
+        } : c)
+    })),
+
+    updateBlogPostDraft: (id, draft) => set(state => ({
+        conversations: state.conversations.map(c => c.id === id ? { 
+            ...c, 
+            blogPostDraft: { ...(c.blogPostDraft || { topic: '', selectedCategory: 'auto' }), ...draft },
+            updatedAt: new Date() 
+        } : c)
+    })),
+
+    updatePresentationDraft: (id, draft) => set(state => ({
+        conversations: state.conversations.map(c => c.id === id ? { 
+            ...c, 
+            presentationDraft: { ...(c.presentationDraft || { prompt: '', slideCount: 8 }), ...draft },
+            updatedAt: new Date() 
+        } : c)
+    })),
+
+    clearAllConversations: () => {
+        set({ conversations: [], activeConversationId: null });
+        localStorage.removeItem(CONVERSATION_HISTORY_KEY);
+    },
 
     returnToAgentSelection: () => set({ activeConversationId: null }),
 
@@ -198,21 +399,48 @@ export const useAppStore = create<AppState>((set, get) => ({
         set({ isLoading: true, error: null, abortController });
 
         try {
-            // Optimistic update user message
-            const userMsg: Message = { role: 'user', content: prompt };
+            // Read all attachments as Base64 strings first
+            const parsedAttachments: Attachment[] = [];
+            if (attachments && attachments.length > 0) {
+                for (const file of attachments) {
+                    try {
+                        const base64Content = await readFileAsBase64(file);
+                        parsedAttachments.push({
+                            name: file.name,
+                            type: file.type || 'application/octet-stream',
+                            size: file.size,
+                            content: base64Content
+                        });
+                    } catch (err) {
+                        console.error(`Failed to read file ${file.name}:`, err);
+                    }
+                }
+            }
+
+            // Optimistic update user message with attachments
+            const userMsg: Message = { 
+                role: 'user', 
+                content: prompt,
+                attachments: parsedAttachments.length > 0 ? parsedAttachments : undefined
+            };
+            
+            // Increment usage counter
+            get().incrementDailyRequests();
             
             const updatedConversations = conversations.map(c => 
                 c.id === activeConversationId 
-                ? { ...c, messages: [...c.messages, userMsg] }
+                ? { ...c, messages: [...c.messages, userMsg], updatedAt: new Date() }
                 : c
             );
             set({ conversations: updatedConversations, attachments: [] });
 
             // Generate Title if needed
             if (conversation.messages.length === 0) {
-                generateConversationTitle(prompt).then(title => {
+                // Truncate prompt to avoid prompt injection from large system instructions
+                const titlePrompt = prompt.length > 300 ? prompt.substring(0, 300) + "..." : prompt;
+                generateConversationTitle(titlePrompt).then(title => {
                     set(state => ({
-                        conversations: state.conversations.map(c => c.id === activeConversationId ? { ...c, title } : c)
+                        conversations: state.conversations.map(c => c.id === activeConversationId ? { ...c, title, updatedAt: new Date() } : c)
                     }));
                 });
             }
@@ -221,7 +449,7 @@ export const useAppStore = create<AppState>((set, get) => ({
             
             let responseContent: any = "";
             
-            if ([AppMode.MARKET_INTEL, AppMode.LEAD_HUNTER, AppMode.CONTENT_PLANNER, AppMode.PORTFOLIO_SEARCH, AppMode.BLOG_POST].includes(conversation.mode)) {
+            if ([AppMode.MARKET_INTEL, AppMode.CONTENT_PLANNER, AppMode.PORTFOLIO_SEARCH, AppMode.BLOG_POST, AppMode.PRESENTATION_BUILDER, AppMode.REVERSE_DIAGNOSIS].includes(conversation.mode)) {
                  responseContent = await runGeminiJsonQuery(conversation.mode, currentHistory, abortController.signal);
             } else if (conversation.mode === AppMode.CUSTOMER_DOSSIER) {
                  responseContent = await runDossierQuery(currentHistory, abortController.signal);
@@ -268,6 +496,8 @@ export const useAppStore = create<AppState>((set, get) => ({
                         portfolioSearchResults: conversation.mode === AppMode.PORTFOLIO_SEARCH ? (Array.isArray(responseContent) ? responseContent : []) : c.portfolioSearchResults,
                         portfolioSearchQuery: conversation.mode === AppMode.PORTFOLIO_SEARCH ? prompt : c.portfolioSearchQuery,
                         contentPlan: conversation.mode === AppMode.CONTENT_PLANNER ? responseContent : c.contentPlan,
+                        presentationPackage: conversation.mode === AppMode.PRESENTATION_BUILDER ? responseContent : c.presentationPackage,
+                        updatedAt: new Date()
                       }
                     : c
                 )
@@ -275,7 +505,21 @@ export const useAppStore = create<AppState>((set, get) => ({
 
         } catch (e: any) {
             if (e.name !== 'AbortError') {
-                set({ error: e.message || "Ocorreu um erro." });
+                let errorMessage = e.message || e.error?.message || "Ocorreu um erro.";
+                const errorString = JSON.stringify(e);
+                
+                // Transform technical quota error into user-friendly message
+                if (
+                    errorMessage.includes('429') || 
+                    errorMessage.toLowerCase().includes('quota') || 
+                    errorMessage.includes('RESOURCE_EXHAUSTED') ||
+                    e.error?.code === 429 ||
+                    e.error?.status === 'RESOURCE_EXHAUSTED' ||
+                    errorString.includes('RESOURCE_EXHAUSTED')
+                ) {
+                    errorMessage = "Cota de uso da IA atingida (429). Por favor, aguarde alguns instantes e tente novamente.";
+                }
+                set({ error: errorMessage });
             }
         } finally {
             set({ isLoading: false, abortController: null });
@@ -301,11 +545,6 @@ export const useAppStore = create<AppState>((set, get) => ({
         get().showToast("Feedback enviado com sucesso.", 'success'); 
         set({ feedbackModalState: { isOpen: false } }); 
     },
-
-    updateKnowledgeBaseFromFile: async (file) => {
-        set({ userUploadedKnowledge: [{ name: file.name, keywords: [], details: "Uploaded content" }] });
-    },
-    resetKnowledgeBase: () => set({ userUploadedKnowledge: [] }),
 
     toggleAnalyzer: () => set(state => ({ isAnalyzerOpen: !state.isAnalyzerOpen })),
     startAnalysisFromSpreadsheet: async (file, instructions) => {
@@ -340,27 +579,203 @@ export const useAppStore = create<AppState>((set, get) => ({
     toggleContentPlanItemStatus: (convId, itemId) => set(state => {
         const conv = state.conversations.find(c => c.id === convId);
         if (!conv || !conv.contentPlan) return {};
-        const newItems = conv.contentPlan.items.map(i => i.id === itemId ? { ...i, isCompleted: !i.isCompleted } : i);
+        const newItems = (conv.contentPlan.items || []).map(i => i.id === itemId ? { ...i, isCompleted: !i.isCompleted } : i);
         return {
             conversations: state.conversations.map(c => c.id === convId ? { ...c, contentPlan: { ...conv.contentPlan!, items: newItems } } : c)
         };
     }),
 
-    generatePresentation: async (prompt, slides) => {
-        const { activeConversationId } = get();
+    generatePresentation: async (prompt, slideCount) => {
+        const { activeConversationId, conversations } = get();
         if (!activeConversationId) return;
-        set({ isGeneratingPresentation: true });
-        await get().submitQuery(`Gere uma apresentação de ${slides} slides sobre: ${prompt}`);
-        set({ isGeneratingPresentation: false });
+
+        const conversation = conversations.find(c => String(c.id) === String(activeConversationId));
+        if (!conversation) return;
+
+        const abortController = new AbortController();
+        set({ isGeneratingPresentation: true, error: null, abortController });
+
+        const userMsg: Message = {
+            role: 'user',
+            content: `Gere uma apresentação de ${slideCount} slides sobre: ${prompt}`
+        };
+
+        set(state => ({
+            conversations: state.conversations.map(c =>
+                String(c.id) === String(activeConversationId)
+                    ? {
+                        ...c,
+                        messages: [...c.messages, userMsg],
+                        presentationDraft: {
+                            ...(c.presentationDraft || { prompt: '', slideCount: 8 }),
+                            prompt,
+                            slideCount
+                        },
+                        updatedAt: new Date()
+                    }
+                    : c
+            )
+        }));
+
+        try {
+            get().incrementDailyRequests();
+            
+            const updatedConversation = get().conversations.find(c => String(c.id) === String(activeConversationId));
+            const currentHistory = updatedConversation?.messages || [userMsg];
+
+            const presentationPackage = await runGeminiJsonQuery(
+                AppMode.PRESENTATION_BUILDER,
+                currentHistory,
+                abortController.signal
+            );
+
+            if (!isPresentationPackage(presentationPackage)) {
+                 throw new Error("Falha ao gerar o pacote da apresentação. Formato inválido recebido da IA.");
+            }
+
+            // Perform quality validation
+            get().validatePresentationQuality(presentationPackage);
+
+            const agentMsg: Message = {
+                role: 'agent',
+                content: presentationPackage
+            };
+
+            set(state => ({
+                conversations: state.conversations.map(c =>
+                    String(c.id) === String(activeConversationId)
+                        ? {
+                            ...c,
+                            presentationPackage,
+                            messages: [...c.messages, agentMsg],
+                            title: c.title === 'Nova Conversa' ? `Apresentação: ${prompt.slice(0, 40)}` : c.title,
+                            updatedAt: new Date()
+                        }
+                        : c
+                )
+            }));
+        } catch (error: any) {
+            if (error.name !== 'AbortError') {
+                set({
+                    error: error?.message || 'Erro ao gerar apresentação.'
+                });
+            }
+        } finally {
+            set({
+                isGeneratingPresentation: false,
+                abortController: null
+            });
+        }
     },
-    resetPresentation: () => { /* Reset logic */ },
-    updatePresentation: (pkg) => set(state => {
-        const { activeConversationId } = state;
+    resetPresentation: () => set(state => ({
+        conversations: state.conversations.map(c =>
+            String(c.id) === String(state.activeConversationId)
+                ? {
+                    ...c,
+                    presentationPackage: null,
+                    presentationDraft: undefined,
+                    updatedAt: new Date()
+                }
+                : c
+        ),
+        error: null
+    })),
+    updatePresentation: (pkg) => set(state => ({
+        conversations: state.conversations.map(c => 
+            String(c.id) === String(state.activeConversationId) 
+            ? { ...c, presentationPackage: pkg, updatedAt: new Date() } 
+            : c
+        )
+    })),
+    updateSlideUserImage: (slideId, base64) => set(state => {
+        const { activeConversationId, conversations } = state;
+        const conversation = conversations.find(c => String(c.id) === String(activeConversationId));
+        if (!conversation || !conversation.presentationPackage) return {};
+
+        const updatedSlides = conversation.presentationPackage.slides.map(s => 
+            s.id === slideId ? { ...s, userImageBase64: base64 } : s
+        );
+
         return {
-            conversations: state.conversations.map(c => c.id === activeConversationId ? { ...c, presentationPackage: pkg } : c)
+            conversations: conversations.map(c => 
+                String(c.id) === String(activeConversationId) 
+                ? { 
+                    ...c, 
+                    presentationPackage: { ...conversation.presentationPackage!, slides: updatedSlides },
+                    updatedAt: new Date()
+                } 
+                : c
+            )
         };
     }),
-    updateSlideUserImage: (slideId, base64) => { /* Update logic */ },
+
+    validatePresentationQuality: (pkg: PresentationPackage) => {
+        if (!pkg.presentation_title) {
+            throw new Error("A apresentação precisa de um título.");
+        }
+        if (!Array.isArray(pkg.slides) || pkg.slides.length < 3) {
+            throw new Error("A apresentação deve ter pelo menos 3 slides.");
+        }
+
+        const contentSlides = pkg.slides.filter(s => 
+            !['title_slide', 'agenda', 'section_header', 'closing_slide'].includes(s.slide_type)
+        );
+
+        pkg.slides.forEach((slide, index) => {
+            if (!slide.id || !slide.slide_type || !slide.title || !slide.content || !slide.speaker_notes) {
+                throw new Error(`O slide ${index + 1} está incompleto.`);
+            }
+
+            // Quality check for content slides
+            if (contentSlides.includes(slide)) {
+                if (slide.speaker_notes.length < 80) {
+                    throw new Error(`As notas do apresentador no slide "${slide.title}" estão muito curtas. Tente gerar novamente.`);
+                }
+
+                const checkItemCount = (items: any, min: number, name: string) => {
+                    if (!Array.isArray(items) || items.length < min) {
+                        throw new Error(`O slide "${slide.title}" (${name}) deve ter pelo menos ${min} itens.`);
+                    }
+                };
+
+                switch (slide.slide_type) {
+                    case 'content_bullet_points':
+                        checkItemCount(slide.content, 3, "Bullet Points");
+                        break;
+                    case 'key_metrics':
+                        if (!slide.content?.metrics || !Array.isArray(slide.content.metrics) || slide.content.metrics.length < 3) {
+                            throw new Error(`O slide "${slide.title}" (Métricas) deve ter pelo menos 3 métricas.`);
+                        }
+                        break;
+                    case 'three_column_cards':
+                        if (!slide.content?.cards || !Array.isArray(slide.content.cards) || slide.content.cards.length < 3) {
+                            throw new Error(`O slide "${slide.title}" (Cards) deve ter pelo menos 3 cards.`);
+                        }
+                        break;
+                    case 'numbered_list':
+                        if (!slide.content?.items || !Array.isArray(slide.content.items) || slide.content.items.length < 3) {
+                            throw new Error(`O slide "${slide.title}" (Lista Numerada) deve ter pelo menos 3 itens.`);
+                        }
+                        break;
+                    case 'bento_grid':
+                        if (!slide.content?.items || !Array.isArray(slide.content.items) || slide.content.items.length < 4) {
+                            throw new Error(`O slide "${slide.title}" (Bento Grid) deve ter pelo menos 4 itens.`);
+                        }
+                        break;
+                    case 'two_column_text':
+                        if (!Array.isArray(slide.content?.left_column) || !Array.isArray(slide.content?.right_column) || slide.content.left_column.length < 3) {
+                            throw new Error(`O slide "${slide.title}" (Duas Colunas) deve ter pelo menos 3 itens em cada coluna.`);
+                        }
+                        break;
+                    case 'table_slide':
+                        if (!slide.content?.headers || !slide.content?.rows || !Array.isArray(slide.content.rows) || slide.content.rows.length < 3) {
+                            throw new Error(`O slide "${slide.title}" (Tabela) deve ter pelo menos 3 linhas.`);
+                        }
+                        break;
+                }
+            }
+        });
+    },
 
     updateGoalCalculatorState: (newState) => set(state => {
         const c = state.conversations.find(i => i.id === state.activeConversationId);
@@ -548,3 +963,12 @@ export const useAppStore = create<AppState>((set, get) => ({
         }, 2000);
     }
 }));
+
+try {
+    useAppStore.subscribe((state) => {
+        saveToHistoryLocalStorage(state.conversations);
+    });
+} catch (e) {
+    console.error("Zustand history auto-save subscription failed:", e);
+}
+

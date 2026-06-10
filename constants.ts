@@ -1,7 +1,18 @@
 import { AppMode, SlideType } from './types';
 
 // FIX: Added SYSTEM_PROMPT constant to provide a base instruction for all AI agents.
-export const SYSTEM_PROMPT = `Você é o "Agente Greatek", um assistente de IA especializado, projetado para ser o principal ponto de apoio para as equipes Comercial e de Marketing da Greatek, uma distribuidora de tecnologia. Sua missão é fornecer respostas precisas, criativas e úteis, utilizando uma base de conhecimento interna sobre produtos, parceiros e estratégias da empresa.`;
+export const SYSTEM_PROMPT = `Você é o "Agente Greatek", um assistente de IA especializado, projetado para ser o principal ponto de apoio para as equipes Comercial e de Marketing da Greatek, uma distribuidora de tecnologia. Sua missão é fornecer respostas precisas, criativas e úteis, utilizando uma base de conhecimento interna sobre produtos, parceiros e estratégias da empresa.
+
+**DIRETRIZ DE MARCA (IMPORTANTE):**
+Ao citar parceiros e produtos, siga sempre esta hierarquia de prioridade:
+1. **TP-Link (Parceria Master):** Dê sempre destaque principal à TP-Link e suas sub-marcas (Mercusys, Vigi, Tapo, Omada). Eles são o carro-chefe.
+2. **Outros Parceiros:** Após mencionar TP-Link, cite as demais parcerias estratégicas como Volt, Think Technology, XPS, Cabel, etc.
+3. **Think Technology:** Trate como um parceiro estratégico importante, mas nunca acima da TP-Link.
+
+**SEGURANÇA E ACURÁCIA TÉCNICA (OBRIGATÓRIO):**
+- NUNCA invente especificações técnicas, dados oficiais ou informações que não constam explicitamente na sua base de conhecimento.
+- Se você não encontrar uma informação técnica específica, deve responder claramente que "esta informação não consta na base de conhecimento atual e deve ser confirmada diretamente com o time comercial ou técnico da Greatek".
+- Evite alucinações sobre compatibilidades ou prazos que não foram fornecidos.`;
 
 export interface AgentDefinition {
     mode: AppMode;
@@ -14,10 +25,11 @@ export interface AgentDefinition {
 export const AGENTS: AgentDefinition[] = [
     { mode: AppMode.INTEGRATOR, title: "Integrador", category: 'Comercial', iconClass: "bi-bricks" },
     { mode: AppMode.ARQUITETO, title: "Arquiteto", category: 'Comercial', iconClass: "bi-building-gear" },
-    { mode: AppMode.INSTRUCTOR, title: "Instrutor", category: 'Comercial', iconClass: "bi-person-video3" },
+    { mode: AppMode.INSTRUCTOR, title: "Instrutor", category: 'Comercial', iconClass: "bi-person-vcard" },
     { mode: AppMode.SKYWATCH, title: "SkyWatch", category: 'Comercial', iconClass: "bi-broadcast-pin" },
     { mode: AppMode.MARKET_INTEL, title: "Mercado", category: 'Comercial', iconClass: "bi-graph-up-arrow" },
     { mode: AppMode.SALES_ASSISTANT, title: "Assistente Comercial", category: 'Comercial', iconClass: "bi-headset" },
+    { mode: AppMode.TRAINING_COACH, title: "Coach de Treinamento", category: 'Comercial', iconClass: "bi-clipboard-data-fill" },
     { mode: AppMode.PAGE, title: "Otimizador de Página", category: 'Marketing', iconClass: "bi-file-earmark-text-fill" },
     { mode: AppMode.AUDIT, title: "Auditoria Técnica", category: 'Marketing', iconClass: "bi-shield-check" },
     { mode: AppMode.CAMPAIGN, title: "Estrategista de Campanhas", category: 'Marketing', iconClass: "bi-megaphone-fill" },
@@ -31,6 +43,7 @@ export const AGENTS: AgentDefinition[] = [
     { mode: AppMode.CONTENT, title: "Gerador de Conteúdo", category: 'Ferramentas', iconClass: "bi-pencil-square" },
     { mode: AppMode.LEAD_HUNTER, title: "Caçador de Leads", category: 'Ferramentas', iconClass: "bi-crosshair" },
     { mode: AppMode.STRATEGIC_PLANNER, title: "Planejador Estratégico", category: 'Ferramentas', iconClass: "bi-database-fill-gear" },
+    { mode: AppMode.REVERSE_DIAGNOSIS, title: "Diagnóstico Reverso", category: 'Comercial', iconClass: "bi-zoom-in" },
 ];
 
 // FIX: Added and exported a record of descriptions for each agent mode.
@@ -144,5 +157,10 @@ export const MODE_DESCRIPTIONS: Record<AppMode, { title: string; description: st
         title: 'Planejador Estratégico',
         description: 'Cruza dados internos de vendas com informações de mercado para definir metas e estratégias regionais.',
         example: 'Analise a performance da Região Sul e sugira metas para o próximo trimestre.'
+    },
+    [AppMode.REVERSE_DIAGNOSIS]: {
+        title: 'Diagnóstico Reverso',
+        description: 'Cole uma proposta, lista de produtos ou cenário de cliente para receber uma análise técnica e comercial sobre a tomada de decisão.',
+        example: 'Proposta com Máquina de Fusão X6, Kit de Ferramentas, Clivador e Conectores.'
     },
 };

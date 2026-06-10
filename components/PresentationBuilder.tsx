@@ -92,6 +92,7 @@ const PresentationBuilder: React.FC = () => {
         isGeneratingPresentation, 
         error,
         generatePresentation,
+        updatePresentationDraft,
         resetPresentation,
         updatePresentation,
         updateSlideUserImage
@@ -103,9 +104,34 @@ const PresentationBuilder: React.FC = () => {
     );
     const presentationState = activeConversation?.presentationPackage;
     
-    const [prompt, setPrompt] = useState('');
-    const [slideCount, setSlideCount] = useState(8);
+    const [prompt, setPrompt] = useState(activeConversation?.presentationDraft?.prompt || '');
+    const [slideCount, setSlideCount] = useState(activeConversation?.presentationDraft?.slideCount || 8);
     const [selectedSlideId, setSelectedSlideId] = useState<string | null>(null);
+
+    // Sync local state when changing conversations
+    useEffect(() => {
+        if (activeConversation?.presentationDraft) {
+            setPrompt(activeConversation.presentationDraft.prompt || '');
+            setSlideCount(activeConversation.presentationDraft.slideCount || 8);
+        } else {
+            setPrompt('');
+            setSlideCount(8);
+        }
+    }, [activeConversationId]);
+
+    const handlePromptChange = (val: string) => {
+        setPrompt(val);
+        if (activeConversationId) {
+            updatePresentationDraft(activeConversationId, { prompt: val });
+        }
+    };
+
+    const handleSlideCountChange = (val: number) => {
+        setSlideCount(val);
+        if (activeConversationId) {
+            updatePresentationDraft(activeConversationId, { slideCount: val });
+        }
+    };
 
     useEffect(() => {
         if (presentationState && presentationState.slides.length > 0) {
@@ -201,7 +227,7 @@ const PresentationBuilder: React.FC = () => {
                             <select 
                                 id="slide-count" 
                                 value={slideCount} 
-                                onChange={(e) => setSlideCount(Number(e.target.value))}
+                                onChange={(e) => handleSlideCountChange(Number(e.target.value))}
                                 className="w-full p-2.5 rounded-lg border-greatek-border focus:border-greatek-blue focus:ring-greatek-blue sm:text-sm bg-[#e9e9e9] text-black font-semibold"
                             >
                                 {[...Array(13).keys()].map(i => i + 3).map(num => (
@@ -212,7 +238,7 @@ const PresentationBuilder: React.FC = () => {
                         <textarea
                             rows={3}
                             value={prompt}
-                            onChange={(e) => setPrompt(e.target.value)}
+                            onChange={(e) => handlePromptChange(e.target.value)}
                             className="w-full p-3 rounded-lg border border-greatek-border focus:border-greatek-blue focus:ring-greatek-blue sm:text-sm bg-[#e9e9e9] text-black placeholder:text-text-secondary/70 custom-scrollbar"
                             placeholder="Ex: Uma apresentação comercial sobre as vantagens das soluções de energia da Greatek para ISPs, comparando com concorrentes."
                         />

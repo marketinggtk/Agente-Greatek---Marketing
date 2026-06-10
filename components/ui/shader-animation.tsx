@@ -1,3 +1,4 @@
+
 import React, { useEffect, useRef } from "react";
 import * as THREE from "three";
 
@@ -60,6 +61,7 @@ export function ShaderAnimation() {
     if (!container) return;
 
     let animationId: number;
+    let renderer: THREE.WebGLRenderer | null = null;
 
     // --- Scene Setup ---
     const camera = new THREE.Camera();
@@ -68,8 +70,8 @@ export function ShaderAnimation() {
     const geometry = new THREE.PlaneGeometry(2, 2);
 
     const uniforms = {
-      time: { type: "f", value: 1.0 },
-      resolution: { type: "v2", value: new THREE.Vector2() },
+      time: { value: 1.0 },
+      resolution: { value: new THREE.Vector2() },
     };
 
     const material = new THREE.ShaderMaterial({
@@ -82,13 +84,21 @@ export function ShaderAnimation() {
     scene.add(mesh);
 
     // --- Renderer Setup ---
-    const renderer = new THREE.WebGLRenderer({ antialias: true });
-    renderer.setPixelRatio(window.devicePixelRatio);
-    container.appendChild(renderer.domElement);
+    try {
+      renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+      renderer.setPixelRatio(window.devicePixelRatio);
+      container.appendChild(renderer.domElement);
+    } catch (error) {
+      console.warn("WebGLRenderer initialization failed:", error);
+      // Clean up resources if renderer creation fails
+      geometry.dispose();
+      material.dispose();
+      return;
+    }
 
     // --- Event Listeners & Animation Loop ---
     const onWindowResize = () => {
-      if (!container) return;
+      if (!container || !renderer) return;
       const { clientWidth, clientHeight } = container;
       renderer.setSize(clientWidth, clientHeight);
       uniforms.resolution.value.x = renderer.domElement.width;
@@ -100,7 +110,9 @@ export function ShaderAnimation() {
     const animate = () => {
       animationId = requestAnimationFrame(animate);
       uniforms.time.value += 0.05;
-      renderer.render(scene, camera);
+      if (renderer) {
+        renderer.render(scene, camera);
+      }
     };
     animate();
 
@@ -113,11 +125,17 @@ export function ShaderAnimation() {
       scene.remove(mesh);
       geometry.dispose();
       material.dispose();
-      renderer.dispose();
       
-      // Cleanly remove the now-defunct canvas from the DOM.
-      if (container.contains(renderer.domElement)) {
-        container.removeChild(renderer.domElement);
+      if (renderer) {
+        // Ensure context is lost to prevent "Too many active WebGL contexts" error
+        renderer.forceContextLoss();
+        renderer.dispose();
+        
+        // Cleanly remove the now-defunct canvas from the DOM.
+        if (container.contains(renderer.domElement)) {
+          container.removeChild(renderer.domElement);
+        }
+        renderer = null;
       }
     };
   }, []); // Empty dependency array ensures this runs only on mount and unmount.

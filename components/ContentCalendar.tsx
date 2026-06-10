@@ -154,7 +154,7 @@ const ContentCalendar: React.FC<{ plan: ContentPlan }> = ({ plan }) => {
 
                         // Limit visually to prevent overflow, although scrollbar handles it.
                         // The agent is instructed to generate max 2, but we handle robustly here.
-                        const itemsForDay = plan.items.filter(i => i.day === day);
+                        const itemsForDay = (plan.items || []).filter(i => i.day === day);
                         
                         return (
                             <div key={day} className="bg-white border border-greatek-border rounded-lg h-[220px] flex flex-col hover:border-greatek-blue/30 transition-colors overflow-hidden">

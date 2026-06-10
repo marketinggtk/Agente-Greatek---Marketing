@@ -1,8 +1,6 @@
 {
   "name": "Agente Greatek",
   "description": "Um agente de IA para acelerar a rotina das equipes de marketing e comercial da Greatek, com funcionalidades de SEO, conteúdo, campanhas, soluções integradas e inteligência de mercado.",
-  "requestFramePermissions": [
-    "microphone",
-    "camera"
-  ]
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
 }

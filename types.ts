@@ -22,6 +22,7 @@ export enum AppMode {
   CUSTOMER_DOSSIER = 'CUSTOMER_DOSSIER',
   LEAD_HUNTER = 'LEAD_HUNTER',
   STRATEGIC_PLANNER = 'STRATEGIC_PLANNER',
+  REVERSE_DIAGNOSIS = 'REVERSE_DIAGNOSIS',
 }
 
 export type SlideType = 'title_slide' | 'agenda' | 'section_header' | 'content_bullet_points' | 'key_metrics' | 'three_column_cards' | 'table_slide' | 'numbered_list' | 'bento_grid' | 'two_column_text' | 'closing_slide';
@@ -54,6 +55,7 @@ export interface PresentationSlide {
     speaker_notes?: string;
     left_column?: string[];
     right_column?: string[];
+    userImageBase64?: string | null;
 }
 
 export type PresentationTheme = 'light' | 'dark' | 'classic';
@@ -161,6 +163,7 @@ export interface Conversation {
   mode: AppMode;
   messages: Message[];
   createdAt: Date;
+  updatedAt?: Date;
   skywatchDeclined?: boolean;
   presentationPackage?: PresentationPackage | null;
   goalCalculatorState?: GoalCalculatorState;
@@ -178,6 +181,21 @@ export interface Conversation {
   contentPlan?: ContentPlan | null;
   outboundReport?: OutboundReport[];
   outboundGoals?: Record<string, OutboundGoalInputs>;
+  selectedModule?: any;
+
+  // Form drafts for restoration
+  contentPlannerDraft?: {
+    month: string;
+    focus: string;
+  };
+  blogPostDraft?: {
+    topic: string;
+    selectedCategory: string;
+  };
+  presentationDraft?: {
+    prompt: string;
+    slideCount: number;
+  };
 }
 
 export interface Notification {
@@ -290,6 +308,7 @@ export interface BlogPostSection {
 
 export interface BlogPostPackage {
     title: string;
+    category?: string;
     introduction: string;
     sections: BlogPostSection[];
     related_products?: { name: string; code?: string }[];
@@ -300,9 +319,24 @@ export interface BlogPostPackage {
     cta_html: string;
 }
 
+export interface SocialMediaSummary {
+    platform: 'Facebook' | 'Instagram' | 'LinkedIn';
+    content: string;
+    hashtags: string[];
+}
+
+export interface SocialMediaSummaries {
+    facebook: SocialMediaSummary;
+    instagram: SocialMediaSummary;
+    linkedin: SocialMediaSummary;
+    suggested_image_url?: string;
+    suggested_image_prompt?: string;
+}
+
 export interface LeadData {
     name?: string;
     legal_name?: string;
+    trade_name?: string;
     cnpj?: string;
     responsible_name?: string;
     website?: string;
@@ -310,7 +344,15 @@ export interface LeadData {
     whatsapp?: string;
     city?: string;
     uf?: string;
-    relevance_score: 'Alta' | 'Média' | 'Baixa';
+    company_status?: string;
+    main_cnae?: string;
+    main_cnae_description?: string;
+    secondary_cnaes?: string[];
+    qsa?: string[];
+    cnpj_validated?: boolean;
+    cnpj_source?: 'brasilapi' | 'manual' | 'not_found' | 'not_provided' | 'mock';
+    cnpj_error?: string;
+    relevance_score: 'Alta' | 'Média' | 'Baixa' | 'Pendente';
     reason?: string;
     potential_products?: string[];
     anatel_verified?: boolean;
@@ -395,3 +437,47 @@ export function isContentPlan(obj: any): obj is ContentPlan {
 export function isLeadDataArray(obj: any): obj is LeadData[] {
     return Array.isArray(obj) && (obj.length === 0 || typeof obj[0].relevance_score === 'string');
 }
+
+export interface ProductIdentification {
+  name: string;
+  role: string;
+  pain_solved: string;
+  expected_impact: string;
+  risk_of_misuse: string;
+  recommended_complement: string;
+}
+
+export interface ProductPainMap {
+  product: string;
+  pain: string;
+  value_to_customer: string;
+  observation: string;
+}
+
+export interface ProposalGap {
+  risk_type: string;
+  explanation: string;
+}
+
+export interface ProbableObjection {
+  objection: string;
+  commercial_response: string;
+}
+
+export interface ReverseDiagnosisResult {
+  summary: string;
+  probable_problem: string;
+  decision_hypothesis: string;
+  products_identified: ProductIdentification[];
+  product_pain_map: ProductPainMap[];
+  strengths: string[];
+  gaps_or_risks: ProposalGap[];
+  probable_objections: ProbableObjection[];
+  missing_questions: string[];
+  how_to_explain_to_customer: string;
+  improvements: string[];
+  confidence_level: 'Alta' | 'Média' | 'Baixa';
+  confidence_reason: string;
+  recommended_next_step: string;
+}
+

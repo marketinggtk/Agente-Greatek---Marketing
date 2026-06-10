@@ -24,7 +24,7 @@ const parseMarkdown = (text: string) => {
 const SlideContent: React.FC<{ slide: PresentationPackage['slides'][0] }> = ({ slide }) => {
     switch(slide.slide_type) {
         case 'key_metrics':
-            const metrics = slide.content.metrics || [];
+            const metrics = slide.content?.metrics || [];
             return (
                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-6">
                     {metrics.map((metric: any, index: number) => (
@@ -36,7 +36,7 @@ const SlideContent: React.FC<{ slide: PresentationPackage['slides'][0] }> = ({ s
                 </div>
             )
         case 'three_column_cards':
-             const cards = slide.content.cards || [];
+             const cards = slide.content?.cards || [];
              return (
                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-6">
                     {cards.map((card: any, index: number) => (
@@ -48,7 +48,7 @@ const SlideContent: React.FC<{ slide: PresentationPackage['slides'][0] }> = ({ s
                 </div>
              );
         case 'table_slide':
-            const { headers = [], rows = [] } = slide.content;
+            const { headers = [], rows = [] } = slide.content || {};
             return (
                 <div className="mt-4 overflow-x-auto border border-greatek-border rounded-lg">
                     <table className="min-w-full divide-y divide-greatek-border text-sm">
@@ -72,7 +72,7 @@ const SlideContent: React.FC<{ slide: PresentationPackage['slides'][0] }> = ({ s
                 </div>
             );
         case 'numbered_list':
-            const listItems = slide.content.items || [];
+            const listItems = slide.content?.items || [];
             return (
                 <div className="mt-6 space-y-4">
                     {listItems.map((item: any, index: number) => (
@@ -87,7 +87,7 @@ const SlideContent: React.FC<{ slide: PresentationPackage['slides'][0] }> = ({ s
                 </div>
             );
         case 'bento_grid':
-            const gridItems = slide.content.items || [];
+            const gridItems = slide.content?.items || [];
             const sizeMap: Record<string, string> = { 'small': 'lg:col-span-1', 'large': 'lg:col-span-2' };
             return (
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mt-6">
@@ -100,8 +100,8 @@ const SlideContent: React.FC<{ slide: PresentationPackage['slides'][0] }> = ({ s
                 </div>
             );
         case 'two_column_text':
-            const left_column = Array.isArray(slide.content.left_column) ? slide.content.left_column : [];
-            const right_column = Array.isArray(slide.content.right_column) ? slide.content.right_column : [];
+            const left_column = Array.isArray(slide.content?.left_column) ? slide.content.left_column : [];
+            const right_column = Array.isArray(slide.content?.right_column) ? slide.content.right_column : [];
             return (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mt-6">
                     <div>
@@ -121,7 +121,7 @@ const SlideContent: React.FC<{ slide: PresentationPackage['slides'][0] }> = ({ s
                 </div>
             );
         default:
-            const contentArray = Array.isArray(slide.content) ? slide.content : [String(slide.content)];
+            const contentArray = Array.isArray(slide.content) ? slide.content : [String(slide.content || '')];
             return (
                 <ul className="list-disc pl-5 mt-4 space-y-2 text-text-secondary">
                     {contentArray.map((item, index) => (

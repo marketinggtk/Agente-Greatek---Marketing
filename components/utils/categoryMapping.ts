@@ -1,5 +1,3 @@
-// Sistema de Categorização Automática para Blog Greatek
-// Baseado no banco de dados de produtos e na estrutura do site
 
 export type BlogCategory = 
   | 'redes-conectividade'

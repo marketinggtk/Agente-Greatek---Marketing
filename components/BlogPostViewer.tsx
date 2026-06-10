@@ -82,18 +82,23 @@ ${data.cta_html}
                     <article className="bg-white p-6 sm:p-10 rounded-lg shadow-lg border border-gray-200">
                         {/* Post Header */}
                         <header className="pb-6 border-b border-gray-200">
-                            <h1 className="text-3xl lg:text-4xl font-extrabold text-gray-900 leading-tight">
+                            {data.category && (
+                                <span className="inline-block bg-greatek-blue/10 text-greatek-blue text-xs font-bold px-3 py-1 rounded-full mb-3 uppercase tracking-wide">
+                                    {data.category}
+                                </span>
+                            )}
+                            <h1 className="text-3xl lg:text-4xl font-extrabold text-greatek-dark-blue leading-tight">
                                 {data.title}
                             </h1>
                         </header>
 
                         {/* Introduction */}
-                        <div className="text-lg lg:text-xl italic text-gray-600 my-8 border-l-4 border-greatek-blue pl-4">
+                        <div className="text-lg lg:text-xl italic text-text-primary my-8 border-l-4 border-greatek-blue pl-4">
                              <div dangerouslySetInnerHTML={{ __html: data.introduction }} />
                         </div>
 
                         {/* Post Body */}
-                        <div className="prose prose-lg max-w-none prose-p:text-gray-700 prose-p:leading-relaxed prose-li:text-gray-700 prose-headings:font-bold prose-headings:text-gray-900 prose-strong:text-gray-900 prose-ul:list-disc prose-ul:pl-5">
+                        <div className="prose prose-lg max-w-none prose-p:text-text-primary prose-p:leading-relaxed prose-li:text-text-primary prose-headings:font-bold prose-headings:text-greatek-dark-blue prose-strong:text-greatek-dark-blue prose-ul:list-disc prose-ul:pl-5">
                             {filteredSections.map((section, index) => (
                                 <React.Fragment key={index}>
                                     <h2 className="!text-2xl !mt-12 !mb-4">{section.heading}</h2>
@@ -115,6 +120,21 @@ ${data.cta_html}
 
                 {/* Sidebar Column */}
                 <div className="space-y-4 lg:sticky lg:top-4 h-fit">
+                    
+                    {/* NEW: Category Card in Sidebar */}
+                    {data.category && (
+                        <div className="bg-white p-4 rounded-lg border border-greatek-border shadow-sm">
+                            <h3 className="text-base font-semibold text-text-primary flex items-center mb-2">
+                               <i className="bi bi-folder-fill mr-3 text-lg text-greatek-blue"></i>
+                               Categoria do Blog
+                            </h3>
+                            <div className="flex justify-between items-center p-2.5 bg-greatek-bg-light rounded-md">
+                                <span className="text-sm font-medium text-greatek-dark-blue">{data.category}</span>
+                                <CopyButton text={data.category} />
+                            </div>
+                        </div>
+                    )}
+
                     <div className="bg-white p-4 rounded-lg border border-greatek-border shadow-sm">
                         <h3 className="text-base font-semibold text-text-primary flex items-center mb-3">
                            <i className="bi bi-wordpress mr-3 text-lg text-greatek-blue"></i>

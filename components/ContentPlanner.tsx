@@ -6,12 +6,45 @@ import ContentCalendar from './ContentCalendar';
 import { SubmitButton } from './ui/SubmitButton';
 
 const ContentPlanner: React.FC = () => {
-    const { activeConversationId, conversations, generateContentPlan, isLoading, error } = useAppStore();
+    const { 
+        activeConversationId, 
+        conversations, 
+        generateContentPlan, 
+        updateContentPlannerDraft,
+        isLoading, 
+        error 
+    } = useAppStore();
+    
     const conversation = useMemo(() => conversations.find(c => c.id === activeConversationId), [conversations, activeConversationId]);
     
-    const [month, setMonth] = useState('');
-    const [focus, setFocus] = useState('');
+    const [month, setMonth] = useState(conversation?.contentPlannerDraft?.month || '');
+    const [focus, setFocus] = useState(conversation?.contentPlannerDraft?.focus || '');
     const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+    // Sync local state when changing conversations
+    useEffect(() => {
+        if (conversation?.contentPlannerDraft) {
+            setMonth(conversation.contentPlannerDraft.month || '');
+            setFocus(conversation.contentPlannerDraft.focus || '');
+        } else {
+            setMonth('');
+            setFocus('');
+        }
+    }, [activeConversationId]);
+
+    const handleMonthChange = (val: string) => {
+        setMonth(val);
+        if (activeConversationId) {
+            updateContentPlannerDraft(activeConversationId, { month: val });
+        }
+    };
+
+    const handleFocusChange = (val: string) => {
+        setFocus(val);
+        if (activeConversationId) {
+            updateContentPlannerDraft(activeConversationId, { focus: val });
+        }
+    };
 
     const handleGenerate = () => {
         if (!month || !focus) return;
@@ -50,7 +83,7 @@ const ContentPlanner: React.FC = () => {
                             type="text" 
                             placeholder="Ex: Outubro 2025"
                             value={month}
-                            onChange={(e) => setMonth(e.target.value)}
+                            onChange={(e) => handleMonthChange(e.target.value)}
                             className="w-full p-3 border border-greatek-border rounded-lg focus:ring-2 focus:ring-greatek-blue focus:border-transparent bg-[#e9e9e9] text-black"
                         />
                     </div>
@@ -61,7 +94,7 @@ const ContentPlanner: React.FC = () => {
                             rows={4}
                             placeholder="Ex: Quero focar em provedores de internet (ISPs). Produtos-chave: OLTs e Roteadores Wi-Fi 6. O objetivo é educar sobre a migração para fibra óptica."
                             value={focus}
-                            onChange={(e) => setFocus(e.target.value)}
+                            onChange={(e) => handleFocusChange(e.target.value)}
                             className="w-full p-3 border border-greatek-border rounded-lg focus:ring-2 focus:ring-greatek-blue focus:border-transparent resize-none bg-[#e9e9e9] text-black overflow-hidden"
                         />
                     </div>

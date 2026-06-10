@@ -13,6 +13,20 @@ interface ThemeColors {
     subtleBorder: [number, number, number];
 }
 
+const PDF_LAYOUT = {
+    marginX: 40,
+    marginTop: 35,
+    marginBottom: 30,
+    footerHeight: 25,
+    titleFontSize: 24,
+    titleLineHeight: 20,
+    subtitleFontSize: 12,
+    bodyFontSize: 10,
+    smallFontSize: 9,
+    cardRadius: 6,
+    gap: 15,
+};
+
 const themes: Record<PresentationTheme, ThemeColors> = {
     light: {
         bg: [255, 255, 255],
@@ -43,319 +57,324 @@ const themes: Record<PresentationTheme, ThemeColors> = {
     }
 };
 
-const renderRichText = (doc: jsPDF, text: any, x: number, y: number, maxWidth: number, options: {
+function getSlideBounds(doc: jsPDF, contentStartY: number) {
+    const pageW = doc.internal.pageSize.getWidth();
+    const pageH = doc.internal.pageSize.getHeight();
+
+    return {
+        pageW,
+        pageH,
+        x: PDF_LAYOUT.marginX,
+        y: contentStartY,
+        width: pageW - PDF_LAYOUT.marginX * 2,
+        height: pageH - contentStartY - PDF_LAYOUT.footerHeight - PDF_LAYOUT.marginBottom,
+        bottom: pageH - PDF_LAYOUT.footerHeight - PDF_LAYOUT.marginBottom
+    };
+}
+
+function cleanBulletText(text: any): string {
+    return String(text || '')
+        .replace(/^[•\-\*]\s*/, '')
+        .replace(/^\d+[\.\)]\s*/, '')
+        .trim();
+}
+
+/**
+ * Renders a text box with a maximum height limit.
+ * If the text exceeds the height, it truncates with ellipses.
+ */
+function renderTextBox(doc: jsPDF, text: any, x: number, y: number, width: number, maxHeight: number, options: {
     fontSize: number;
     color: [number, number, number];
+    style?: 'normal' | 'bold' | 'italic';
     lineSpacing?: number;
-    draw?: boolean;
-}): number => {
-    const { fontSize, color, lineSpacing = 1.2, draw = true } = options;
-    const lineHeight = fontSize * lineSpacing;
+    align?: 'left' | 'center' | 'right';
+}): number {
+    const { fontSize, color, style = 'normal', lineSpacing = 1.15, align = 'left' } = options;
+    doc.setFont('helvetica', style);
+    doc.setFontSize(fontSize);
+    doc.setTextColor(color[0], color[1], color[2]);
 
-    if (draw) {
-        doc.setFontSize(fontSize);
-        doc.setTextColor(color[0], color[1], color[2]);
-    }
-    
     const safeText = String(text || '');
-    if (!safeText) {
-        return y;
+    if (!safeText) return y;
+
+    const lines = doc.splitTextToSize(safeText, width);
+    const lineHeight = fontSize * lineSpacing;
+    const maxVisibleLines = Math.floor(maxHeight / lineHeight);
+    
+    let visibleLines = lines;
+    let truncated = false;
+    
+    if (lines.length > maxVisibleLines) {
+        visibleLines = lines.slice(0, Math.max(1, maxVisibleLines));
+        const lastLine = visibleLines[visibleLines.length - 1];
+        if (lastLine.length > 3) {
+            visibleLines[visibleLines.length - 1] = lastLine.substring(0, lastLine.length - 3) + '...';
+        }
+        truncated = true;
     }
 
-    const parts = safeText.split(/(\*\*.*?\*\*|\*.*?\*)/g).filter(Boolean);
-    const spaceWidth = doc.getStringUnitWidth(' ') * fontSize / doc.internal.scaleFactor;
-    
-    const lines: { words: { text: string; style: 'normal' | 'bold' | 'italic'; width: number }[] }[] = [{ words: [] }];
-    let currentLineIndex = 0;
-    let cursorX = x;
-
-    parts.forEach(part => {
-        let style: 'normal' | 'bold' | 'italic' = 'normal';
-        let content = part;
-
-        if (part.startsWith('**') && part.endsWith('**')) {
-            style = 'bold';
-            content = part.slice(2, -2);
-        } else if (part.startsWith('*') && part.endsWith('*')) {
-            style = 'italic';
-            content = part.slice(1, -1);
+    visibleLines.forEach((line: string, index: number) => {
+        let drawX = x;
+        if (align === 'center') {
+            const lineWidth = doc.getStringUnitWidth(line) * fontSize / doc.internal.scaleFactor;
+            drawX = x + (width - lineWidth) / 2;
+        } else if (align === 'right') {
+            const lineWidth = doc.getStringUnitWidth(line) * fontSize / doc.internal.scaleFactor;
+            drawX = x + width - lineWidth;
         }
-        
-        doc.setFont('helvetica', style);
-        const words = content.split(/\s+/).filter(Boolean);
-        
-        words.forEach((word) => {
-            const wordWidth = doc.getStringUnitWidth(word) * fontSize / doc.internal.scaleFactor;
-            if (cursorX > x && cursorX + wordWidth > x + maxWidth) {
-                cursorX = x;
-                currentLineIndex++;
-                lines[currentLineIndex] = { words: [] };
-            }
-            if (!lines[currentLineIndex]) lines[currentLineIndex] = { words: [] };
-            lines[currentLineIndex].words.push({ text: word, style, width: wordWidth });
-            cursorX += wordWidth + spaceWidth;
-        });
+        doc.text(line, drawX, y + (index + 1) * fontSize * lineSpacing - (fontSize * 0.2));
     });
 
-    if (draw) {
-        lines.forEach((line, index) => {
-            let lineX = x;
-            const lineY = y + index * lineHeight;
-            line.words.forEach(word => {
-                doc.setFont('helvetica', word.style);
-                doc.text(word.text, lineX, lineY);
-                lineX += word.width + spaceWidth;
-            });
-        });
-    }
-    
-    return y + (lines.length * lineHeight) - (lineHeight - fontSize); // Return the Y position below the drawn text
-};
+    return y + (visibleLines.length * lineHeight);
+}
 
 const drawSlide = (doc: jsPDF, slide: PresentationSlide, presentation: PresentationPackage, slideNumber: number) => {
     const pageW = doc.internal.pageSize.getWidth();
     const pageH = doc.internal.pageSize.getHeight();
-    const margin = 30;
     const colors = themes[presentation.theme] || themes.light;
 
     // Slide Background
     doc.setFillColor(colors.bg[0], colors.bg[1], colors.bg[2]);
     doc.rect(0, 0, pageW, pageH, 'F');
 
-    let textStartX = margin;
-    let textMaxWidth = pageW - margin * 2;
-    let contentStartY = margin + 20;
-
-    // Title
-    doc.setFontSize(28);
+    // Title Section
+    let cursorY = PDF_LAYOUT.marginTop;
+    doc.setFontSize(PDF_LAYOUT.titleFontSize);
     doc.setFont('helvetica', 'bold');
     doc.setTextColor(colors.header[0], colors.header[1], colors.header[2]);
-    const titleLines = doc.splitTextToSize(slide.title, textMaxWidth);
-    doc.text(titleLines, textStartX, contentStartY);
-    contentStartY += (titleLines.length * 28 * 0.8) + 10;
+    
+    const titleWidth = pageW - PDF_LAYOUT.marginX * 2;
+    const titleLines = doc.splitTextToSize(slide.title, titleWidth);
+    
+    // Draw Title
+    doc.text(titleLines, PDF_LAYOUT.marginX, cursorY + (PDF_LAYOUT.titleFontSize * 0.8));
+    cursorY += (titleLines.length * PDF_LAYOUT.titleFontSize * 1.1) + 8;
 
-    // Decorative line
+    // Decorative Line
     doc.setDrawColor(colors.accent[0], colors.accent[1], colors.accent[2]);
-    doc.setLineWidth(1.5);
-    doc.line(textStartX, contentStartY, textStartX + 80, contentStartY);
-    contentStartY += 20;
+    doc.setLineWidth(2);
+    doc.line(PDF_LAYOUT.marginX, cursorY, PDF_LAYOUT.marginX + 60, cursorY);
+    cursorY += 25;
 
-    // Content
+    const bounds = getSlideBounds(doc, cursorY);
+
+    // Content Switcher
     switch (slide.slide_type) {
-        case 'key_metrics': {
-            const metrics = slide.content.metrics || [];
-            const cardCount = metrics.length;
-            if (cardCount === 0) break;
-            const cardGap = 15;
-            const cardWidth = (textMaxWidth - (cardCount - 1) * cardGap) / cardCount;
-            let cardX = textStartX;
-
-            metrics.forEach((metric: any) => {
-                doc.setFillColor(colors.cardBg[0], colors.cardBg[1], colors.cardBg[2]);
-                doc.setDrawColor(colors.subtleBorder[0], colors.subtleBorder[1], colors.subtleBorder[2]);
-                doc.roundedRect(cardX, contentStartY, cardWidth, 60, 5, 5, 'FD');
-                
-                doc.setFontSize(26);
-                doc.setFont('helvetica', 'bold');
-                doc.setTextColor(colors.accent[0], colors.accent[1], colors.accent[2]);
-                doc.text(String(metric.value ?? 'N/A'), cardX + cardWidth / 2, contentStartY + 30, { align: 'center' });
-                
-                doc.setFontSize(10);
+        case 'title_slide': {
+            const centerX = pageW / 2;
+            const contentY = bounds.y + bounds.height * 0.2;
+            
+            // Large Title
+            doc.setFontSize(36);
+            doc.setFont('helvetica', 'bold');
+            doc.text(slide.title, centerX, contentY, { align: 'center' });
+            
+            // Subtitle
+            const content = Array.isArray(slide.content) ? slide.content[0] : String(slide.content);
+            if (content) {
+                doc.setFontSize(18);
                 doc.setFont('helvetica', 'normal');
                 doc.setTextColor(colors.secondaryText[0], colors.secondaryText[1], colors.secondaryText[2]);
-                doc.text(String(metric.label ?? 'N/A'), cardX + cardWidth / 2, contentStartY + 45, { align: 'center' });
-                
-                cardX += cardWidth + cardGap;
-            });
-            contentStartY += 60 + 10;
-            break;
-        }
-        case 'three_column_cards': {
-            const cards = slide.content.cards || [];
-            if (cards.length === 0) break;
-            const cardCount = cards.length;
-            const cardGap = 15;
-            const cardWidth = (textMaxWidth - (cardCount - 1) * cardGap) / cardCount;
-            let cardX = textStartX;
-            
-            // 1. Calculate heights first to determine max height for alignment
-            const cardHeights = cards.map((card: any) => {
-                const titleBaseline = 11; // Fontsize
-                const titleFinalY = renderRichText(doc, card.title, 0, titleBaseline, cardWidth - 20, { fontSize: 11, color: colors.header, draw: false });
-                const descFinalY = renderRichText(doc, card.description, 0, titleFinalY + 5, cardWidth - 20, { fontSize: 10, color: colors.secondaryText, draw: false });
-                return descFinalY + 24; // Add top/bottom padding
-            });
-
-            const maxCardHeight = Math.max(...cardHeights, 60);
-
-            // 2. Draw cards with uniform height
-            cards.forEach((card: any) => {
-                doc.setFillColor(colors.cardBg[0], colors.cardBg[1], colors.cardBg[2]);
-                doc.setDrawColor(colors.subtleBorder[0], colors.subtleBorder[1], colors.subtleBorder[2]);
-                doc.roundedRect(cardX, contentStartY, cardWidth, maxCardHeight, 5, 5, 'FD');
-                
-                const titleY = contentStartY + 12 + 11 * 0.85;
-                const titleFinalY = renderRichText(doc, card.title, cardX + 10, titleY, cardWidth - 20, { fontSize: 11, color: colors.header, draw: true });
-                
-                const descY = titleFinalY + 5;
-                renderRichText(doc, card.description, cardX + 10, descY, cardWidth - 20, { fontSize: 10, color: colors.secondaryText, draw: true });
-                
-                cardX += cardWidth + cardGap;
-            });
-            contentStartY += maxCardHeight + 10;
-            break;
-        }
-        case 'table_slide': {
-            const { headers = [], rows = [] } = slide.content;
-            if (headers.length > 0 && rows.length > 0) {
-                 (doc as any).autoTable({
-                    head: [headers],
-                    body: rows,
-                    startY: contentStartY,
-                    theme: 'grid',
-                    headStyles: { fillColor: colors.accent, textColor: [255,255,255] },
-                    alternateRowStyles: { fillColor: colors.cardBg },
-                    styles: {
-                        cellPadding: 4,
-                        fontSize: 9,
-                        font: 'helvetica',
-                        textColor: colors.primaryText,
-                        lineColor: colors.subtleBorder,
-                        lineWidth: 0.5,
-                    },
-                });
-                contentStartY = (doc as any).lastAutoTable.finalY;
+                doc.text(content, centerX, contentY + 45, { align: 'center' });
             }
             break;
         }
-        case 'numbered_list': {
-            const listItems = slide.content.items || [];
-            let listY = contentStartY;
-            listItems.forEach((item: any, index: number) => {
-                const itemHeight = Math.max(
-                    renderRichText(doc, item.title, 0, 0, textMaxWidth - 30, { fontSize: 12, color: colors.header, draw: false }),
-                    renderRichText(doc, item.description, 0, 0, textMaxWidth - 30, { fontSize: 10, color: colors.secondaryText, draw: false })
-                ) + 15;
+
+        case 'key_metrics': {
+            const metrics = slide.content?.metrics || [];
+            const count = Math.min(metrics.length, 4);
+            if (count === 0) break;
+            
+            const cols = count > 2 ? 2 : count;
+            const rows = Math.ceil(count / cols);
+            const cardGap = PDF_LAYOUT.gap;
+            const cardWidth = (bounds.width - (cols - 1) * cardGap) / cols;
+            const cardHeight = (bounds.height - (rows - 1) * cardGap) / rows;
+
+            metrics.slice(0, 4).forEach((metric: any, i: number) => {
+                const col = i % cols;
+                const row = Math.floor(i / cols);
+                const x = bounds.x + col * (cardWidth + cardGap);
+                const y = bounds.y + row * (cardHeight + cardGap);
+
+                doc.setFillColor(colors.cardBg[0], colors.cardBg[1], colors.cardBg[2]);
+                doc.setDrawColor(colors.subtleBorder[0], colors.subtleBorder[1], colors.subtleBorder[2]);
+                doc.roundedRect(x, y, cardWidth, cardHeight, PDF_LAYOUT.cardRadius, PDF_LAYOUT.cardRadius, 'FD');
                 
-                if (listY + itemHeight > pageH - margin) {
-                    doc.addPage();
-                    listY = margin;
+                const boxCenterY = y + cardHeight / 2;
+                doc.setFontSize(28);
+                doc.setFont('helvetica', 'bold');
+                doc.setTextColor(colors.accent[0], colors.accent[1], colors.accent[2]);
+                doc.text(String(metric.value ?? ''), x + cardWidth / 2, boxCenterY, { align: 'center' });
+                
+                doc.setFontSize(11);
+                doc.setFont('helvetica', 'normal');
+                doc.setTextColor(colors.secondaryText[0], colors.secondaryText[1], colors.secondaryText[2]);
+                doc.text(String(metric.label ?? ''), x + cardWidth / 2, boxCenterY + 20, { align: 'center' });
+            });
+            break;
+        }
+
+        case 'three_column_cards': {
+            const cards = slide.content?.cards || [];
+            const count = Math.min(cards.length, 3);
+            if (count === 0) break;
+
+            const cardGap = PDF_LAYOUT.gap;
+            const cardWidth = (bounds.width - (count - 1) * cardGap) / count;
+            const cardHeight = bounds.height;
+
+            cards.slice(0, 3).forEach((card: any, i: number) => {
+                const x = bounds.x + i * (cardWidth + cardGap);
+                const y = bounds.y;
+
+                doc.setFillColor(colors.cardBg[0], colors.cardBg[1], colors.cardBg[2]);
+                doc.setDrawColor(colors.subtleBorder[0], colors.subtleBorder[1], colors.subtleBorder[2]);
+                doc.roundedRect(x, y, cardWidth, cardHeight, PDF_LAYOUT.cardRadius, PDF_LAYOUT.cardRadius, 'FD');
+                
+                renderTextBox(doc, card.title, x + 15, y + 15, cardWidth - 30, 40, {
+                    fontSize: 12,
+                    color: colors.header,
+                    style: 'bold'
+                });
+
+                renderTextBox(doc, card.description, x + 15, y + 60, cardWidth - 30, cardHeight - 75, {
+                    fontSize: 10,
+                    color: colors.secondaryText
+                });
+            });
+            break;
+        }
+
+        case 'bento_grid': {
+            const items = (slide.content?.items || []).slice(0, 4);
+            if (items.length === 0) break;
+
+            const gap = PDF_LAYOUT.gap;
+            const halfW = (bounds.width - gap) / 2;
+            const halfH = (bounds.height - gap) / 2;
+
+            items.forEach((item: any, i: number) => {
+                let x = bounds.x, y = bounds.y, w = halfW, h = halfH;
+                
+                if (i === 0 && item.size === 'large') {
+                    w = bounds.width;
+                } else if (i === 1 && items[0].size === 'large') {
+                    y += (halfH + gap);
+                } else if (i === 2 && items[0].size === 'large') {
+                    x += (halfW + gap);
+                    y += (halfH + gap);
+                } else {
+                    x = bounds.x + (i % 2) * (halfW + gap);
+                    y = bounds.y + Math.floor(i / 2) * (halfH + gap);
                 }
 
-                doc.setFillColor(colors.accent[0], colors.accent[1], colors.accent[2]);
-                doc.setTextColor(colors.bg[0], colors.bg[1], colors.bg[2]);
-                doc.setFont('helvetica', 'bold');
-                doc.setFontSize(14);
-                doc.circle(textStartX + 10, listY + 8, 10, 'F');
-                doc.text(String(index + 1), textStartX + 10, listY + 11, { align: 'center' });
+                doc.setFillColor(colors.cardBg[0], colors.cardBg[1], colors.cardBg[2]);
+                doc.setDrawColor(colors.subtleBorder[0], colors.subtleBorder[1], colors.subtleBorder[2]);
+                doc.roundedRect(x, y, w, h, PDF_LAYOUT.cardRadius, PDF_LAYOUT.cardRadius, 'FD');
 
-                const titleY = listY + 12 * 0.85;
-                const titleFinalY = renderRichText(doc, item.title, textStartX + 30, titleY, textMaxWidth - 30, { fontSize: 12, color: colors.header, draw: true });
-                
-                const descY = titleFinalY + 4;
-                const finalY = renderRichText(doc, item.description, textStartX + 30, descY, textMaxWidth - 30, { fontSize: 10, color: colors.secondaryText, draw: true });
-                
-                listY = finalY + 15;
+                renderTextBox(doc, item.title, x + 12, y + 12, w - 24, 25, { fontSize: 11, color: colors.header, style: 'bold' });
+                renderTextBox(doc, item.description, x + 12, y + 38, w - 24, h - 50, { fontSize: 9, color: colors.secondaryText });
             });
-            contentStartY = listY;
             break;
         }
-        case 'bento_grid': {
-             const gridItems = slide.content.items || [];
-             if (gridItems.length === 0) break;
-             const gap = 10;
-             const smallWidth = (textMaxWidth - gap) / 2;
-             const largeWidth = textMaxWidth;
-             let cursorY = contentStartY;
-             
-             // Simple layout for PDF: large items take full width, small items are 2-per-row
-             for (let i = 0; i < gridItems.length; i++) {
-                 const item = gridItems[i];
-                 if (item.size === 'large') {
-                     const itemHeight = renderRichText(doc, item.description, 0, 0, largeWidth - 20, { fontSize: 10, color: colors.secondaryText, draw: false }) + 40;
-                     if (cursorY + itemHeight > pageH - margin) { doc.addPage(); cursorY = margin; }
-                     doc.setFillColor(colors.cardBg[0], colors.cardBg[1], colors.cardBg[2]);
-                     doc.roundedRect(textStartX, cursorY, largeWidth, itemHeight, 5, 5, 'F');
-                     const titleY = renderRichText(doc, item.title, textStartX + 10, cursorY + 10 + 11 * 0.85, largeWidth - 20, { fontSize: 11, color: colors.header });
-                     renderRichText(doc, item.description, textStartX + 10, titleY + 5, largeWidth - 20, { fontSize: 10, color: colors.secondaryText });
-                     cursorY += itemHeight + gap;
-                 } else { // 'small'
-                     const item1 = item;
-                     const item2 = (i + 1 < gridItems.length && gridItems[i+1].size !== 'large') ? gridItems[i+1] : null;
 
-                     const h1 = renderRichText(doc, item1.description, 0, 0, smallWidth - 20, { fontSize: 10, color: colors.secondaryText, draw: false }) + 40;
-                     const h2 = item2 ? renderRichText(doc, item2.description, 0, 0, smallWidth - 20, { fontSize: 10, color: colors.secondaryText, draw: false }) + 40 : 0;
-                     const rowHeight = Math.max(h1, h2, 60);
-
-                     if (cursorY + rowHeight > pageH - margin) { doc.addPage(); cursorY = margin; }
-
-                     // Draw item 1
-                     doc.setFillColor(colors.cardBg[0], colors.cardBg[1], colors.cardBg[2]);
-                     doc.roundedRect(textStartX, cursorY, smallWidth, rowHeight, 5, 5, 'F');
-                     const title1Y = renderRichText(doc, item1.title, textStartX + 10, cursorY + 10 + 11 * 0.85, smallWidth - 20, { fontSize: 11, color: colors.header });
-                     renderRichText(doc, item1.description, textStartX + 10, title1Y + 5, smallWidth - 20, { fontSize: 10, color: colors.secondaryText });
-                     
-                     if (item2) {
-                         // Draw item 2
-                         const item2X = textStartX + smallWidth + gap;
-                         doc.setFillColor(colors.cardBg[0], colors.cardBg[1], colors.cardBg[2]);
-                         doc.roundedRect(item2X, cursorY, smallWidth, rowHeight, 5, 5, 'F');
-                         const title2Y = renderRichText(doc, item2.title, item2X + 10, cursorY + 10 + 11 * 0.85, smallWidth - 20, { fontSize: 11, color: colors.header });
-                         renderRichText(doc, item2.description, item2X + 10, title2Y + 5, smallWidth - 20, { fontSize: 10, color: colors.secondaryText });
-                         i++; // Skip next item since we drew it
-                     }
-                     cursorY += rowHeight + gap;
-                 }
-             }
-             contentStartY = cursorY;
-             break;
-        }
         case 'two_column_text': {
-            const left_column = Array.isArray(slide.content.left_column) ? slide.content.left_column : [];
-            const right_column = Array.isArray(slide.content.right_column) ? slide.content.right_column : [];
-            const colGap = 20;
-            const colWidth = (textMaxWidth - colGap) / 2;
-            const col1X = textStartX;
-            const col2X = textStartX + colWidth + colGap;
+            const left = Array.isArray(slide.content?.left_column) ? slide.content.left_column : [];
+            const right = Array.isArray(slide.content?.right_column) ? slide.content.right_column : [];
+            const colW = (bounds.width - 40) / 2;
 
-            let leftY = contentStartY + 11 * 0.85;
-            left_column.forEach((item: string) => {
-                doc.setFillColor(colors.accent[0], colors.accent[1], colors.accent[2]);
-                doc.circle(col1X + 4, leftY - 3, 2, 'F');
-                const nextY = renderRichText(doc, item, col1X + 15, leftY, colWidth - 15, { fontSize: 11, color: colors.secondaryText });
-                leftY = nextY + 5;
+            [
+                { items: left, x: bounds.x },
+                { items: right, x: bounds.x + colW + 40 }
+            ].forEach(col => {
+                let colY = bounds.y;
+                col.items.forEach((item: string) => {
+                    doc.setFillColor(colors.accent[0], colors.accent[1], colors.accent[2]);
+                    doc.circle(col.x + 5, colY + 6, 2, 'F');
+                    colY = renderTextBox(doc, cleanBulletText(item), col.x + 15, colY, colW - 15, 60, {
+                        fontSize: 10,
+                        color: colors.secondaryText
+                    }) + 8;
+                });
             });
-
-            let rightY = contentStartY + 11 * 0.85;
-            right_column.forEach((item: string) => {
-                doc.setFillColor(colors.accent[0], colors.accent[1], colors.accent[2]);
-                doc.circle(col2X + 4, rightY - 3, 2, 'F');
-                const nextY = renderRichText(doc, item, col2X + 15, rightY, colWidth - 15, { fontSize: 11, color: colors.secondaryText });
-                rightY = nextY + 5;
-            });
-            
-            contentStartY = Math.max(leftY, rightY);
             break;
         }
-        default: { // Handles bullets, agenda, etc.
-            const contentArray = Array.isArray(slide.content) ? slide.content : [String(slide.content)];
-            let listY = contentStartY + 11 * 0.85; // Start at first baseline
+
+        case 'table_slide': {
+            const { headers = [], rows = [] } = slide.content || {};
+            if (headers.length > 0 && rows.length > 0) {
+                (doc as any).autoTable({
+                    head: [headers],
+                    body: rows.slice(0, 10), // Limit rows for single page
+                    startY: bounds.y,
+                    margin: { left: bounds.x, right: pageW - (bounds.x + bounds.width) },
+                    tableWidth: bounds.width,
+                    theme: 'grid',
+                    headStyles: { fillColor: colors.accent, textColor: [255, 255, 255], fontSize: 10 },
+                    styles: { fontSize: 9, cellPadding: 5, overflow: 'linebreak', textColor: colors.primaryText, lineColor: colors.subtleBorder },
+                    alternateRowStyles: { fillColor: colors.cardBg }
+                });
+            }
+            break;
+        }
+
+        case 'numbered_list': {
+            const items = (slide.content?.items || []).slice(0, 5);
+            const itemH = bounds.height / Math.max(1, items.length);
+            
+            items.forEach((item: any, i: number) => {
+                const itemY = bounds.y + i * itemH;
+                
+                // Number Circle
+                doc.setFillColor(colors.accent[0], colors.accent[1], colors.accent[2]);
+                doc.circle(bounds.x + 10, itemY + 12, 10, 'F');
+                doc.setTextColor(255, 255, 255);
+                doc.setFontSize(10);
+                doc.setFont('helvetica', 'bold');
+                doc.text(String(i + 1), bounds.x + 10, itemY + 15.5, { align: 'center' });
+
+                renderTextBox(doc, cleanBulletText(item.title), bounds.x + 30, itemY, bounds.width - 35, 20, {
+                    fontSize: 11,
+                    color: colors.header,
+                    style: 'bold'
+                });
+                renderTextBox(doc, cleanBulletText(item.description), bounds.x + 30, itemY + 22, bounds.width - 35, itemH - 25, {
+                    fontSize: 10,
+                    color: colors.secondaryText
+                });
+            });
+            break;
+        }
+
+        default: {
+            const contentArray = Array.isArray(slide.content) ? slide.content : [String(slide.content || '')];
+            let bulletY = bounds.y;
             contentArray.forEach(item => {
                 doc.setFillColor(colors.accent[0], colors.accent[1], colors.accent[2]);
-                doc.circle(textStartX + 4, listY - 3, 2, 'F');
-                const nextY = renderRichText(doc, item, textStartX + 15, listY, textMaxWidth - 15, { fontSize: 11, color: colors.secondaryText });
-                listY = nextY + 5; // spacing between list items
+                doc.circle(bounds.x + 5, bulletY + 6, 2, 'F');
+                bulletY = renderTextBox(doc, cleanBulletText(item), bounds.x + 15, bulletY, bounds.width - 15, 80, {
+                    fontSize: 11,
+                    color: colors.secondaryText
+                }) + 10;
             });
-            contentStartY = listY;
             break;
         }
     }
 
-    // Footer
-    doc.setFontSize(9);
+    // Fixed Footer
+    doc.setFontSize(PDF_LAYOUT.smallFontSize);
     doc.setTextColor(colors.secondaryText[0], colors.secondaryText[1], colors.secondaryText[2]);
-    doc.text(presentation.presentation_title, margin, pageH - 15);
-    doc.text(`Slide ${slideNumber} / ${presentation.slides.length}`, pageW - margin, pageH - 15, { align: 'right' });
+    doc.setFont('helvetica', 'normal');
+    
+    // Left: Presentation Title
+    doc.text(presentation.presentation_title, PDF_LAYOUT.marginX, pageH - 20);
+    
+    // Right: Slide Numbering
+    const pageString = `Slide ${slideNumber} / ${presentation.slides.length}`;
+    const pageStringWidth = doc.getStringUnitWidth(pageString) * PDF_LAYOUT.smallFontSize / doc.internal.scaleFactor;
+    doc.text(pageString, pageW - PDF_LAYOUT.marginX - pageStringWidth, pageH - 20);
 };
 
 export const generateSingleSlidePdf = (slide: PresentationSlide, presentation: PresentationPackage) => {

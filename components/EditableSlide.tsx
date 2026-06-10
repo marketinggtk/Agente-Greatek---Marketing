@@ -107,12 +107,19 @@ interface EditableSlideProps {
     onUserImageUpdate: (slideId: string, base64: string | null) => void;
 }
 
-const EditableSlide: React.FC<EditableSlideProps> = ({ slide, theme, onUpdate, onDelete, onExport }) => {
+const EditableSlide: React.FC<EditableSlideProps> = ({ 
+    slide, 
+    theme, 
+    onUpdate, 
+    onDelete, 
+    onExport,
+    onUserImageUpdate
+}) => {
     
     const renderContent = () => {
         switch (slide.slide_type) {
             case 'key_metrics':
-                const metrics = slide.content.metrics || [];
+                const metrics = slide.content?.metrics || [];
                 return (
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                         {metrics.map((metric: any, index: number) => (
@@ -140,7 +147,7 @@ const EditableSlide: React.FC<EditableSlideProps> = ({ slide, theme, onUpdate, o
                     </div>
                 );
             case 'three_column_cards':
-                 const cards = slide.content.cards || [];
+                 const cards = slide.content?.cards || [];
                  return (
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                         {cards.map((card: any, index: number) => (
@@ -169,7 +176,7 @@ const EditableSlide: React.FC<EditableSlideProps> = ({ slide, theme, onUpdate, o
                     </div>
                  );
             case 'numbered_list':
-                const listItems = slide.content.items || [];
+                const listItems = slide.content?.items || [];
                 return (
                     <div className="space-y-4">
                         {listItems.map((item: any, index: number) => (
@@ -201,7 +208,7 @@ const EditableSlide: React.FC<EditableSlideProps> = ({ slide, theme, onUpdate, o
                     </div>
                 );
             case 'bento_grid':
-                const gridItems = slide.content.items || [];
+                const gridItems = slide.content?.items || [];
                 const sizeMap: Record<string, string> = { 'small': 'lg:col-span-1', 'large': 'lg:col-span-2' };
                 return (
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
@@ -231,8 +238,8 @@ const EditableSlide: React.FC<EditableSlideProps> = ({ slide, theme, onUpdate, o
                     </div>
                 );
             case 'two_column_text':
-                const left_column = Array.isArray(slide.content.left_column) ? slide.content.left_column : [];
-                const right_column = Array.isArray(slide.content.right_column) ? slide.content.right_column : [];
+                const left_column = Array.isArray(slide.content?.left_column) ? slide.content.left_column : [];
+                const right_column = Array.isArray(slide.content?.right_column) ? slide.content.right_column : [];
 
                 const handleColumnUpdate = (columnIndex: 'left_column' | 'right_column', itemIndex: number, value: string) => {
                     const newContent = { ...slide.content };
@@ -271,7 +278,7 @@ const EditableSlide: React.FC<EditableSlideProps> = ({ slide, theme, onUpdate, o
                     </div>
                 );
             default: // Caters to title, section, agenda, bullets, closing
-                const contentArray = Array.isArray(slide.content) ? slide.content : [String(slide.content)];
+                const contentArray = Array.isArray(slide.content) ? slide.content : [String(slide.content || '')];
                 return (
                     <div className="space-y-2">
                         {contentArray.map((item, index) => (
@@ -301,6 +308,37 @@ const EditableSlide: React.FC<EditableSlideProps> = ({ slide, theme, onUpdate, o
             <div className={`p-6 bg-white border border-greatek-border rounded-lg shadow-sm min-h-[300px]`}>
                  <div className="flex justify-between items-start">
                     <div className="flex-grow pr-4">
+                         {/* Image Upload Trigger */}
+                         <div className="flex items-center gap-2 mb-3">
+                            <label className="cursor-pointer text-[10px] uppercase tracking-wider font-bold text-greatek-blue hover:text-greatek-dark-blue flex items-center gap-1 bg-greatek-blue/5 px-2 py-0.5 rounded transition-colors">
+                                <i className="bi bi-image"></i>
+                                {slide.userImageBase64 ? 'Alterar Imagem' : 'Adicionar Imagem'}
+                                <input 
+                                    type="file" 
+                                    accept="image/*" 
+                                    className="hidden" 
+                                    onChange={(e) => {
+                                        const file = e.target.files?.[0];
+                                        if (file) {
+                                            const reader = new FileReader();
+                                            reader.onloadend = () => {
+                                                onUserImageUpdate(slide.id, reader.result as string);
+                                            };
+                                            reader.readAsDataURL(file);
+                                        }
+                                    }}
+                                />
+                            </label>
+                            {slide.userImageBase64 && (
+                                <button 
+                                    onClick={() => onUserImageUpdate(slide.id, null)}
+                                    className="text-[10px] uppercase tracking-wider font-bold text-red-500 hover:text-red-700"
+                                >
+                                    Remover
+                                </button>
+                            )}
+                        </div>
+
                          <EditableField
                             value={slide.title}
                             onChange={(val) => onUpdate(slide.id, 'title', val)}
@@ -316,6 +354,14 @@ const EditableSlide: React.FC<EditableSlideProps> = ({ slide, theme, onUpdate, o
                         </button>
                     </div>
                 </div>
+
+                 {slide.userImageBase64 && (
+                    <div className="mt-4 relative group rounded-lg overflow-hidden border border-greatek-border h-40">
+                        <img src={slide.userImageBase64} alt="Slide decoration" className="w-full h-full object-cover" />
+                        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors pointer-events-none"></div>
+                    </div>
+                 )}
+
                  <div className="mt-6">
                     {renderContent()}
                  </div>

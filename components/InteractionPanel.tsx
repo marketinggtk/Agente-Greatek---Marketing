@@ -4,21 +4,8 @@ import { useAppStore } from '../store/useAppStore';
 import { SubmitButton } from './ui/SubmitButton';
 import { AppMode } from '../types';
 
-// Define the SpeechRecognition type for broader compatibility
-// Fix: Cast window to 'any' to avoid TypeScript errors for non-standard properties.
-const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
-const recognition = SpeechRecognition ? new SpeechRecognition() : null;
-
-if (recognition) {
-  recognition.continuous = false;
-  recognition.lang = 'pt-BR';
-  recognition.interimResults = false;
-  recognition.maxAlternatives = 1;
-}
-
 const InteractionPanel: React.FC = () => {
   const [prompt, setPrompt] = useState('');
-  const [isListening, setIsListening] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -35,35 +22,11 @@ const InteractionPanel: React.FC = () => {
   } = useAppStore();
 
   const activeConversation = useMemo(() => 
-    conversations.find(c => c.id === activeConversationId),
+    conversations.find(c => String(c.id) === String(activeConversationId)),
     [conversations, activeConversationId]
   );
   
   const currentMode = activeConversation?.mode;
-  const speechRecognitionSupported = !!recognition;
-
-  // Setup speech recognition handlers
-  useEffect(() => {
-    if (!recognition) return;
-
-    recognition.onstart = () => {
-      setIsListening(true);
-    };
-
-    recognition.onend = () => {
-      setIsListening(false);
-    };
-
-    recognition.onerror = (event: any) => {
-      console.error('Speech recognition error', event.error);
-      setIsListening(false);
-    };
-
-    recognition.onresult = (event: any) => {
-      const transcript = event.results[0][0].transcript;
-      setPrompt(transcript);
-    };
-  }, []);
 
   useEffect(() => {
     setPrompt('');
@@ -112,16 +75,6 @@ const InteractionPanel: React.FC = () => {
 
   const handleRemoveFile = (indexToRemove: number) => {
     removeAttachment(indexToRemove);
-  };
-
-  const handleToggleListening = () => {
-    if (!recognition) return;
-    
-    if (isListening) {
-      recognition.stop();
-    } else {
-      recognition.start();
-    }
   };
 
   const formatFileSize = (bytes: number) => {
@@ -182,32 +135,17 @@ const InteractionPanel: React.FC = () => {
           ref={fileInputRef}
           onChange={handleFileChange}
           className="hidden"
-          accept="image/*,.txt,.csv,.xls,.xlsx"
+          accept="image/*,.txt,.csv,.xls,.xlsx,.pdf"
         />
-        {speechRecognitionSupported && (
-            <button
-              onClick={handleToggleListening}
-              disabled={isInteractionDisabled}
-              className={`p-3 transition-colors ${
-                isListening
-                  ? 'text-red-500 animate-pulse'
-                  : 'text-text-secondary hover:text-greatek-blue'
-              } disabled:text-gray-400 disabled:cursor-not-allowed`}
-              aria-label={isListening ? 'Parar gravação' : 'Gravar comando de voz'}
-              title={isListening ? 'Parar gravação' : 'Gravar comando de voz'}
-            >
-              <i className="bi bi-mic-fill text-xl"></i>
-            </button>
-        )}
         <textarea
           ref={textareaRef}
           rows={1}
           value={prompt}
           onChange={(e) => setPrompt(e.target.value)}
           onKeyDown={handleKeyDown}
-          placeholder={isListening ? "Ouvindo..." : isInteractionDisabled ? "Aguarde..." : `Enviar uma mensagem para ${currentMode}...`}
+          placeholder={isInteractionDisabled ? "Aguarde..." : `Enviar uma mensagem para ${currentMode}...`}
           disabled={isInteractionDisabled}
-          className="flex-grow py-3 pl-2 pr-2 bg-[#e9e9e9] text-black placeholder-text-secondary/70 focus:outline-none resize-none overflow-y-auto rounded-lg"
+          className="flex-grow py-3 pl-4 pr-2 bg-[#e9e9e9] text-black placeholder-text-secondary/70 focus:outline-none resize-none overflow-y-auto rounded-lg"
           aria-label="Comando para o agente"
         />
         <SubmitButton

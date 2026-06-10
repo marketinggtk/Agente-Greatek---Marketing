@@ -5,7 +5,6 @@ import Header from './components/Header';
 import Sidebar from './components/Sidebar';
 import InteractionPanel from './components/InteractionPanel';
 import SplashScreen from './components/SplashScreen';
-import AdminPanel from './components/AdminPanel';
 import { useAppStore } from './store/useAppStore';
 import AgentSelectionScreen from './components/AgentSelectionScreen';
 import ChatDisplay from './components/ChatDisplay';
@@ -17,8 +16,9 @@ import PresentationBuilder from './components/PresentationBuilder';
 import TrainingCoach from './components/TrainingCoach';
 import PortfolioSearch from './components/PortfolioSearch';
 import ContentPlanner from './components/ContentPlanner';
-import BlogPostGenerator from './components/BlogPostGenerator'; // Importado
-import { ChatWidgetSimulator } from './components/ChatWidgetSimulator';
+import BlogPostGenerator from './components/BlogPostGenerator';
+import LeadHunter from './components/LeadHunter';
+import ProposalReverseDiagnosis from './components/ProposalReverseDiagnosis';
 
 const App: React.FC = () => {
   const {
@@ -26,20 +26,17 @@ const App: React.FC = () => {
     createNewConversation,
     toastInfo,
     hideToast,
-    feedbackModalState,
-    isWidgetSimulatorOpen,
-    setWidgetSimulatorOpen
+    feedbackModalState
   } = useAppStore();
   const conversations = useAppStore((state) => state.conversations);
 
   const [showSplash, setShowSplash] = useState(true);
   const [isFadingOut, setIsFadingOut] = useState(false);
-  const [isAdminPanelOpen, setIsAdminPanelOpen] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   useEffect(() => {
-    const fadeTimer = setTimeout(() => setIsFadingOut(true), 2500);
-    const hideTimer = setTimeout(() => setShowSplash(false), 3500);
+    const fadeTimer = setTimeout(() => setIsFadingOut(true), 1100);
+    const hideTimer = setTimeout(() => setShowSplash(false), 1500);
     return () => {
       clearTimeout(fadeTimer);
       clearTimeout(hideTimer);
@@ -50,15 +47,30 @@ const App: React.FC = () => {
     createNewConversation(mode);
   };
 
-  const activeConversation = useMemo(() =>
-    conversations.find((c) => c.id === activeConversationId),
-    [conversations, activeConversationId]
-  );
+  const activeConversation = useMemo(() => {
+    if (!Array.isArray(conversations)) return null;
+    return conversations.find((c) => String(c.id) === String(activeConversationId)) || null;
+  }, [conversations, activeConversationId]);
   
   const agentInfo = useMemo(() => 
     AGENTS.find(a => a.mode === activeConversation?.mode),
     [activeConversation]
   );
+
+  // Recovery effect: if something is really broken, allow reset via URL or key combo (hidden but useful)
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.ctrlKey && e.altKey && e.key === 'r') {
+        if (window.confirm("Deseja limpar todos os dados e reiniciar o Agente Greatek?")) {
+          // Clear everything
+          localStorage.clear();
+          window.location.reload();
+        }
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
 
   if (showSplash) {
     return <SplashScreen isFadingOut={isFadingOut} />;
@@ -75,7 +87,10 @@ const App: React.FC = () => {
         AppMode.PRESENTATION_BUILDER, 
         AppMode.PORTFOLIO_SEARCH,
         AppMode.CONTENT_PLANNER,
-        AppMode.BLOG_POST, // Adicionado aqui
+        AppMode.BLOG_POST,
+        AppMode.TRAINING_COACH,
+        AppMode.LEAD_HUNTER,
+        AppMode.REVERSE_DIAGNOSIS,
     ].includes(currentMode as AppMode);
 
     const renderTool = () => {
@@ -90,6 +105,12 @@ const App: React.FC = () => {
                 return <ContentPlanner />;
             case AppMode.BLOG_POST:
                 return <BlogPostGenerator />;
+            case AppMode.TRAINING_COACH:
+                return <TrainingCoach />;
+            case AppMode.LEAD_HUNTER:
+                return <LeadHunter />;
+            case AppMode.REVERSE_DIAGNOSIS:
+                return <ProposalReverseDiagnosis />;
             default:
                 return null;
         }
@@ -97,7 +118,7 @@ const App: React.FC = () => {
 
     return (
         <div className="h-screen bg-greatek-blue font-sans flex flex-col animate-fade-in">
-          <Header onAdminClick={() => setIsAdminPanelOpen(true)} onMenuClick={() => setIsSidebarOpen(true)} agentTitle={agentInfo?.title} />
+          <Header onMenuClick={() => setIsSidebarOpen(true)} agentTitle={agentInfo?.title} />
           <div className="flex flex-grow container mx-auto p-2 sm:p-4 overflow-hidden">
             {isSidebarOpen && <div className="fixed inset-0 bg-black/50 z-20 md:hidden" onClick={() => setIsSidebarOpen(false)}></div>}
             <Sidebar isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} />
@@ -127,12 +148,7 @@ const App: React.FC = () => {
         />
       )}
       {feedbackModalState.isOpen && <FeedbackInputModal />}
-      {isAdminPanelOpen && <AdminPanel onClose={() => setIsAdminPanelOpen(false)} />}
       
-      {isWidgetSimulatorOpen && (
-        <ChatWidgetSimulator onClose={() => setWidgetSimulatorOpen(false)} />
-      )}
-
       {renderContent()}
     </>
   );

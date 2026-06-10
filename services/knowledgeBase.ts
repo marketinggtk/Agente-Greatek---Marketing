@@ -27,7 +27,7 @@ export const PARTNER_COMPANIES: PartnerCompany[] = [
     { name: "Lacerda Sistemas de Energia", url: "https://lacerdasistemas.com.br/", logoUrl: "https://logo.clearbit.com/lacerdasistemas.com.br", description: "Com 25 anos de mercado, é especialista em nobreaks corporativos (600 VA a 600 kVA), com assistência técnica própria e presença nacional. Oferece soluções de alta complexidade e criticidade em energia.", type: "Partner" },
     { name: "Volt", url: "https://volt.ind.br/", logoUrl: "https://logo.clearbit.com/volt.ind.br", description: "Empresa 100% brasileira, especialista em soluções de energia ininterrupta para telecom, incluindo fontes nobreak, inversores, controladores de carga solar, sistemas de monitoramento e racks.", type: "Partner" },
     { name: "XPS", url: "https://xps.com.br/", logoUrl: "https://logo.clearbit.com/xps.com.br", description: "Empresa 100% nacional, há mais de 33 anos entregando soluções de energia como Retificadores (homologados ANATEL), Inversores, Conversores e Quadros de Distribuição, com certificação ISO 9001.", type: "Partner" },
-    { name: "Think Technology", url: "https://www.thinktechnology.com.br/", logoUrl: "https://logo.clearbit.com/thinktechnology.com.br", description: "Indústria brasileira no setor de telecomunicações, oferecendo soluções inovadoras para redes de fibra óptica, infraestrutura e equipamentos de alto desempenho.", type: "Partner" },
+    { name: "Think Technology", url: "https://www.thinktechnology.com.br/", logoUrl: "https://logo.clearbit.com/thinktechnology.com.br", description: "Parceiro estratégico da Greatek. Indústria brasileira no setor de telecomunicações, oferecendo soluções inovadoras para redes de fibra óptica, infraestrutura e equipamentos de alto desempenho.", type: "Partner" },
     { name: "Seccon", url: "", logoUrl: "https://greatek.com.br/logos/seccon.png", description: "Fornecedor de soluções para cabeamento estruturado, incluindo patch cords, patch panels, conectores e pigtails ópticos.", type: "Partner" },
     { name: "2Flex", url: "", logoUrl: "https://greatek.com.br/logos/2flex.png", description: "Fornecedor de cabos ópticos, como Drop e ASU, para redes de telecomunicações.", type: "Partner" },
 ];
@@ -38,99 +38,180 @@ export const KNOWLEDGE_BASE_PRODUCTS: KnowledgeBaseProduct[] = [
     name: "Máquina de Fusão Óptica X6 (MF30630X6)",
     keywords: ["máquina de fusão", "fusão óptica", "x6", "mf30630x6"],
     details: `- **Link do Produto:** https://www.greatek.com.br/produto/maquina-de-fusao-x6/
+- **Modelo:** MF30630X6
 - **Terminologia Correta:** Máquina de Fusão (NÃO fusionadora de fibra)
 - **Sistema de alinhamento:** Por núcleo ou casca
 - **Quantidade de motores:** 6 motores
-- **Tempo de emenda (Fusão):** 8 segundos
-- **Tempo de aquecimento:** Customizável
+- **Tempo de emenda:** 8 segundos
+- **Modo de aquecimento:** Customizável
+- **Diâmetro da fibra:** 80 - 150 μm/ 100-1000μm
+- **Modos de emendas:** Automático
+- **Perda de fusão:** 0.025dB (SM) / 0.01dB (MM) / 0.04dB (DS/NZDS)
+- **Tipos de Aplicação:** SM / MM / DS / NZDS
+- **Capacidade da bateria:** 7800mA (200 ciclos)
+- **Fonte de alimentação:** 100 -240V 50/60Hz
+- **Ampliação (microscópio):** 300x
+- **Comprimento de clivagem:** 8mm a 16mm
+- **Protetor de emenda:** 60mm, 50mm, 40mm e 25mm
+- **Teste de tensão:** 2N
+- **Visor:** LCD Colorido 5,1”
+- **Iluminação Externo:** Iluminação acoplada
+- **Porta USB:** A porta USB pode carregar dispositivos
+- **Armazenamento de dados:** Ilimitado (nuvem)
+- **Atualização do software:** Atualização através do aplicativo MINHA MÁQUINA
 - **Tempo de inicialização:** 5 segundos
-- **Tipos de Fibra (Aplicação):** Monomodo (SM), Multimodo (MM), DS, NZDS
-- **Perda de fusão (típica):** 0.025dB (SM), 0.01dB (MM), 0.04dB (DS/NZDS)
-- **Perda de retorno:** ≤ 60 dB
-- **Bateria:** 7800mA, para aproximadamente 200 ciclos (fusão e aquecimento)
-- **Eletrodos:** Vida útil de 3000 emendas
-- **Visor:** LCD Colorido de 5,1 polegadas
-- **Ampliação:** 300x
-- **Características Especiais:**
-    - **Bloqueio Inteligente:** Permite limitar o número de fusões ou o tempo de trabalho.
-    - **App de Gerenciamento:** Aplicativo "MINHA MÁQUINA" para iOS e Android.
-    - **Função Gestor:** Visualização remota do registro de fusões.
-    - **Conectividade:** Bluetooth e Porta USB que pode carregar dispositivos.
-    - **Armazenamento:** Ilimitado (nuvem).
-    - **Resistência:** Proteção contra chuva, pó e quedas.
-- **Peso (com maleta):** 6975g
-- **Dimensões (com maleta):** 270x220x330mm`
+- **Comunicação sem fios:** Bluetooth
+- **Perda de retorno:** ≤ 60 db
+- **Resistente:** Chuva, pó e quedas
+- **Temperatura de operação:** - 15 a 50 ºC
+- **Eletrodo:** 3000 emendas
+- **Umidade:** 0 a 95%
+- **Função Gestor:** Visualização remota do registro de fusões através do aplicativo MINHA MÁQUINA
+- **Bloqueio Inteligente:** Limite de fusões ou tempo de trabalho
+- **Peso Maleta Multifuncional:** 6975g
+- **Dimensão Maleta Multifuncional:** 270x220x330mm`
   },
   {
     name: "Máquina de Fusão Óptica G-FUSION PRO (MFGFP3201)",
     keywords: ["máquina de fusão", "fusão óptica", "g-fusion pro", "gfusionpro", "mfgfp3201"],
     details: `- **Link do Produto:** https://www.greatek.com.br/produto/maquina-de-fusao-gfusionpro/
 - **Modelo:** MFGFP3201
-- **Sistema de alinhamento:** Por núcleo, V-Groove ativo
+- **Sistema de alinhamento:** Por núcleo
 - **Quantidade de motores:** 6 motores
 - **Tempo de emenda:** 5 segundos
-- **Tempo de aquecimento:** 11 segundos (pré-estabelecido)
-- **Tipos de Fibra (Aplicação):** SM/MM/DS/NZDS
+- **Modo de aquecimento:** Pré-estabelecido em 11 segundos
+- **Diâmetro da fibra:** 80 - 150 μm
+- **Modos de emendas:** 41 modos predefinidos, 100 modos armazenáveis
 - **Perda de fusão:** 0.025dB (SM) / 0.01dB (MM)/ 0.04dB (DS/NZDS)
-- **Perda de retorno:** ≤ 60 db
-- **Bateria:** 7200mA (320 ciclos)
-- **Eletrodos:** 5.000 emendas
+- **Tipos de Aplicação:** SM / MM / DS / NZDS
+- **Capacidade da bateria:** 7200mA (320 ciclos)
+- **Fonte de alimentação:** 100 -240V AC / 12-15V DC
+- **Ampliação (microscópio):** 380x
+- **Comprimento de clivagem:** 8mm a 16mm
+- **Protetor de emenda:** 20-60mm
+- **Teste de tensão:** 2N
 - **Visor:** 4,3" em alta resolução com tela touch
-- **Recursos Integrados:** Medidor de potência óptica e Localizador Visual de Falhas (VFL) de 15mW.
-- **Armazenamento de dados:** 20.000 registros e 200 imagens
-- **Peso da Máquina:** 1,750 Kg`
+- **Iluminação Externo:** Iluminação acoplada
+- **Porta USB:** A porta USB pode carregar dispositivos
+- **Armazenamento de dados:** 20.000 registros mais recentes e 200 imagens
+- **Tempo de inicialização:** 5 segundos
+- **Comunicação sem fios:** Não possui
+- **Atualização do software:** Não possui
+- **Perda de retorno:** ≤ 60 db
+- **Resistência:** Sem informação
+- **Temperatura de operação:** - 15 a 50 ºC
+- **Umidade:** 0 a 95% não condensada
+- **Quantidade de ciclos:** 320 (ciclos + aquecimento)
+- **Eletrodo:** 5.000 emendas
+- **Medidor de potência óptica:** 850nm/ 1300nm/ 1310nm/1490nm/ 1550nm/ 1625nm
+- **Faixa de medição:** -50 ~ +26 dB | Erro absoluto: <0,3 dB
+- **Localizador Visual de Falhas (VFL):** 15mw, 2Hz modo fixo e pulsante
+- **Métodos de operação:** Botão e touchscreen
+- **V-Groove:** Ativo
+- **Diâmetro Maleta:** 135,1 x 205,9 x 130,4 mm
+- **Peso Máquina:** 1,750 Kg (Somente a máquina)`
   },
   {
     name: "Máquina de Fusão Portátil 2 Eixos (MF2140X01)",
     keywords: ["máquina de fusão", "fusão portátil", "2 eixos", "mf2140x01"],
     details: `- **Link do Produto:** https://www.greatek.com.br/produto/maquina-de-fusao-portatil-greatek/
 - **Modelo:** MF2140X01
-- **Sistema de alinhamento:** Pelo revestimento (V-Groove Fixo)
+- **Descrição Geral:** A máquina de fusão MF2140X01 possui tudo de melhor que uma máquina de fusão produzida na Suécia tem a oferecer. É ideal para construção de projetos de pequeno a grande porte, como: datacenter e redes FTTx.
+- **Modo de Emenda:** Automático
+- **Tipo de alinhamento:** Automático através do revestimento
+- **Perda:** 0,03db (SM) / 0,01db (MM)
 - **Quantidade de motores:** 2 motores
+- **V-Groove:** Fixo
+- **Ampliação:** 140x
+- **Monitor:** LCD colorido 2,8ʺ (320×240 pixels)
+- **Suportes de fibras:** 3 pares (250um, 900um e 900um (tubo loose))
 - **Tempo de emenda:** 7 segundos
 - **Tempo de aquecimento:** 35 segundos (protetor 40mm)
-- **Perda de fusão (típica):** 0.03dB (SM), 0.01dB (MM)
-- **Bateria:** 3400mAh, para aproximadamente 60 ciclos
-- **Visor:** LCD Colorido de 2,8 polegadas
-- **Ampliação:** 140x
+- **Características do forno:** Aquecedor cerâmico
+- **Bateria:** 3400mAh (60 ciclos)
+- **Comunicação:** Mini USB, Cartão SD (até 32GB)
+- **Memória:** 1MB interna
+- **Fonte de alimentação:** 6V/1,5A
 - **Peso:** 800g
 - **Dimensões:** 230 x 98 x 53 mm
-- **Comunicação:** Mini USB, Cartão SD (até 32GB)
+- **Temperatura operacional:** -20 a 45 graus
+- **Umidade:** 0 a 95% sem condensação
 - **Conteúdo da Embalagem:** Máquina, Fonte, Maleta, Clivador com Lixeira, Alicate Decapador, 3 Pares de Suporte para Fibra.`
   },
   {
-    name: "Bateria de Lítio da Sunwoda 100Ah com Certificação XPS",
+    name: "Bateria de Lítio Sunwoda (LB48V100AHSW)",
     keywords: ["sunwoda", "bateria", "lítio", "48v", "100ah", "energia", "LB48V100AHSW", "xps"],
-    details: `- **Link do Produto:** https://www.greatek.com.br/produto/bateria-de-litio-100ah-sunwoda/
-- **Marca Parceira:** Sunwoda
-- **Modelo:** LB48V100AHSW
-- **Tipo:** Bateria de Lítio (LiFePO4)
-- **Tensão Nominal:** 48V
-- **Capacidade Nominal:** 100Ah @0.5C, 25°C
-- **Corrente Máx. de Carga:** 100A (1C)
-- **Tensão Máx. de Carga:** 55V
-- **Corrente Nominal de Descarga:** 50A (0.5C)
-- **Corrente Máx. de Descarga:** 100A (1C)
-- **Tensão Final de Descarga:** 40.5V
-- **Vida útil (Design Life):** ≥10 anos
-- **Ciclos de Vida:** 5000 ciclos @0.5C 25°C 80% DOD
-- **Comunicação:** RS485, RS232, SNMP
-- **Dimensões:** 442mm x 413mm x 130mm (Design 3U para rack)
-- **Peso:** 40kg
-- **Diferenciais:** BMS integrado, sistema anti-furto com giroscópio e comunicação, Certificação XPS.`
+    details: `- **Modelo:** LB48V100AHSW
+- **Marca Parceira / Fabricante:** SUNWODA (comercializada por GREATEK)
+- **Descrição Geral:** A Bateria de Lítio 100Ah da Sunwoda, agora com Certificação XPS homologada, oferece alta densidade de energia em um design compacto, robusto e modular — ideal para aplicações que exigem durabilidade, desempenho e escalabilidade. Com ciclo de vida prolongado de mais de 10 anos, sistema de gerenciamento remoto via SNMP ou Smart BMS, é a escolha certa para projetos que priorizam confiabilidade operacional, segurança normativa e otimização de espaço. Produto com qualidade internacional Sunwoda, reconhecida mundialmente no segmento de armazenamento de energia, agora homologado para atender aos mais exigentes padrões técnicos do mercado nacional.
+- **Declaração de Compatibilidade e Homologação:**
+    - Empresas: XPS Tecnologia Ltda. e GTK Indústria e Comércio de Produtos Eletrônicos Ltda. (Greatek)
+    - Declaram que a bateria modelo LB48V100AHSW encontra-se oficialmente homologada, compatível e tecnicamente aprovada em termos de comunicação para uso com os produtos da XPS.
+    - Testes e ensaios foram conduzidos em conjunto pelas engenharias da XPS e da Greatek.
+    - Data de Homologação: São Paulo, 02 de junho de 2025.
+    - Pessoas responsáveis: Robert Jansen Costa de Araujo (Coordenador de Engenharia - Greatek) e Valmir Costa (Engenheiro de Qualidade - XPS).
+- **Especificações Técnicas:**
+    - Densidade de energia superior em 3U de altura para rack.
+    - BMS integrado para proteger o sistema e aumentar a vida útil.
+    - Giroscópio anti-furto e anti-furto de comunicação.
+    - Porta de comunicação SNMP.
+    - Tensão Nominal: 48V
+    - Capacidade Nominal: 100Ah @0.5C, 25ºC
+    - Corrente Máxima de Carga: 100A (1C)
+    - Tensão Máxima de Carga: 55V
+    - Corrente Nominal de Descarga: 50A (0.5C)
+    - Corrente Máxima de Descarga: 100A (1C)
+    - Tensão Final de Descarga: 40.5V
+    - Temperatura de Operação: Carga: 0-55ºC | Descarga: -20-60ºC
+    - Temperatura de Armazenamento: -20~45ºC (em 1 mês) | 15~35ºC (em 6 meses)
+    - Umidade Relativa: 5%-95%
+    - Autodescarga: ≤3% por mês @25ºC
+    - Vida útil projetada: ≥10 anos
+    - Vida útil cíclica: 5000 ciclos @0.5C 25ºC 80%DOD
+    - Comunicação: RS485, RS232, SNMP
+    - Dimensões (W*D*H): 442mm*413mm*130mm (excluindo abas de montagem)
+    - Peso: 40kg`
   },
   {
-    name: "Clivador GROTATEpro (FCLV48KCC-1)",
-    keywords: ["clivador", "grotatepro", "grotate pro", "fclv48kcc-1"],
-    details: `- **Link do Produto:** https://www.greatek.com.br/produto/clivador-grotate-pro/
-- **Modelo:** FCLV48KCC-1
-- **Material:** Ligas de alumínio
-- **Lâmina:** Rotação automática com 16 posições
-- **Quantidade de clivagens:** 48.000
-- **Ângulo de clivagem:** 0.5°
-- **Comprimento de Corte:** 7 ~ 16 mm
-- **Tipos de Fibra:** Single Core (Ø 0,25 & 0,9 mm)
-- **Diferenciais:** Retorno automático do carro, sem fissuras no núcleo da fibra.`
+    name: "Clivador GROTATEpro (FCLV48KCC- 1)",
+    keywords: ["clivador", "grotatepro", "grotate pro", "fclv48kcc-1", "rotação automática"],
+    details: `- **Modelo:** FCLV48KCC-1
+- **Descrição Geral:** Rotação de posição automática.
+- **Especificações Técnicas:**
+    - Quantidade de clivagens: 48.000 mil
+    - Quantidade de posições: 16 posições de clivagem
+    - Diâmetro da Fibra: 125 μm
+    - Tipos de Fibra: Single Core (Ø 0,25 & 0,9 mm)
+    - Ângulo de clivagem: 0.5°
+    - Comprimento de Corte: 7 ~ 16 mm
+    - Tamanho: 64x81x60 mm
+    - Peso: 328g`
+  },
+  {
+    name: "Clivador de Alta Precisão 48K (FCLV048KCL)",
+    keywords: ["clivador", "alta precisão", "48k", "fclv048kcl"],
+    details: `- **Modelo:** FCLV048KCL
+- **Especificações Técnicas:**
+    - Tipo de Fibra: SM / MM
+    - Diâmetro da fibra: 125 μm
+    - Diâmetro do revestimento: 0,5 ~ 0,9 mm
+    - Dimensões: 60x57x46mm
+    - Ângulo de clivagem: 0,5º
+    - Vida útil da lâmina: 48.000 clivagens
+    - Peso: 266g`
+  },
+  {
+    name: "CLVMFAI7C - Clivador de Alta Precisão",
+    keywords: ["clivador", "clvmfai7c", "alta precisão", "lixeira", "16 posições"],
+    details: `- **Modelo:** CLVMFAI7C
+- **Especificações Técnicas:**
+    - Posições de lâmina: 16 posições
+    - Vida útil da lâmina: 48k clivagens
+    - Ângulo de clivagem: 0.5°
+    - Tipo de fibra: SM, MM
+    - Diâmetro da fibra: 125µm
+    - Diâmetro do revestimento: 0.25~0.9mm
+    - Lixeira (coletor de resíduos): Sim`
   },
   {
     name: "Clivador de Alta Precisão 50K (FCLV50K)",
@@ -149,57 +230,61 @@ export const KNOWLEDGE_BASE_PRODUCTS: KnowledgeBaseProduct[] = [
     keywords: ["fonte", "nobreak", "fnbups001", "mini nobreak"],
     details: `- **Link do Produto:** https://www.greatek.com.br/produto/fonte-nobreak-greatek/
 - **Modelo:** FNBUPS001
-- **Entrada:** AC 100-240V
-- **Saída (Ajustável):** 5V/2A, 9V/1A, 12V/1A
 - **Capacidade:** 4000mAh (14.8Wh)
+- **Entrada:** AC 100-240V
+- **Saída:** 12V1A / 9V1A / 5V2A (Ajustável)
 - **Bateria:** 18650 Bateria de Lítio
-- **Proteção:** Sobrecarga, Baixa tensão, Sobrecorrente
-- **Interface:** DC 5.5*2.1mm
-- **Aplicação:** Ideal para alimentar ONUs, roteadores e outros equipamentos de baixa tensão durante quedas de energia.`
+- **Proteção:** Sobrecarga // Baixa tensão // Sobrecorrente
+- **Temperatura:** -20~60ºC
+- **Dimensões:** 125*96*50mm
+- **Peso líquido/bruto:** 205g/230g
+- **Interface:** DC5.5*2.1mm ou customizável
+- **Conector:** P4`
   },
   {
-    name: "OTDR Greatek (OTDRMFO001)",
-    keywords: ["otdr", "otdrmfo001", "medidor óptico", "optical time domain reflectometer"],
+    name: "OTDR Greatek (OTDRMFO001 / FOTDR0001)",
+    keywords: ["otdr", "otdrmfo001", "fotdr0001", "medidor óptico", "optical time domain reflectometer"],
     details: `- **Link do Produto:** https://www.greatek.com.br/produto/otdr-greatek/
-- **Modelo:** OTDRMFO001
-- **Tela:** 7" polegadas touchscreen
-- **Comprimento de onda:** 1310/1550/1625nm
-- **Faixa dinâmica:** 35/33/33dB
-- **Distância de teste:** 500m ~ 160km
-- **Zona morta de evento:** 1m
-- **Zona morta de atenuação:** 5m
-- **Largura do pulso:** 3ns, 5ns, 10ns, 20ns, 50ns, 100ns, 200ns, 500ns, 1μs, 2μs, 5μs, 10μs, 20μs
-- **Tempo de mensuração:** Definido pelo usuário (link inteligente); com medição em tempo real
-- **Linearidade:** <0.05dB/dB
-- **Perda limite:** 0,01dB
-- **Resolução de perda:** 0,001dB
-- **Resolução de distância:** 0,01m
-- **Resolução de amostragem:** Mínimo 0,25m
-- **Ponto de amostragem:** Máximo de 128,000 pontos
-- **Precisão da distância:** ±(1m+distância de medição x 3x10-5 + resolução de amostragem)
-- **Bateria:** 7.4v / 6.6Ah
-- **Armazenamento de dados:** 80.000 medições
-- **Interface:** 3x USB
-- **Temperatura de trabalho:** -10 °C ~ +50 °C
-- **Temperatura de armazenamento:** -20 °C ~ +75 °C
-- **Umidade relativa:** <= 90% sem dens.
-- **Recursos Integrados:**
+- **Modelos:** OTDRMFO001 / FOTDR0001 / Reflectômetro Óptico no Domínio do Tempo
+- **Especificações Técnicas:**
+    - Comprimento de onda: 1310/1550/1625nm
+    - Faixa dinâmica: 35/33/33dB
+    - Evento Zona morta: 1m
+    - Zona morta de atenuação: 5m
+    - Largura do pulso: 3ns, 5ns, 10ns, 20ns, 50ns, 100ns, 200ns, 500ns, 1μs, 2μs, 5μs, 10μs, 20μs3μs (nota: suporte a largura de pulso estendida de 3μs no modelo FOTDR0001)
+    - Distância de teste: 500m ~ 160km
+    - Tempo de mensuração: Medição em tempo real ou definido pelo usuário (link inteligente)
+    - Linearidade: <0.05dB/dB
+    - Perda de limite: 0,01dB
+    - Resolução de perda: 0,01dB
+    - Resolução de distância: 0,01m
+    - Resolução de amostragem: 0,25m
+    - Ponto de amostragem: 128.000 pontos
+    - Precisão da distância: ±(1m+distância de mediçãox3x10-5+resolução de amostragem)
+    - Visual interno: 10mw, CW/2Hz
+    - Fonte de laser estável: >-5dBm
+    - Armazenamento de dados: 80.000 medições
+    - Interface: 3x USB
+    - Tela: 7" polegadas touchscreen
+- **Recursos Integrados adicionais:**
     - **Medidor de potência óptica (OPM):** 850/1300/1310/1490/1550/1625nm; -50 ~ +26db
     - **Fonte de luz óptica (LS):** 1310/1550nm
     - **Localizador Visual de Falhas (VFL):** 10mw, CW/2Hz (Visual interno)
     - **Fonte de laser estável:** >-5dBm`
   },
   {
-    name: "Caixa de Terminação Óptica (CTO) Trava Dupla 16FO",
+    name: "Caixa de Terminação Óptica (CTO) Trava Dupla 16FO / CTODT16A12F",
     keywords: ["cto", "caixa de terminação", "ctodt16a12f", "16fo", "trava dupla"],
     details: `- **Link do Produto:** https://www.greatek.com.br/produto/cto-de-trava-dupla/
-- **Modelo:** CTODT16A12F
-- **Capacidade de adaptadores:** Até 16 adaptadores SC (APC ou UPC)
-- **Capacidade de fusões:** Acomoda até 12 fusões
-- **Grau de proteção:** IP66
-- **Interface de cabos:** 4 interfaces para cabos de até 13mm
-- **Vedação:** Travas mecânicas e borracha de vedação
-- **Peso:** 1.1 Kg`
+- **Modelo:** CTODT16A12F / CTO TRAVA DUPLA
+- **Especificações Técnicas:**
+    - Quantidade de adaptadores (SC): Até 16 adaptadores APC ou UPC.
+    - Acomodação de fusões: Até 12 fusões.
+    - Interface de entrada e saída de cabo AS: 4 interfaces para cabos de até 13mm.
+    - Sistema de vedação: Travas mecânicas e borracha de vedação.
+    - Grau de proteção: IP66
+    - Dimensões do produto (mm): 230 x 285 x 86 (L x C x A)
+    - Peso: 1.1 Kg`
   },
   {
     name: "Caixa de Emenda Óptica (CEO)",
@@ -217,43 +302,160 @@ export const KNOWLEDGE_BASE_PRODUCTS: KnowledgeBaseProduct[] = [
   - **Portas:** 1 Porta oval para sangria, 4 Portas circulares de 20mm`
   },
   {
-    name: "Distribuidor Óptico Interno (DIO) para Rack 19\"",
-    keywords: ["dio", "distribuidor óptico", "dio12fo", "dio24fo", "rack"],
-    details: `- **Link do Produto:** https://www.greatek.com.br/produto/distribuidor-interno-optico/
-- **Material:** Aço laminado a frio com pintura eletrostática preta
-- **Montagem:** Padrão Rack 19" (tamanho 1U)
-- **Aplicação:** Cenários FTTH, LAN/WAN
-- **Polimento:** APC ou UPC
-- **Acessórios Inclusos:** Bandeja para emendas, protetores de emenda, pigtails coloridos, suportes para rack, parafusos, abraçadeiras e adaptadores ópticos.
-- **Modelo DIO12FO:**
-  - **Capacidade:** 12 Fibras
-  - **Peso:** 3,5 Kg
-- **Modelo DIO24FO:**
-  - **Capacidade:** 24 Fibras
-  - **Peso:** 3,7 Kg`
+    name: "Distribuidor Óptico Interno 12 Fibras (DIO12FO)",
+    keywords: ["dio", "dio12fo", "distribuidor óptico", "rack 19", "12fo"],
+    details: `- **Modelo:** DIO12FO
+- **Especificações Técnicas:**
+    - Capacidade máxima: 12 Fibras
+    - Dimensões: 435 x 320 x 43,8mm - 1U
+    - Peso: 3,5kg
+    - Temperatura de operação: 0 ºC ~ 36ºC
+    - Tipo de conector: SC
+    - Tipo de polimento: APC ou UPC
+    - Acabamento: Pintura eletroestática preta
+    - Aplicação: Cenários FTTH, LAN/WAN
+    - Montagem: Indicado para Rack de 19”
+    - Fabricação: Aço laminado a frio
+- **Acessórios Inclusos:**
+    - Bandeja para emendas ópticas: 1 unidade
+    - Protetores de emendas ópticas: 12 unidades
+    - Pig tails coloridos: 12 unidades
+    - Parafusos para fixação de suporte no rack: 4 unidades
+    - Suportes para rack: 2 unidades
+    - Abraçadeiras plásticas: 6 unidades
+    - Entradas e saídas para fibras: 4 unidades
+    - Fixadores para fibras: 4 unidades
+    - Fixadores para o elemento de tração: 4 unidades
+    - Adaptadores ópticos SC/APC ou SC/UPC: 12 unidades`
   },
   {
-    name: "Conectores de Campo SC (APC/UPC)",
-    keywords: ["conector", "conector de campo", "conector reutilizável", "conector anatel", "conector de rosca", "sc/apc", "sc/upc"],
+    name: "Distribuidor Óptico Interno 24 Fibras (DIO24FO)",
+    keywords: ["dio", "dio24fo", "distribuidor óptico", "rack 19", "24fo"],
+    details: `- **Modelo:** DIO24FO
+- **Especificações Técnicas:**
+    - Capacidade máxima: 24 Fibras
+    - Dimensões: 435 x 320 x 43,8mm - 1U
+    - Peso: 3,7kg
+    - Temperatura de operação: 0 ºC ~ 36ºC
+    - Tipo de conector: SC
+    - Tipo de polimento: APC ou UPC
+    - Acabamento: Pintura eletroestática preta
+    - Aplicação: Cenários FTTH, LAN/WAN
+    - Montagem: Indicado para Rack de 19”
+    - Fabricação: Aço laminado a frio
+- **Acessórios Inclusos:**
+    - Bandeja para emendas ópticas: 2 unidades
+    - Protetores de emendas ópticas: 24 unidades
+    - Pig tails coloridos: 24 unidades
+    - Parafusos para fixação de suporte no rack: 4 unidades
+    - Suportes para rack: 2 unidades
+    - Abraçadeiras plásticas: 6 unidades
+    - Entradas e saídas para fibras: 4 unidades
+    - Fixadores para fibras: 4 unidades
+    - Fixadores para o elemento de tração: 4 unidades
+    - Adaptadores ópticos SC/APC ou SC/UPC: 24 unidades`
+  },
+  {
+    name: "Adaptador Óptico Sem Flange - SC/APC e SC/UPC",
+    keywords: ["adaptador", "sem flange", "adaptador óptico", "sc/apc sem flange", "sc/upc sem flange", "6802ADP03", "6802ADP04"],
+    details: `- **Códigos:** 6802ADP03 (SC/APC) e 6802ADP04 (SC/UPC)
+- **Descrição Geral:** Os adaptadores ópticos da Greatek garantem o alinhamento apropriado das fibras ópticas com alta precisão e alta estabilidade. Ideal para uso em distribuição de sinais ópticos, sistema FTTx, Redes PON, Redes de Telecomunicações, Redes Locais (LANs), Data Center, Redes de Longa distância, (WANs), CATV.
+- **Especificações Técnicas:**
+    - Polimento: APC e UPC
+    - Tipo de conector: SC
+    - Perda de inserção Mínimo: 0.1dB
+    - Perda de inserção Máxima: 0.2dB
+    - Durabilidade: 1000 conexões
+    - Força de retenção: 0.2 ~ 0.6Kg
+    - Temperatura de operação: -40°C ~ 85°C`
+  },
+  {
+    name: "Adaptador Óptico Com Flange - SC/APC e SC/UPC",
+    keywords: ["adaptador", "com flange", "adaptador óptico", "sc/apc com flange", "sc/upc com flange", "6802ADP01", "6802ADP02"],
+    details: `- **Códigos:** 6802ADP01 (SC/APC) e 6802ADP02 (SC/UPC)
+- **Descrição Geral:** Os adaptadores ópticos da Greatek garantem o alinhamento apropriado das fibras ópticas com alta precisão e alta estabilidade. Ideal para uso em distribuição de sinais ópticos, sistema FTTx, Redes PON, Redes de Telecomunicações, Redes Locais (LANs), Data Center, Redes de Longa distância, (WANs), CATV.
+- **Especificações Técnicas:**
+    - Polimento: APC e UPC
+    - Tipo de conector: SC
+    - Perda de inserção Mínima: 0.1dB
+    - Perda de inserção Máxima: 0.2dB
+    - Durabilidade: 1000 conexões
+    - Força de retenção: 0.2 ~ 0.6Kg
+    - Temperatura de operação: -40°C ~ 85°C`
+  },
+  {
+    name: "Conectores de Campo SC (APC/UPC) - Modelos C03, C04, C11",
+    keywords: ["conector", "conector de campo", "conector de rosca", "conector reutilizável", "conector anatel", "sc/apc", "sc/upc", "cnscapc03", "cnscupc03", "cnscapc04", "cnscupc04", "cnscapc11", "cnscupc11"],
     details: `- **Link da Família:** https://www.greatek.com.br/produto/conectores-de-campo-greatek/
-- **Modelos Disponíveis:** Rosca, C04 Reutilizável, C03 Homologado ANATEL.
-- **Polimentos:** SC/APC e SC/UPC.
+- **Descrição Geral:** Os conectores ópticos de campo Greatek fornecem conexões estáveis, de fácil implantação e sem a necessidade de fusão.
 ---
-### Modelo de Rosca (CNSCAPC11 / CNSCUPC11):
-- **Aplicação:** Uso direto na ONU, montável em campo.
-- **Perda de inserção:** ≤ 0,5dB
-- **Perda de retorno:** ≥55 dB (APC), ≥45 dB (UPC)
+### Conector Óptico de Campo SC/APC e SC/UPC C03
+- **Códigos:** CNSCAPC03 e CNSCUPC03
+- **Aplicação:** Disseminação de sinais ópticos, Estrutura de distribuição FTTx, Infraestrutura de telecomunicações, Redes locais (LAN) e redes (WAN) e Redes de acesso óptico passivo (PON).
+- **Características:** Formado por dois ferrolhos de Zircônia, garantindo consistência na conexão e um melhor desempenho. Alta performance. Alta durabilidade. Fácil instalação. Reutilizáveis sem perda significativa. Baixa perda por inserção. Projetado para cabos Drop Flat de até 3 mm.
+- **Especificações Técnicas:**
+    - Aplicação: 3.0*2.0mm Cabos tipo Drop
+    - Polimento: APC e UPC
+    - Diâmetro da fibra: 125μm
+    - Tipo de fibra: Monomodo/Multimodo
+    - Tempo de instalação: ≤ 3 minutos
+    - Durabilidade: ≥ 30 anos
+    - Quantidade de ferrolhos: 2
+    - Material do ferrolho: Zircônia
+    - Perda de inserção Méd.: ≤ 0.3dB e Máx. ≤ 0.5dB
+    - Perda de retorno: APC: ≥ 50dB e UPC: ≥ 45dB
+    - Resistência á tração: ≥40N
+    - Temperatura de Operação: -40 ~ +85ºC
 ---
-### Modelo C04 Reutilizável (CNSCAPC04 / CNSCUPC04):
-- **Aplicação:** Cabos Drop Flat até 3mm, cordões 2mm/3mm.
-- **Perda de inserção:** Média ≤ 0.3dB
-- **Perda de retorno:** ≥ 55dB (APC), ≥ 45dB (UPC)
-- **Durabilidade:** ≥ 30 anos, reutilizável.
+### Conector Óptico de Campo SC/APC e SC/UPC C04
+- **Códigos:** CNSCAPC04 e CNSCUPC04
+- **Descrição:** Os conectores ópticos de campo SC/UPC e APC são de alta performance, alta durabilidade e de fácil instalação. Projetado para cabos Drop Flat de até 3 mm e cordões ópticos de 2mm ou 3mm. Os conectores são reutilizáveis e operam com baixa perda por inserção.
+- **Especificações Técnicas:**
+    - Aplicação: 3.0 * 2.0 mm cabo tipo drop
+    - Pré-Polimento: APC/UPC
+    - Diâmetro da Fibra: 125µm (657A & 657B)
+    - Tipo de fibra: Monomodo e Multimodo
+    - Tempo de instalação: ≤ 3 min
+    - Durabilidade: ≥ 30 anos
+    - Perda de inserção: Méd. ≤ 0.3dB e Máx. ≤ 0.5dB
+    - Perda de retorno: UPC ≥ 45 APC ≥ 55dB
+    - Resistência á tração: ≥ 50N
+    - Temp. de Operação: -40 ~ +85ºC
 ---
-### Modelo C03 Homologado ANATEL (CNSCAPC03 / CNSCUPC03):
-- **Diferencial:** Homologado na ANATEL, estrutura com dois ferrolhos de Zircônia.
-- **Perda de inserção:** Média ≤ 0.3dB
-- **Perda de retorno:** ≥ 50dB (APC), ≥ 45dB (UPC)`
+### Conector Óptico de Campo SC/APC C11
+- **Código:** CNSCAPC11
+- **Características:** Tamanho compacto, uso direto na ONU, aplicação no projeto FTTH, redução de soquetes e adaptadores, economia de custo, cabo interno montável em campo.
+- **Especificações Técnicas:**
+    - Escopo do cabo: 3,0 x 2,0 mm
+    - Tamanho: 58*9*7,4 mm
+    - Diâmetro da fibra: 125μm (G652D e G657A)
+    - Modo: SM
+    - Tempo de operação: 15s
+    - Perda de inserção: ≤ 0,5dB
+    - Perda de retorno: ≥55 dB
+    - Reutilização: 10 vezes
+    - Resistência ao aperto da fibra: 5N
+    - Resistência à tração: 50N
+    - Temperatura: -40~+85C
+    - Teste de resistência à tração: Faixa de IL ≤0,3dB Faixa de RL ≤5dB
+    - Durabilidade mecânica (500 vezes): Faixa de IL ≤0,3dB Faixa de RL ≤5dB
+---
+### Conector Óptico de Campo SC/UPC C11
+- **Código:** CNSCUPC11
+- **Especificações Técnicas:**
+    - Escopo do cabo: 3,0 x 2,0 mm
+    - Tamanho: 58*9*7,4 mm
+    - Diâmetro da fibra: 125μm (G652D e G657A)
+    - Modo: SM
+    - Tempo de operação: 15s
+    - Perda de inserção: ≤ 0,5dB
+    - Perda de retorno: ≥45 dB
+    - Reutilização: 10 vezes
+    - Resistência ao aperto da fibra: 5N
+    - Resistência à tração: 50N
+    - Temperatura: -40~+85C
+    - Teste de resistência à tração: Faixa de IL ≤0,3dB Faixa de RL ≤5dB
+    - Durabilidade mecânica (500 vezes): Faixa de IL ≤0,3dB Faixa de RL ≤5dB`
   },
   {
       name: "TP-Link Roteadores e Soluções Wi-Fi (Consumo)",
@@ -503,23 +705,37 @@ export const KNOWLEDGE_BASE_PRODUCTS: KnowledgeBaseProduct[] = [
     keywords: ["tp-link", "aginet", "isp", "provedor", "olt", "ont", "xgpon", "gpon", "tauc", "5g", "roteador isp", "mesh isp", "DS-P8000-X2"],
     details: `- **Visão Geral**: A TP-Link, através de sua linha de soluções Aginet, oferece um portfólio completo de produtos para acesso via fibra, 5G e Wi-Fi, todos gerenciados centralmente pela plataforma TAUC (TP-Link Unified Cloud). A Greatek é distribuidora master da TP-Link.
 ---
-### Solução de Fibra: OLTs e ONTs/ONUs
-- **Foco**: Fornecer infraestrutura de fibra óptica de alta performance e escalabilidade.
-- **OLTs (Optical Line Terminals)**:
-  - **OLT Chassi X2 (DS-P8000-X2)**: Solução de alta performance para redes GPON e XGS-PON, oferecendo 32 portas PON em um chassi compacto e flexível. Suporta até 200Gbit/s por slot, com fontes e controladoras redundantes. Gerenciamento via DPMS, SNMP, CLI e Web UI. Link do Produto: https://www.greatek.com.br/produto/olt-chassi-x2-xgs-pon-e-gpon-de-32-portas/
-  - **DeltaStream Pizza Box (XGS-PON & GPON Combo)**: Modelos como **DS-P7500-16** (16 portas) e **DS-P7500-08** (8 portas) que suportam tanto GPON quanto XGS-PON no mesmo dispositivo, garantindo uma atualização futura suave para 10G.
-  - **DeltaStream Pizza Box (GPON)**: Modelos como **DS-P7001-16** (16 portas) e **DS-P7001-08** (8 portas) para redes GPON robustas.
-  - **Gerenciamento**: Centralizado via DeltaStream PON Management System (DPMS), SNMP, CLI e interface web.
-- **Roteadores/Terminais PON (HGU/SFU)**:
-  - **Wi-Fi 7 XGS-PON**: **TP-Link XGB830v** (BE19000 Tri-Band) com porta WAN/LAN 10GE, ideal para planos de ultravelocidade.
-  - **Wi-Fi 6 XPON**: **TP-Link ONT XX530v V2** (ONT Terminal XPON VoIP Wi-Fi 6 Dual Band AX3000). Link: https://www.tp-link.com/br/service-provider/pon-ont/xx530v/
-    - **Tecnologia**: XPON (suporta GPON e EPON).
-    - **Padrão Wi-Fi**: Wi-Fi 6 (802.11ax) Dual-Band AX3000.
-    - **Velocidades**: 2402 Mbps (5 GHz) + 574 Mbps (2.4 GHz).
-    - **Portas**: 4x Portas LAN Gigabit, 1x Porta FXS (VoIP).
-    - **Recursos Chave**: EasyMesh, OFDMA, MU-MIMO, Beamforming, WPA3.
-    - **Gerenciamento Remoto**: OMCI, TR-069, TR-181, TR-369 (USP) e Aginet ACS para provisionamento Zero-Touch e gerenciamento centralizado.
-  - **Terminais (SFU)**: **TP-Link XGZ030** (1 porta 10GE XGS-PON) e **TP-Link XZ000-G7** (1 porta Gigabit XPON) para cenários onde o roteador é fornecido separadamente.
+### XX535
+**ONT Terminal XPON Wi-Fi 6 Dual Band AX3000**
+*Nota Importante: O modelo XX535 substitui o antigo modelo XX530v V2. A TP-Link agora comercializa exclusivamente o modelo XX535 para esse segmento, mas o modelo anterior segue listado abaixo como descontinuado e mantido exclusivamente para fins de comparação.*
+- **Tecnologia**: Modos duplos XPON (Compatível com os modos GPON e EPON para acesso flexível).
+- **Padrão Wi-Fi**: Wi-Fi 6 Dual Band AX3000 ou superior (velocidades de Wi-Fi de até 3 Gbps em duas bandas).
+- **Cobertura ampliada**: Antenas de alto desempenho e tecnologia de beamforming combinam-se para estender uma rede Wi-Fi forte e confiável por toda a sua casa.
+- **Portas**: Conectividade cabeada Gigabit (1 porta WAN/LAN GbE e 2 portas LAN GbE oferecem acesso rápido e flexível).
+- **Recursos Chave**: Compatível com EasyMesh (crie uma rede mesh inteligente), OFDMA, MU-MIMO, criptografia WPA3, Multi-SSID e controles parentais. Configuração e uso fáceis via poderoso aplicativo Aginet.
+- **Gerenciamento Remoto**: Compatível com os protocolos OMCI, TR-069, TR-098, TR-181, TR-111 e TR-143.
+
+### XX530v V2 [DESCONTINUADO - PARA COMPARAÇÃO]
+**ONT Terminal XPON VoIP Wi-Fi 6 Dual Band AX3000**
+*Nota: Modelo descontinuado e substituído pelo XX535. Mantido na base de conhecimento apenas para fins de comparação técnica.*
+- **Tecnologia**: XPON (suporta GPON e EPON).
+- **Padrão Wi-Fi**: Wi-Fi 6 (802.11ax) Dual-Band AX3000.
+- **Velocidades**: 2402 Mbps (5 GHz) + 574 Mbps (2.4 GHz).
+- **Portas**: 4x Portas LAN Gigabit, 1x Porta FXS (VoIP).
+- **Recursos Chave**: EasyMesh, OFDMA, MU-MIMO, Beamforming, WPA3.
+- **Gerenciamento Remoto**: OMCI, TR-069, TR-181, TR-369 (USP) e Aginet ACS.
+- **Diferenciais vs XX535**: O XX530v V2 vinha equipado com 1 porta telefônica FXS (VoIP) e possuía 4 portas LAN físicas, enquanto o XX535 atual foca puramente em Wi-Fi de alto desempenho e redes Mesh sem telefonia, contando com 3 portas RJ45 físicas totais.
+
+### OLT Chassi X2 (DS-P8000-X2)
+Solução de alta performance para redes GPON e XGS-PON, oferecendo 32 portas PON em um chassi compacto e flexível. Suporta até 200Gbit/s por slot, com fontes e controladoras redundantes. Gerenciamento via DPMS, SNMP, CLI e Web UI. Link do Produto: https://www.greatek.com.br/produto/olt-chassi-x2-xgs-pon-e-gpon-de-32-portas/
+
+### DeltaStream Pizza Box
+- **XGS-PON & GPON Combo**: Modelos como **DS-P7500-16** (16 portas) e **DS-P7500-08** (8 portas) que suportam tanto GPON quanto XGS-PON no mesmo dispositivo.
+- **GPON**: Modelos como **DS-P7001-16** (16 portas) e **DS-P7001-08** (8 portas) para redes GPON robustas.
+
+### Outros Terminais
+- **Wi-Fi 7 XGS-PON**: **TP-Link XGB830v** (BE19000 Tri-Band).
+- **Terminais (SFU)**: **TP-Link XGZ030** (1 porta 10GE XGS-PON) e **TP-Link XZ000-G7** (1 porta Gigabit XPON).
 ---
 ### Roteadores 5G/4G+
 - **Foco**: Oferecer acesso à internet de banda larga via rede móvel (Fixed Wireless Access - FWA).
@@ -566,7 +782,7 @@ export const KNOWLEDGE_BASE_PRODUCTS: KnowledgeBaseProduct[] = [
   {
     name: "Think Technology - Catálogo de Produtos",
     keywords: ["think", "think technology", "ont", "olt", "gpon", "epon", "xpon", "wi-fi 6", "ax3000", "ac1200", "cto", "ceo", "dio", "rack"],
-    details: `- **Perfil:** Indústria brasileira de telecomunicações desde 2015, localizada em Santa Rita do Sapucaí, MG.
+    details: `- **Perfil:** Parceiro estratégico distribuído pela Greatek. A Think Technology é uma indústria brasileira de telecomunicações desde 2015, localizada em Santa Rita do Sapucaí, MG.
 ---
 ### ELETRÔNICOS
 - **ONT Wi-FI 6 AX3000/AX3000V (VoIP):** Padrão GPON, compatível com EasyMesh, IPv4/IPv6, MU-MIMO, OFDMA. Design exclusivo com tampa de proteção do conector.
@@ -1307,14 +1523,29 @@ export const KNOWLEDGE_BASE_PRODUCTS: KnowledgeBaseProduct[] = [
 - **Gerenciamento:** OMCI, TR-069, App Aginet.`
   },
   {
-    name: "ONT Terminal XPON VoIP Wi-Fi 6 Dual Band AX1800 (XX230v)",
-    keywords: ["ont", "xpon", "voip", "wi-fi 6", "ax1800", "xx230v", "tp-link"],
+    name: "ONT Terminal XPON Wi-Fi 6 Dual Band AX3000 (XX535)",
+    keywords: ["ont", "xpon", "wi-fi 6", "dual-band", "ax3000", "xx535", "tp-link", "easy-mesh", "easymesh"],
     details: `- **Marca:** TP-Link
-- **Wi-Fi:** AX1800 Wi-Fi 6 Dual Band (1201 Mbps em 5GHz + 574 Mbps em 2.4GHz).
-- **Portas:** 1x GbE WAN/LAN, 3x GbE LAN, 1x FXS (VoIP).
+- **Nota Importante:** Este modelo substitui o antigo modelo XX530v V2, que foi descontinuado. A TP-Link agora trabalha exclusivamente com o modelo XX535 para esse segmento, mas o modelo XX530v V2 segue na base marcado como descontinuado apenas para fins de comparação técnica.
+- **Wi-Fi:** Wi-Fi 6 Dual Band AX3000 (velocidades de Wi-Fi de até 3 Gbps em duas bandas).
+- **Cobertura ampliada:** Antenas de alto desempenho e tecnologia de beamforming combinam-se para estender uma rede Wi-Fi forte e confiável.
+- **Portas:** Conectividade cabeada Gigabit (1 porta WAN/LAN GbE e 2 portas LAN GbE oferecem acesso rápido e flexível).
+- **Tecnologia PON:** Modos duplos XPON (compatível com os modos GPON e EPON).
+- **Recursos Chave:** Compatível com EasyMesh (crie uma rede mesh inteligente com cobertura contínua), tecnologias OFDMA e MU-MIMO (aumentam a capacidade para mais dispositivos conectados de forma simultânea), criptografia WPA3, Multi-SSID e controles parentais.
+- **Fácil Configuração:** Configuração e gerenciamento simplificados via poderoso aplicativo Aginet.
+- **Gerenciamento Remoto:** Compatível com os protocolos OMCI, TR-069, TR-098, TR-181, TR-111 e TR-143.`
+  },
+  {
+    name: "ONT Terminal XPON VoIP Wi-Fi 6 Dual Band AX3000 (XX530v V2) [DESCONTINUADO]",
+    keywords: ["ont", "xpon", "voip", "wi-fi 6", "ax3000", "xx530v v2", "xx530v", "xx530", "tp-link", "descontinuado"],
+    details: `- **Marca:** TP-Link (Modelo Anterior/Descontinuado para Comparação)
+- **Nota Importante:** Modelo de portfólio anterior, descontinuado e mantido na base apenas para fins comparativos com a nova ONT XX535.
+- **Wi-Fi:** Wi-Fi 6 (802.11ax) Dual-Band AX3000 (2402 Mbps em 5 GHz + 574 Mbps em 2.4 GHz).
+- **Portas:** 4x Portas LAN Gigabit, 1x Porta FXS (VoIP).
 - **Tecnologia PON:** XPON (GPON/EPON).
-- **Recursos:** OFDMA, MU-MIMO, EasyMesh, WPA3, IPTV, design compacto de bandeja de fibra.
-- **Gerenciamento:** TAUC (baseado em TR-369), OMCI, TR-069 e outros.`
+- **Recursos Chave:** EasyMesh, OFDMA, MU-MIMO, Beamforming, WPA3.
+- **Gerenciamento Remoto:** OMCI, TR-069, TR-181, TR-369 (USP) e Aginet ACS.
+- **Diferenciais vs XX535:** O XX530v V2 contava com 1 porta FXS (VoIP) de telefonia analógica e um total de 4 portas LAN físicas RJ45, enquanto a nova ONT XX535 não possui porta FXS (não tem telefonia analógica) e possui 3 portas RJ45 físicas.`
   },
   {
     name: "Roteador Wi-Fi 6 Gigabit Dual Band AX5400 (Archer AX72)",
@@ -1347,17 +1578,6 @@ export const KNOWLEDGE_BASE_PRODUCTS: KnowledgeBaseProduct[] = [
 - **Antenas:** 4 antenas externas.
 - **Recursos:** OFDMA, MU-MIMO, Beamforming, WPA3, Target Wake Time.
 - **Gerenciamento:** App Tether.`
-  },
-  {
-    name: "Roteador Wi-Fi 6 Gamer Gigabit Tri-Band AX6600 (Archer GX90)",
-    keywords: ["roteador", "gamer", "wi-fi 6", "ax6600", "tri-band", "archer gx90", "tp-link"],
-    details: `- **Marca:** TP-Link
-- **Velocidade Wi-Fi:** AX6600 Tri-Band (4804 Mbps em 5GHz-1 'Game Band', 1201 Mbps em 5GHz-2, 574 Mbps em 2.4 GHz).
-- **Portas:** 1x 2.5 Gbps WAN/LAN, 1x Gigabit WAN/LAN, 3x Gigabit LAN, 2x USB.
-- **Antenas:** 8 antenas externas.
-- **Recursos Gamer:** Game Band dedicada, Game Accelerator, Game Statistics, Game Protector (Homecare).
-- **Recursos Gerais:** OFDMA, MU-MIMO, Beamforming, OneMesh.
-- **CPU:** Quad-Core 1.5 GHz.`
   },
   {
     name: "Roteador Wi-Fi 6 Multi-Gigabit Dual Band AX3000 com Porta 2.5G (Archer AX55 Pro)",
@@ -1691,153 +1911,213 @@ export const KNOWLEDGE_BASE_PRODUCTS: KnowledgeBaseProduct[] = [
     keywords: ["switch", "gigabit", "5 portas", "tl-sg105", "tp-link"],
     details: `- **Marca:** TP-Link
 - **Portas:** 5x 10/100/1000Mbps RJ45 com Autonegociação.
-- **Recursos:** Plug and Play, Auto MDI/MDIX, Green Technology (economiza até 84%), QoS 802.1p/DSCP, IGMP Snooping.
-- **Carcaça:** Metal, para mesa ou parede.`
+- **Recursos:** Plug and Play, Auto MDI/MDIX`
   },
   {
-    name: "Access Point Wi-Fi 7 Tri-Band BE11000 de Teto (EAP773)",
-    keywords: ["access point", "ap", "wi-fi 7", "be11000", "tri-band", "10g", "eap773", "omada", "tp-link"],
-    details: `- **Marca:** TP-Link Omada
-- **Velocidade Wi-Fi:** BE11000 Tri-Band (5760 Mbps em 6 GHz, 4320 Mbps em 5 GHz, 574 Mbps em 2.4 GHz).
-- **Porta:** 1x 10G PoE.
-- **Recursos Wi-Fi 7:** Banda de 6 GHz, Largura de banda de 320 MHz, Multi-Link Operation (MLO), Multi-RUs, 4096-QAM.
-- **Recursos Omada:** Gerenciamento centralizado em nuvem, Omada Mesh, Roaming de IA.
-- **Design:** Ultrafino (Φ220 mm × 32.5 mm).`
+    name: "Família de Access Points Omada (EAP)",
+    keywords: ["eap", "omada", "tp-link", "access point", "wi-fi 6", "wi-fi 7", "outdoor", "wall", "ceiling", "gpon"],
+    details: `
+### EAP625GP-Wall
+**Access Point Omada AX1800 Wi-Fi 6 GPON de parede**
+- Wi-Fi-6 - velocidades contínuas de até 1,8 Gbps: 1201 Mbps em 5 GHz e 574 Mbps em 2,4 GHz.
+- Várias Portas: 1 porta GPON para acesso de alta velocidade e alcance máximo além de 2 portas Gigabit RJ45 (uma com suporte para saída PoE 802.3af) para instalação flexível.
+- Uma fibra para vários serviços: Cabeado, sem fio, voz, VoIP, dados e vídeo HD.
+- VoIP: Suporta várias contas VoIP e diversos recursos de chamada.
+- Funções Avançadas: Omada Mesh, Roaming Contínuo, Gerenciamento Centralizado em Nuvem.
+- Gerenciamento unificado para OLT e dispositivos Omada.
+
+### EAP610GP-Desktop
+**Access Point Wi-Fi 6 GPON Dual Band AX1800 de Parede e Mesa**
+- Velocidades Wi-Fi 6 de 1,8 Gbps sem interrupções: 1201 Mbps na faixa de 5 GHz e 574 Mbps na faixa de 2,4 GHz.
+- 1x Porta GPON para Acesso de Alta Velocidade e Ultra-Alcance.
+- Wi-Fi 6 de Ultra-Banda Larga: MU-MIMO, Roaming Sem Interrupções.
+- Uma Fibra para Múltiplos Serviços: Serviços com Fio, Sem Fio, Voz, VoIP, Dados e Vídeo em HD.
+- Chamadas VoIP: Suporte a múltiplas contas VoIP.
+
+### EAP615-Wall
+**Access Point Wi-Fi 6 Dual Band AX1800 de Parede**
+- Velocidade Wi-Fi 6: 574 Mbps simultâneos em 2,4 GHz e 1.201 Mbps em 5 GHz totalizam velocidades de Wi-Fi de 1.775 Mbps.
+- Quatro portas Gigabit: 4 portas Gigabit Ethernet (1× uplink + 3× downlink), com uma porta de downlink suportando passagem PoE.
+- Gerenciamento Centralizado: Integra-se ao Omada SDN para acesso à nuvem e gerenciamento remoto.
+- Rede de Convidado Segura: SMS/Facebook Wi-Fi/Voucher, etc.
+
+### EAP655-Wall
+**Access Point Wi-Fi 6 Dual Band AX3000 de Parede**
+- Wi-Fi 6 com Velocidade AX3000: 574 Mbps em 2,4 GHz mais 2402 Mbps em 5 GHz totalizam velocidades de Wi-Fi de 2976 Mbps.
+- Várias portas Gigabit: conecte vários dispositivos com três portas downlink gigabit, sendo uma com passagem PoE.
+- Canal de 160 MHz: Dobre os dados nos horários de pico de transmissão em um único fluxo com HE160.
+
+### EAP650-Outdoor
+**Access Point Wi-Fi 6 Dual Band AX3000 Outdoor**
+- Velocidade Wi-Fi 6: Entrega velocidades dual band de até 3 Gbps (2402 Mbps em 5 GHz + 574 Mbps em 2,4 GHz).
+- Proteção IP67: Gabinete à prova d'água e poeira, proteção contra raios de 6KV e ESD de 15KV.
+- Cobertura de Longo Alcance: Amplificador de alta potência dedicado e antenas profissionais (Smart Antena).
+- Tecnologia Omada Mesh: Permite conectividade sem fio entre os pontos de acesso.
+
+### EAP225-Outdoor V3
+**Access Point Wi-Fi 5 Dual Band AC1200 Outdoor**
+- Ideal para ambientes externos: Gabinete IP65 resistente a intempéries.
+- Wi-Fi Dual Band: 300 Mbps em 2,4 GHz e 867 Mbps em 5 GHz (AC1200).
+- Tecnologia Omada Mesh e Roaming Contínuo (802.11k/v).
+- Suporte PoE: Suporta ao 802.3af/at padrão e ao PoE Passivo.
+
+### EAP610-Outdoor
+**Access Point Wi-Fi 6 Dual Band AX1800 Outdoor**
+- Velocidade WiFi 6: Oferece velocidades Dual-Band de até 1,8 Gbps.
+- Gabinete à Prova de Intempéries IP67.
+- Tecnologia Omada Mesh e Roaming Rápido.
+- Várias Opções de PoE para Fácil Instalação.
+
+### EAP673
+**Access Point Wi-Fi 6 AX5400 de Teto**
+- Wi-Fi 6 extremamente rápido (574 Mbps em 2,4 GHz + 4804 Mbps em 5 GHz).
+- Canal de 160 MHz e Uplink 2.5GE.
+- Tecnologia Omada Mesh e Roaming contínuo.
+- Alimentado por PoE+.
+
+### EAP660 HD V2
+**Access Point Wi-Fi 6 Dual Band AX3600 de Teto**
+- Wi-Fi 6 Ultrarrápido: 1148 Mbps em 2.4 GHz e 2402 Mbps em 5 GHz.
+- Conectividade de Alta Densidade: 4× mais capacidade para conectar mais dispositivos simultaneamente.
+- Porta 2.5G: Uma porta Ethernet de 2.5 Gbps aumenta a taxa de transferência total.
+- Roaming Perfeito e Suporte PoE+.
+
+### EAP670 V2
+**Access Point Wi-Fi 6 Dual Band AX5400 de Teto**
+- Velocidades Blazing-Fast WiFi 6 (574 Mbps em 2.4 GHz + 4804 Mbps em 5 GHz).
+- Porta Ethernet de 2.5 Gbps e Canal de 160 MHz (HE160).
+- Tecnologia Mesh Omada e Roaming sem Interrupções.
+- Suporta tanto 802.3at PoE+ quanto alimentação por CC.
+
+### EAP650
+**Access Point Wi-Fi 6 de montagem de teto AX3000**
+- Wi-Fi 6 Ultrarrápido: 574 Mbps em 2,4 GHz e 2.402 Mbps em 5 GHz.
+- Design ultrafino: Φ160 mm × 33,6 mm de espessura.
+- Canal de 160 MHz, Omada Mesh e Roaming Contínuo.
+- Alimentado por PoE+ ou DC.
+
+### EAP620 HD V3.20
+**Access Point Wi-Fi 6 Dual Band AX1800 de Teto**
+- Wi-Fi 6 Ultrarrápido: 574 Mbps em 2,4 GHz e 1.201 Mbps em 5 GHz.
+- Conectividade de Alta Densidade (4x maior capacidade).
+- Roaming contínuo e Suporte PoE+.
+
+### EAP653 UR
+**Access Point Wi-Fi 6 AX3000 de Teto**
+- Velocidades ultrarrápidas do WiFi 6: 2402 Mbps na banda de 5 GHz + 574 Mbps na banda de 2,4 GHz.
+- Design ultracompacto: Φ6,3 pol × 1,3 pol.
+- Omada Mesh e Roaming Contínuo.
+`
   },
   {
-    name: "Access Point Wi-Fi 7 de Teto BE3600 (EAP723)",
-    keywords: ["access point", "ap", "wi-fi 7", "be3600", "dual-band", "2.5g", "eap723", "omada", "tp-link"],
-    details: `- **Marca:** TP-Link Omada
-- **Velocidade Wi-Fi:** BE3600 Dual-Band (2882 Mbps em 5 GHz, 688 Mbps em 2.4 GHz).
-- **Porta:** 1x 2.5G PoE+ (802.3at).
-- **Recursos Wi-Fi 7:** Largura de banda de 160 MHz, MLO, Multi-RUs, 4K-QAM.
-- **Recursos Omada:** Gerenciamento centralizado em nuvem, Omada Mesh, Roaming Contínuo.
-- **Segurança:** WPA3, Rede para Convidados, Detecção de APs Ilegítimos.`
+    name: "Módulos e Acessórios de Rede",
+    keywords: ["módulo", "sfp", "sfp+", "gpon", "xgs-pon", "fonte", "psm150-dc"],
+    details: `
+### Módulo SFP+ 10G (SM5110-SR)
+Transceptor SFP+ 10GBASE-SR de 850 nm Multimodo. Conector LC Duplex. Distância de até 300m.
+
+### Módulo SFP GPON Classe C+ (DS-PMA-C+)
+Módulo de Fibra Monomodo SFP GPON Classe C+. Suporta DDM. Compatível com OLTs TP-Link.
+
+### Módulo de fonte PSM150-DC
+Fonte de Alimentação DC de 150W. Saída de até 150 W (12V). Hot-swap. Compatível com DS-P7001-08/16.
+
+### SFP XGS-PON & GPON Combo
+Módulo Class C+ (DS-PMA-Combo C+). Conexões simétricas de até 10 Gbps. Suporta XGS-PON e GPON.
+`
   },
   {
-    name: "Access Point Wi-Fi 7 Tri-Band BE11000 de Teto (EAP772)",
-    keywords: ["access point", "ap", "wi-fi 7", "be11000", "tri-band", "2.5g", "eap772", "omada", "tp-link"],
-    details: `- **Marca:** TP-Link Omada
-- **Velocidade Wi-Fi:** BE11000 Tri-Band (5760 Mbps em 6 GHz, 4320 Mbps em 5 GHz, 574 Mbps em 2.4 GHz).
-- **Porta:** 1x 2.5G PoE.
-- **Recursos Wi-Fi 7:** Banda de 6 GHz, Largura de banda de 320 MHz, MLO, Multi-RUs, 4096-QAM.
-- **Recursos Omada:** Gerenciamento centralizado em nuvem, Omada Mesh, Roaming de IA.
-- **Design:** Ultrafino.`
+    name: "Roteador Wi-Fi 6 Gigabit Dual Band AX3000 (EX520)",
+    keywords: ["roteador", "wi-fi 6", "ax3000", "ex520", "tp-link", "aginet"],
+    details: `- **Wi-Fi 6 Dual-Band:** Velocidade de até 3000 Mbps (2402 Mbps em 5 GHz e 574 Mbps em 2,4 GHz).
+- **Mais Conexões:** Tecnologias OFDMA e MU-MIMO para múltiplas conexões simultâneas com menor latência.
+- **Cobertura Ampliada:** Quatro antenas de alta performance e tecnologia Beamforming.
+- **Canal de 160 MHz:** Dobre os dados nos horários de pico em um único fluxo.
+- **EasyMesh:** Compatível para criação de redes inteligentes com cobertura contínua.
+- **Segurança:** WPA3, Multi-SSID e Controles Parentais.
+- **Portas:** 1 porta Gigabit WAN e 4 portas Gigabit LAN.
+- **Gerenciamento:** App Aginet, TAUC (TP-Link Aginet Unified Cloud) e protocolos TR-069, TR-181 e TR-143.`
   },
   {
-    name: "Access Point Omada AX1800 Wi-Fi 6 GPON de parede (EAP625GP-Wall)",
-    keywords: ["access point", "ap", "wi-fi 6", "gpon", "ax1800", "de parede", "eap625gp-wall", "omada", "tp-link"],
-    details: `- **Marca:** TP-Link Omada
-- **Velocidade Wi-Fi:** AX1800 Wi-Fi 6 (1201 Mbps em 5 GHz, 574 Mbps em 2.4 GHz).
-- **Portas:** 1x GPON, 2x Gigabit RJ45 (1 com saída PoE 802.3af).
-- **Recursos:** ONU Wi-Fi 6 integrada, Omada Mesh, Roaming Contínuo, VoIP, PPSK, Captive Portal.
-- **Gerenciamento:** Unificado com OLT e dispositivos Omada.`
+    name: "Terminal XPON 1 porta Gigabit (XZ000-G6)",
+    keywords: ["ont", "onu", "xpon", "gpon", "epon", "xz000-g6", "tp-link", "aginet"],
+    details: `- **XPON:** Suporta modos EPON + GPON com detecção e comutação automáticas.
+- **Acesso Gigabit:** Uma porta PON e uma porta LAN gigabit para altas velocidades.
+- **Velocidade GPON:** 2,488 Gbps Downstream / 1,244 Gbps Upstream.
+- **Velocidade EPON:** 1,25 Gbps Downstream / 1,25 Gbps Upstream.
+- **Gerenciamento:** Compatível com protocolo OMCI (ONU Management Control Interface).
+- **FTTH:** Solução completa integrada sob a marca Aginet.`
   },
   {
-    name: "Access Point Wi-Fi 6 GPON Dual Band AX1800 de Parede e Mesa (EAP610GP-Desktop)",
-    keywords: ["access point", "ap", "wi-fi 6", "gpon", "ax1800", "eap610gp-desktop", "omada", "tp-link"],
-    details: `- **Marca:** TP-Link Omada
-- **Velocidade Wi-Fi:** AX1800 Wi-Fi 6 (1201 Mbps em 5 GHz, 574 Mbps em 2.4 GHz).
-- **Porta:** 1x GPON.
-- **Recursos:** ONU Wi-Fi 6 integrada, MU-MIMO, Roaming Contínuo, VoIP, PPSK, Múltiplos Portais.
-- **Instalação:** Mesa e parede.
-- **Gerenciamento:** Integração com Solução Óptica Unificada.`
+    name: "Roteador Wi-Fi 6 Gigabit Dual Band AX1800 (MR70X)",
+    keywords: ["roteador", "wi-fi 6", "ax1800", "mr70x", "mercusys"],
+    details: `- **Wi-Fi 6:** Velocidade de até 1.8 Gbps (1201 Mbps em 5 GHz e 574 Mbps em 2.4 GHz).
+- **Capacidade:** 4x mais capacidade com OFDMA e MU-MIMO.
+- **Cobertura:** 4 antenas multidirecionais de alto ganho com Beamforming.
+- **EasyMesh:** Compatível com outros roteadores EasyMesh para rede unificada.
+- **Segurança:** WPA3 para proteção abrangente.
+- **Portas:** Conexões Full Gigabit para máximo desempenho.
+- **Recursos:** BSS Color, Smart Connect e Gerenciamento TR-069.`
   },
   {
-    name: "Access Point Wi-Fi 6 Dual Band AX1800 de Parede (EAP615-Wall)",
-    keywords: ["access point", "ap", "wi-fi 6", "ax1800", "de parede", "eap615-wall", "omada", "tp-link"],
-    details: `- **Marca:** TP-Link Omada
-- **Velocidade Wi-Fi:** AX1800 Wi-Fi 6 (1201 Mbps em 5 GHz, 574 Mbps em 2.4 GHz).
-- **Portas:** 4x Gigabit Ethernet (1x uplink, 3x downlink), 1 porta downlink com passagem PoE.
-- **Recursos:** OFDMA, MU-MIMO, BSS Coloring, Roaming Contínuo, WPA3.
-- **Gerenciamento:** Omada SDN (nuvem).
-- **Instalação:** Caixa de junção padrão 86mm, UE e EUA.`
+    name: "Roteador Wi-Fi 6 Gigabit Dual Band AX3000 (MR80X V4)",
+    keywords: ["roteador", "wi-fi 6", "ax3000", "mr80x", "mercusys", "easymesh"],
+    details: `- **Velocidade AX3000:** Até 3 Gbps com canais de 160 MHz.
+- **Tecnologia:** MU-MIMO e OFDMA para redução de congestionamento.
+- **Cobertura:** 4 antenas de alto ganho com Beamforming.
+- **EasyMesh:** Compatível para cobertura mesh em toda a casa.
+- **Segurança:** Padrão WPA3.
+- **Performance:** Chipset Dual-Core para conexões estáveis de até 256 dispositivos.
+- **Ecológico:** Target Wake Time (TWT) reduz o consumo de energia dos dispositivos.`
   },
   {
-    name: "Access Point Wi-Fi 6 Dual Band AX3000 de Parede (EAP655-Wall)",
-    keywords: ["access point", "ap", "wi-fi 6", "ax3000", "de parede", "eap655-wall", "omada", "tp-link"],
-    details: `- **Marca:** TP-Link Omada
-- **Velocidade Wi-Fi:** AX3000 Wi-Fi 6 (2402 Mbps em 5 GHz com HE160, 574 Mbps em 2.4 GHz).
-- **Portas:** 4x Gigabit Ethernet (1x uplink, 3x downlink), 1 porta downlink com passagem PoE.
-- **Recursos:** OFDMA, Canal de 160 MHz, Roaming Contínuo, WPA3.
-- **Gerenciamento:** Omada SDN (nuvem).
-- **Instalação:** Caixa de junção padrão 86mm, UE e EUA.`
+    name: "Roteador Wi-Fi N 300Mbps (TL-WR840N)",
+    keywords: ["roteador", "wi-fi", "300mbps", "tl-wr840n", "tp-link"],
+    details: `- **Velocidade:** 300 Mbps ideal para tarefas sensíveis à largura de banda.
+- **Modos:** Roteador, Access Point e Extensor de Alcance.
+- **Controle:** Controles dos pais e rede para convidados protegida.
+- **IPTV:** Suporte a IGMP Proxy/Snooping, Bridge e Tag VLAN.
+- **Gerenciamento:** Interface Web intuitiva e aplicativo Tether.`
   },
   {
-    name: "Access Point Wi-Fi 6 Dual Band AX3000 Outdoor (EAP650-Outdoor)",
-    keywords: ["access point", "ap", "wi-fi 6", "ax3000", "outdoor", "externo", "eap650-outdoor", "omada", "tp-link"],
-    details: `- **Marca:** TP-Link Omada
-- **Velocidade Wi-Fi:** AX3000 Wi-Fi 6 (2402 Mbps em 5 GHz com HE160, 574 Mbps em 2.4 GHz).
-- **Proteção:** IP67 (à prova d'água e poeira), proteção contra raios 6KV e ESD 15KV.
-- **Cobertura:** Longo alcance com amplificador de alta potência e antenas profissionais (Smart Antenna).
-- **Recursos:** OFDMA, MU-MIMO, Omada Mesh, Roaming Contínuo.
-- **Alimentação:** PoE+ 802.3at ou PoE passivo (adaptador incluído).
-- **Gerenciamento:** Omada SDN (nuvem).`
+    name: "Kit de Ferramentas para Fibra",
+    keywords: ["kit", "ferramentas", "fibra óptica", "greatek", "manutenção", "instalação", "drop", "clivador"],
+    details: `- **Descrição:** Solução prática e completa com 9 itens essenciais para instalação e manutenção de redes ópticas.
+- **Itens Inclusos:** Clivador, Medidor de Potência (OPM), Localizador Visual de Falhas (VFL 5km), Alicate Decapador, Alicate de Corte Drop, Recipiente para Álcool, Gabarito Universal, Chave Allen e Bolsa de Transporte.
+- **Praticidade:** Tudo organizado em uma bolsa de transporte resistente e funcional.
+- **Garantia:** 1 ano com suporte técnico especializado.`
   },
   {
-    name: "Access Point Wi-Fi 5 Dual Band AC1200 Outdoor (EAP225-Outdoor V3)",
-    keywords: ["access point", "ap", "wi-fi 5", "ac1200", "outdoor", "externo", "eap225-outdoor", "omada", "tp-link"],
-    details: `- **Marca:** TP-Link Omada
-- **Velocidade Wi-Fi:** AC1200 (867 Mbps em 5 GHz, 300 Mbps em 2.4 GHz).
-- **Proteção:** IP65 (resistente a intempéries), proteção contra raios 6KV e ESD 15KV.
-- **Cobertura:** Longo alcance com amplificador de alta potência e antenas destacáveis.
-- **Recursos:** MU-MIMO, Omada Mesh, Roaming Contínuo (802.11k/v).
-- **Alimentação:** PoE+ 802.3af/at ou PoE passivo (adaptador incluído).
-- **Gerenciamento:** Omada SDN (nuvem).`
-  },
-  {
-    name: "Access Point Wi-Fi 6 Dual Band AX1800 Outdoor (EAP610-Outdoor)",
-    keywords: ["access point", "ap", "wi-fi 6", "ax1800", "outdoor", "externo", "eap610-outdoor", "omada", "tp-link"],
-    details: `- **Marca:** TP-Link Omada
-- **Velocidade Wi-Fi:** AX1800 Wi-Fi 6 (1201 Mbps em 5 GHz, 574 Mbps em 2.4 GHz).
-- **Proteção:** IP67 (à prova d'água e poeira), proteção contra raios 6KV e ESD 15KV.
-- **Cobertura:** Longo alcance com amplificador de alta potência e antenas profissionais.
-- **Recursos:** OFDMA, MU-MIMO, Omada Mesh, Roaming Rápido.
-- **Alimentação:** PoE+ 802.3at ou PoE passivo.
-- **Gerenciamento:** Omada SDN (nuvem).`
-  },
-  {
-    name: "Módulo SFP+ 10G Base-SR LC Duplex (SM5110-SR / TL-SM5110-SR)",
-    keywords: ["módulo", "sfp+", "10g", "base-sr", "lc", "multimodo", "sm5110-sr", "tl-sm5110-sr", "tp-link"],
-    details: `- **Marca:** TP-Link
-- **Tipo:** Transceptor SFP+ 10GBASE-SR de 850 nm Multimodo.
-- **Conector:** LC Duplex.
-- **Distância:** Até 300m com fibra 50/125µm ou 33m com fibra 62.5/125µm.
-- **Recursos:** Hot-Pluggable, Suporta Monitoramento Diagnóstico Digital (DDM).
-- **Compatibilidade:** Switches com portas SFP+ 10G (SG3428X, T3700, T1700, TX432 etc.).`
-  },
-  {
-    name: "Módulo SFP GPON Classe C+ (DS-PMA-C+)",
-    keywords: ["módulo", "sfp", "gpon", "classe c+", "ds-pma-c+", "tp-link"],
-    details: `- **Marca:** TP-Link
-- **Tipo:** Módulo de Fibra Monomodo SFP GPON Classe C+.
-- **Recursos:** Hot-Pluggable, Suporta Monitoramento de Diagnóstico Digital (DDM).
-- **Compatibilidade:** TP-Link GPON OLTs (DS-P7001-01, DS-P7001-04, DS-P7001-08, DS-P7001-16, DS-P8000-X2).`
-  },
-  {
-    name: "Módulo de fonte de Alimentação DC de 150W (PSM150-DC)",
-    keywords: ["módulo", "fonte", "alimentação", "dc", "150w", "psm150-dc", "tp-link"],
-    details: `- **Marca:** TP-Link
-- **Potência:** Saída de até 150 W (Converte para 12 Volts).
-- **Proteção:** Sobretensão/subtensão/curto-circuito/sobrecorrente.
-- **Recursos:** Troca a quente (hot-swap).
-- **Compatibilidade:** GPON OLTs DS-P7001-08 e DS-P7001-16.`
-  },
-  {
-    name: "Módulo SFP GPON Classe C++ (DS-PMA-C++)",
-    keywords: ["módulo", "sfp", "gpon", "classe c++", "ds-pma-c++", "tp-link"],
-    details: `- **Marca:** TP-Link
-- **Velocidade:** Conexões de até 2.488 Gbps downstream e 1.244 Gbps upstream.
-- **Modos UNI:** Suporta 2.5G e 1G Ethernet.
-- **Recursos:** Hot swapping, OMCI, DDM (Monitoramento de Diagnóstico Digital).`
-  },
-  {
-    name: "SFP XGS-PON & GPON Combo Class C+ Module (DS-PMA-Combo C+)",
-    keywords: ["módulo", "sfp", "xgs-pon", "gpon", "combo", "classe c+", "ds-pma-combo c+", "10g", "tp-link"],
-    details: `- **Marca:** TP-Link
-- **Velocidade:** Conexões simétricas de até 10 Gbps.
-- **Tecnologia:** Suporta XGS-PON/XG-PON e GPON para implantação flexível.
-- **Recursos:** Hot swapping, OMCI, DDM (Monitoramento de Diagnóstico Digital).`
+    name: "Tecnologia TP-Link WiFi 8 (802.11bn) - Confiabilidade Ultra-Alta",
+    keywords: ["wifi 8", "wi-fi 8", "802.11bn", "tp-link wifi 8", "confiabilidade ultra-alta", "uhr", "dru", "elr", "ueqm", "dso", "npca", "multi-ap"],
+    details: `- **Link de Referência:** https://www.tp-link.com/br/wifi8/
+- **Definição:** O WiFi 8 (802.11bn) é o novo padrão de Wi-Fi de próxima geração focado em Confiabilidade Ultra-Alta (UHR - Ultra-High Reliability). Em vez de buscar apenas velocidades teóricas de pico extremas, o WiFi 8 prioriza conexões excepcionalmente estáveis, cobertura significativamente mais forte e roaming contínuo e ininterrupto, mesmo em ambientes densamente congestionados por múltiplos dispositivos ativos.
+- **Funcionamento Geral:** O padrão gerencia mais dispositivos simultaneamente e mantém a estabilidade da conexão enquanto usuários circulam pela área de cobertura. Ele reduz drasticamente a latência e previne picos de perda de pacotes, mesmo a distâncias maiores ou em áreas propensas a ruídos eletromagnéticos.
+- **Principais Benefícios para o Usuário / Provedores:**
+    - **Chamadas de vídeo e VoIP estáveis:** Sem cortes bruscos ou o efeito indesejado de "voz de robô" gerado por variação de atraso (jitter).
+    - **Streaming de vídeo em altíssima resolução (4K/8K):** Estabilidade de buffer incomparável e tempo mínimo de carregamento inicial.
+    - **Latência ultra-baixa para jogos online e XR:** Ideal para aplicações em tempo real, óculos VR/AR e ambientes altamente sensíveis à latência.
+    - **Cobertura total de sinal sem zonas mortas:** Melhora sensivelmente o alcance em áreas tradicionalmente de difícil acesso nas residências.
+    - **Roaming contínuo e sem interrupções:** Transferência automática entre nós de rede ou pontos de acesso sem quedas perceptíveis em sessões ativas.
+- **Nova Métrica WiFi 8 vs WiFi 7 e Anteriores:**
+    - **Largura de Canal Máxima:** WiFi 8 (320 MHz) | WiFi 7 (320 MHz) | WiFi 6 (160 MHz) | WiFi 5 (160 MHz) | WiFi 4 (40 MHz)
+    - **Bandas de Frequência:** WiFi 8 (2,4, 5 e 6 GHz) | WiFi 7 (2,4, 5 e 6 GHz) | WiFi 6 (2,4, 5 e 6 GHz) | WiFi 5 (5 GHz) | WiFi 4 (2,4 e 5 GHz)
+    - **Taxa PHY Máxima:** WiFi 8 (46 Gbps - 2880 Mbps x16) | WiFi 7 (46 Gbps) | WiFi 6 (9,6 Gbps) | WiFi 5 (3,4 Gbps) | WiFi 4 (600 Mbps)
+    - **Esquema de Modulação:** WiFi 8 (4096 QAM) | WiFi 7 (4096 QAM) | WiFi 6 (1024 QAM) | WiFi 5 (256 QAM) | WiFi 4 (64 QAM)
+    - **Fluxos Espaciais Máximos:** WiFi 8 (16) | WiFi 7 (16) | WiFi 6 (8) | WiFi 5 (4)
+    - **Diferencial Único WiFi 8:** Introdução oficial de Coordenação Multi-AP (Multi-AP Coordination), DSO/NPCA e DRU, ausentes em todas as tecnologias anteriores.
+- **Recursos e Tecnologia do WiFi 8 Explicados de Forma Simples:**
+    - **DRU (Distributed tone Resource Units):** Distribui tons de uplink de forma inteligente por canais mais amplos, incrementando a potência efetiva de transmissão. Ajuda os dispositivos clientes de baixa potência (câmeras, IoT) ou situados na borda da cobertura a se fazerem ouvir nitidamente pelo roteador principal.
+    - **ELR (Enhanced Long Range):** Incorpora estruturas e codificação de pacotes avançados que estendem fisicamente a área de alcance da rede Wi-Fi, eliminando áreas sem sinal.
+    - **UEQM (Unequal Modulation):** Permite que cada fluxo do sinal de Wi-Fi module individualmente na melhor taxa que conseguir sustentar. Desta forma, conexões de sinal fraco não reduzem a vazão das conexões de alto desempenho da rede.
+    - **Novos MCS (Modulation and Coding Schemes):** Criam escalas de modulação mais subdivididas para que no momento do afastamento do roteador o tráfego de dados reduza gradualmente, suavizando os saltos bruscos de velocidade, travamentos e buffering.
+    - **DSO (Dynamic Sub-band Operation):** Distribui dinamicamente sub-bandas de canais conforme a necessidade exata de dados de cada cliente, liberando espaço aéreo inativo e sanando o congestionamento de casas com múltiplas Smart TVs, celulares e PCs.
+    - **NPCA (Non-Primary Channel Access):** Permite que os dispositivos utilizem canais e subcanais sintonizados alternativos que estejam livres caso o canal principal esteja temporariamente saturado, fugindo de "engarrafamentos" no tráfego wireless.
+    - **Coordenação Multi-AP (Roteadores, Extensores e nós Mesh cooperando em conjunto):**
+        - **Co-BF (Beamforming Coordenado):** Foca os feixes de transmissão em direção ao dispositivo alvo reduzindo ativamente a interferência nas bordas de múltiplas coberturas.
+        - **Co-SR (Reuso Espacial Coordenado):** Comunicação entre os APs para ajustar dinamicamente a potência de emissão de RF para reduzir pontos de interferência mútua.
+        - **Co-TDMA (Acesso Múltiplo por Divisão de Tempo Coordenado):** Organiza turnos e compartilhamento temporal de transmissão entre os nós Mesh, minimizando perdas de sinal por colisões ou sobreposição sob condições de tráfego intenso.
+- **Retrocompatibilidade / Nota Técnica:** Celulares, Smart TVs, computadores e notebooks que utilizam padrões antigos continuam plenamente operantes e compatíveis com roteadores WiFi 8 da TP-Link, recebendo melhorias indiretas de velocidade e estabilidade gerenciais proporcionadas no ambiente sem fio da residência.`
   }
 ];
 
